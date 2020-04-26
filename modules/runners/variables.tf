@@ -73,13 +73,13 @@ variable "ami_owners" {
 
 
 variable "userdata_pre_install" {
-  description = "User-data script snippet to insert before GitLab runner install"
+  description = "User-data script snippet to insert before GitHub acton runner install"
   type        = string
   default     = ""
 }
 
 variable "userdata_post_install" {
-  description = "User-data script snippet to insert after GitLab runner install"
+  description = "User-data script snippet to insert after GitHub acton runner install"
   type        = string
   default     = ""
 }
