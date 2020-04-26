@@ -1,27 +1,16 @@
-
-resource "aws_resourcegroups_group" "resourcegroups_group" {
-  name = "${var.environment}-group"
-
-  resource_query {
-    query = <<-JSON
-{
-  "ResourceTypeFilters": [
-    "AWS::AllSupported"
-  ],
-  "TagFilters": [
-    {
-      "Key": "ResourceGroup",
-      "Values": ["${var.environment}"]
-    }
-  ]
-}
-  JSON
-  }
-}
-
-
 locals {
+  name_sg                         = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
   s3_location_runner_distribution = "s3://${aws_s3_bucket.action_dist.id}/${var.action_runner_dist_bucket_location}"
+
+  tags = merge(
+    {
+      "Name" = format("%s", var.environment)
+    },
+    {
+      "Environment" = format("%s", var.environment)
+    },
+    var.tags,
+  )
 }
 
 data "aws_ami" "runner" {
@@ -104,15 +93,22 @@ resource "aws_security_group" "runner_sg" {
   )
 }
 
-locals {
-  name_sg = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
-  tags = merge(
+resource "aws_resourcegroups_group" "resourcegroups_group" {
+  name = "${var.environment}-group"
+
+  resource_query {
+    query = <<-JSON
+{
+  "ResourceTypeFilters": [
+    "AWS::AllSupported"
+  ],
+  "TagFilters": [
     {
-      "Name" = format("%s", var.environment)
-    },
-    {
-      "Environment" = format("%s", var.environment)
-    },
-    var.tags,
-  )
+      "Key": "ResourceGroup",
+      "Values": ["${var.environment}"]
+    }
+  ]
+}
+  JSON
+  }
 }
