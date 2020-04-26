@@ -17,6 +17,8 @@ exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&
 
 yum update -y
 
+${pre_install}
+
 # Install docker
 amazon-linux-extras install docker
 service docker start
@@ -40,11 +42,14 @@ while [[ $(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-dec
     sleep 1
 done
 config=$(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION | jq -r ".Parameters | .[0] | .Value")
+aws ssm delete-parameter --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION
 
 export RUNNER_ALLOW_RUNASROOT=1
 ./config.sh --unattended --name $INSTANCE_ID --work "_work" $config
 
 chown -R ec2-user:ec2-user .
-
 ./svc.sh install ec2-user
+
+${post_install}
+
 ./svc.sh start

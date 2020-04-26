@@ -70,3 +70,16 @@ variable "ami_owners" {
   type        = list(string)
   default     = ["amazon"]
 }
+
+
+variable "userdata_pre_install" {
+  description = "User-data script snippet to insert before GitLab runner install"
+  type        = string
+  default     = ""
+}
+
+variable "userdata_post_install" {
+  description = "User-data script snippet to insert after GitLab runner install"
+  type        = string
+  default     = ""
+}

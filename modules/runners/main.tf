@@ -74,6 +74,8 @@ resource "aws_launch_template" "runner" {
   tag_specifications {
     resource_type = "instance"
     tags          = local.tags
+    pre_install   = var.userdata_pre_install
+    post_install  = var.userdata_post_install
   }
 
   user_data = base64encode(templatefile("${path.module}/templates/user-data.sh", {
