@@ -4,9 +4,9 @@ variable "aws_region" {
 }
 
 variable "vpc_id" {
-  description = "The VPC to spin up instances in"
+  description = "The VPC for the security groupss."
+  type        = string
 }
-
 
 variable "overrides" {
   description = "This maps provides the possibility to override some defaults. The following attributes are supported: `name_sg` overwrite the `Name` tag for all security groups created by this module. `name_runner_agent_instance` override the `Name` tag for the ec2 instance defined in the auto launch configuration. `name_docker_machine_runners` ovverrid the `Name` tag spot instances created by the runner agent."
@@ -29,7 +29,8 @@ variable "environment" {
 }
 
 variable "distribution_bucket_name" {
-  type = string
+  description = "Bucket for storing the action runner distribution."
+  type        = string
 }
 
 variable "block_device_mappings" {
@@ -39,25 +40,24 @@ variable "block_device_mappings" {
 }
 
 variable "market_options" {
-  default = "spot"
+  description = "Market options for the action runner instances."
+  type        = string
+  default     = "spot"
 }
 
 variable "instance_type" {
-  default = "m5.large"
-}
-
-variable "associate_public_ip_address" {
-  type    = bool
-  default = false
+  description = "Default instance type for the action runner."
+  type        = string
+  default     = "m5.large"
 }
 
 variable "action_runner_dist_bucket_location" {
-  default = "actions-runner-linux.tar.gz"
+  description = "Default location action runner distribution."
+  default     = "actions-runner-linux.tar.gz"
 }
 
-
 variable "ami_filter" {
-  description = "List of maps used to create the AMI filter for the runner AMI. Currently Amazon Linux 2 `amzn2-ami-hvm-2.0.????????-x86_64-ebs` looks to *not* be working for this configuration."
+  description = "List of maps used to create the AMI filter for the action runner AMI."
   type        = map(list(string))
 
   default = {
@@ -66,7 +66,7 @@ variable "ami_filter" {
 }
 
 variable "ami_owners" {
-  description = "The list of owners used to select the AMI of runner instances."
+  description = "The list of owners used to select the AMI of action runner instances."
   type        = list(string)
   default     = ["amazon"]
 }

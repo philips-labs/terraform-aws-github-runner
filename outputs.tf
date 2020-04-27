@@ -1,0 +1,8 @@
+output "runners" {
+  value = {
+    launch_template_name       = module.runners.launch_template.name
+    launch_template_id         = module.runners.launch_template.id
+    launch_template_version    = module.runners.launch_template.latest_version
+    action_runner_distribution = module.runners.s3_location_runner_distribution
+  }
+}

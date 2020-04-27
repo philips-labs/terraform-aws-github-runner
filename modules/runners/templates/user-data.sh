@@ -41,11 +41,11 @@ while [[ $(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-dec
     echo Waiting for configuration ...
     sleep 1
 done
-config=$(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION | jq -r ".Parameters | .[0] | .Value")
-aws ssm delete-parameter --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION
+CONFIG=$(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION | jq -r ".Parameters | .[0] | .Value")
+aws ssm delete-parameter --name ${environment}-$INSTANCE_ID --region $REGION
 
 export RUNNER_ALLOW_RUNASROOT=1
-./config.sh --unattended --name $INSTANCE_ID --work "_work" $config
+./config.sh --unattended --name $INSTANCE_ID --work "_work" $CONFIG
 
 chown -R ec2-user:ec2-user .
 ./svc.sh install ec2-user
