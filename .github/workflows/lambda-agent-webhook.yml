@@ -1,0 +1,26 @@
+name: Lambda Agent Webhook
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - .github/workflows/lambda-agent-webhook.yml
+      - "modules/agent/lambdas/webhook/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:12
+    defaults:
+      run:
+        working-directory: modules/agent/lambdas/webhook
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: yarn install
+      - name: Run tests
+        run: yarn test
+      - name: Build distribution
+        run: yarn build
