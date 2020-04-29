@@ -4,5 +4,6 @@ output "runners" {
     launch_template_id         = module.runners.launch_template.id
     launch_template_version    = module.runners.launch_template.latest_version
     action_runner_distribution = module.dsitrubtion_cache.s3_location_runner_distribution
+    gateway                    = module.agent.gateway
   }
 }

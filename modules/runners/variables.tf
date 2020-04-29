@@ -78,3 +78,4 @@ variable "userdata_post_install" {
   type        = string
   default     = ""
 }
+variable "sqs" {}
