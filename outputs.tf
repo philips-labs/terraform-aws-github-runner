@@ -6,3 +6,7 @@ output "runners" {
     action_runner_distribution = module.dsitrubtion_cache.s3_location_runner_distribution
   }
 }
+
+output "lambda_s3_action_runner_dist_syncer" {
+  value = module.dsitrubtion_cache.lambda_s3_action_runner_dist_syncer
+}

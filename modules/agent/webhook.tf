@@ -5,6 +5,7 @@ locals {
 resource "aws_apigatewayv2_api" "webhook" {
   name          = "${var.environment}-github-action-webhook"
   protocol_type = "HTTP"
+  tags          = var.tags
 }
 
 resource "aws_apigatewayv2_route" "webhook" {
@@ -24,6 +25,7 @@ resource "aws_apigatewayv2_stage" "webhook" {
   api_id      = aws_apigatewayv2_api.webhook.id
   name        = "$default"
   auto_deploy = true
+  tags        = var.tags
 }
 
 resource "aws_apigatewayv2_integration" "webhook" {
@@ -38,11 +40,12 @@ resource "aws_apigatewayv2_integration" "webhook" {
 
 
 resource "aws_lambda_function" "webhook" {
-  filename      = "webhook.zip"
-  function_name = "${var.environment}-webhook"
-  role          = aws_iam_role.webhook_lambda.arn
-  handler       = "lambda.githubWebhook"
-  runtime       = "nodejs12.x"
+  filename         = "${path.module}/lambdas/webhook/webhook.zip"
+  source_code_hash = filebase64sha256("${path.module}/lambdas/webhook/webhook.zip")
+  function_name    = "${var.environment}-webhook"
+  role             = aws_iam_role.webhook_lambda.arn
+  handler          = "lambda.githubWebhook"
+  runtime          = "nodejs12.x"
 
   environment {
     variables = {
@@ -50,6 +53,8 @@ resource "aws_lambda_function" "webhook" {
       SQS_URL_WEBHOOK           = aws_sqs_queue.webhook_events.id
     }
   }
+
+  tags = var.tags
 }
 
 resource "aws_lambda_permission" "webhook" {
@@ -63,6 +68,7 @@ resource "aws_lambda_permission" "webhook" {
 resource "aws_iam_role" "webhook_lambda" {
   name               = "${var.environment}-action-webhook-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  tags               = var.tags
 }
 
 resource "aws_iam_policy_attachment" "webhook_logging" {
