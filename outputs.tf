@@ -7,3 +7,7 @@ output "runners" {
     gateway                    = module.agent.gateway
   }
 }
+
+output "lambda_s3_action_runner_dist_syncer" {
+  value = module.dsitrubtion_cache.lambda_s3_action_runner_dist_syncer
+}

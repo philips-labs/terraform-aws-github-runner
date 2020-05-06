@@ -1,7 +1,13 @@
 locals {
-  environment = "default-action-runners"
+  environment = "default"
   aws_region  = "eu-west-1"
 }
+
+
+resource "random_password" "random" {
+  length = 32
+}
+
 
 module "runners" {
   source = "../../"
@@ -14,5 +20,8 @@ module "runners" {
     Project = "ProjectX"
   }
 
+  github_app_webhook_secret = random_password.random.result
+
 }
+
 

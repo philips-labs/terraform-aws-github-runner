@@ -22,6 +22,7 @@ jobs:
         run: |
           touch modules/agent/lambdas/webhook/webhook.zip
           touch modules/runners/lambdas/scale-runners/scale-runners.zip
+          touch modules/action-runner-binary-cache/lambdas/syncer/syncer.zip
       - name: "Terraform Format"
         uses: hashicorp/terraform-github-actions@master
         with:
