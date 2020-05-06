@@ -1,3 +1,9 @@
+locals {
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
+
+}
 resource "random_string" "random" {
   length  = 24
   special = false
@@ -9,7 +15,7 @@ module "dsitrubtion_cache" {
 
   aws_region  = var.aws_region
   environment = var.environment
-  tags        = var.tags
+  tags        = local.tags
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
 }
@@ -20,7 +26,7 @@ module "runners" {
   aws_region  = var.aws_region
   vpc_id      = var.vpc_id
   environment = var.environment
-  tags        = var.tags
+  tags        = local.tags
 
   s3_location_runner_distribution = module.dsitrubtion_cache.s3_location_runner_distribution
   sqs                             = module.agent.sqs
@@ -33,6 +39,17 @@ module "agent" {
   environment               = var.environment
   tags                      = var.tags
   github_app_webhook_secret = "blaat"
+}
+
+
+module "agent" {
+  source = "./modules/agent"
+
+  aws_region  = var.aws_region
+  environment = var.environment
+  tags        = local.tags
+
+  github_app_webhook_secret = var.github_app_webhook_secret
 }
 
 
