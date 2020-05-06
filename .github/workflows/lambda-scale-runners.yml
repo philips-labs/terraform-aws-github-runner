@@ -1,0 +1,26 @@
+name: Lambda Scale Runners
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - .github/workflows/lambda-scale-runners.yml
+      - "modules/runners/lambdas/scale-runners/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: node:12
+    defaults:
+      run:
+        working-directory: modules/runners/lambdas/scale-runners
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: yarn install
+      - name: Run tests
+        run: yarn test
+      - name: Build distribution
+        run: yarn build

@@ -23,5 +23,8 @@
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.8.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@octokit/auth-app": "^2.4.5",
+    "@octokit/rest": "^17.6.0"
+  }
 }
