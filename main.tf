@@ -35,16 +35,6 @@ module "runners" {
 module "agent" {
   source = "./modules/agent"
 
-  aws_region                = var.aws_region
-  environment               = var.environment
-  tags                      = var.tags
-  github_app_webhook_secret = "blaat"
-}
-
-
-module "agent" {
-  source = "./modules/agent"
-
   aws_region  = var.aws_region
   environment = var.environment
   tags        = local.tags
