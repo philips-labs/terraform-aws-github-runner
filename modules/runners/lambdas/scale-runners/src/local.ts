@@ -1,14 +1,14 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { handle } from './scale-runners/handler';
+import { handle, ActionRequestMessage } from './scale-runners/handler';
 
 const app = express();
 
 app.use(bodyParser.json());
 
 app.post('/event_handler', (req, res) => {
-  handle(req.headers, JSON.stringify(req.body))
-    .then((c) => res.status(c).end())
+  handle('aws:sqs', JSON.parse(req.body) as ActionRequestMessage)
+    .then()
     .catch((e) => {
       console.log(e);
       res.status(404);

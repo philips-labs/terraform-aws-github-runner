@@ -20,8 +20,14 @@ module "runners" {
     Project = "ProjectX"
   }
 
-  github_app_webhook_secret = random_password.random.result
+  github_app_webhook_secret = var.github_app_webhook_secret
 
+  github_app_client_id     = var.github_app_client_id
+  github_app_client_secret = var.github_app_client_secret
+  github_app_id            = var.github_app_id
+  github_app_key_base64    = var.github_app_key_base64
+
+  enable_organization_runners = var.enable_organization_runners
 }
 
 

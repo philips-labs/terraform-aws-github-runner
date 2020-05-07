@@ -1,6 +1,6 @@
 resource "aws_sqs_queue" "webhook_events" {
   name                        = "${var.environment}-webhook-events.fifo"
-  delay_seconds               = 30
+  delay_seconds               = 0
   fifo_queue                  = true
   receive_wait_time_seconds   = 10
   content_based_deduplication = true

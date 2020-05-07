@@ -30,17 +30,14 @@ module "runners" {
 
   s3_location_runner_distribution = module.dsitrubtion_cache.s3_location_runner_distribution
   sqs                             = module.agent.sqs
+
+  github_app_client_id     = var.github_app_client_id
+  github_app_client_secret = var.github_app_client_secret
+  github_app_id            = var.github_app_id
+  github_app_key_base64    = var.github_app_key_base64
+
+  enable_organization_runners = var.enable_organization_runners
 }
-
-module "agent" {
-  source = "./modules/agent"
-
-  aws_region                = var.aws_region
-  environment               = var.environment
-  tags                      = var.tags
-  github_app_webhook_secret = "blaat"
-}
-
 
 module "agent" {
   source = "./modules/agent"

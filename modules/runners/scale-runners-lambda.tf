@@ -6,10 +6,15 @@ resource "aws_lambda_function" "scale_runners_lambda" {
   handler          = "index.handler"
   runtime          = "nodejs12.x"
 
-  # environment {
-  #   variables = {
-  #   }
-  # }
+  environment {
+    variables = {
+      ENABLE_ORGANIZATION_RUNNERS = var.enable_organization_runners
+      GITHUB_APP_KEY_BASE64       = var.github_app_key_base64
+      GITHUB_APP_ID               = var.github_app_id
+      GITHUB_APP_CLIENT_ID        = var.github_app_client_id
+      GITHUB_APP_CLIENT_SECRET    = var.github_app_client_secret
+    }
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "scale_runners_lambda" {

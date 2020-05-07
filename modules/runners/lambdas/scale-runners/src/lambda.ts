@@ -1,8 +1,12 @@
 import { handle } from './scale-runners/handler';
+import { SQSEvent } from 'aws-lambda';
 
-module.exports.handler = async (event: any, context: any, callback: any) => {
+module.exports.handler = async (event: SQSEvent, context: any, callback: any) => {
+  console.log(event);
   try {
-    await handle(event.eventSource, JSON.parse(event.body));
+    for (const e of event.Records) {
+      await handle(e.eventSource, JSON.parse(e.body));
+    }
     return callback(null);
   } catch (e) {
     console.error(e);
