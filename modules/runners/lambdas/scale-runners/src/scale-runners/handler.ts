@@ -1,6 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 import { AppAuth } from '@octokit/auth-app/dist-types/types';
+import { listRunners } from './runners';
 import yn from 'yn';
 
 export interface ActionRequestMessage {
@@ -34,12 +35,13 @@ async function createInstallationClient(githubAppAuth: AppAuth): Promise<Octokit
 export const handle = async (eventSource: string, payload: ActionRequestMessage): Promise<void> => {
   if (eventSource !== 'aws:sqs') throw Error('Cannot handle non-SQS events!');
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS);
+  const maximumRunners = parseInt(process.env.RUNNERS_MAXIMUM_COUNT || '3');
   const githubAppAuth = createGithubAppAuth(payload.installationId);
   const githubInstallationClient = await createInstallationClient(githubAppAuth);
   const queuedWorkflows = await githubInstallationClient.actions.listRepoWorkflowRuns({
     owner: payload.repositoryOwner,
     repo: payload.repositoryName,
-    // @ts-ignore (typing is incorrect)
+    // @ts-ignore (typing of the 'status' field is incorrect)
     status: 'queued',
   });
   console.info(
@@ -47,16 +49,28 @@ export const handle = async (eventSource: string, payload: ActionRequestMessage)
   );
 
   if (queuedWorkflows.data.total_count > 0) {
-    // console.log(enableOrgLevel);
-    // const currentRunners = enableOrgLevel
-    //   ? await githubInstallationClient.actions.listSelfHostedRunnersForOrg({
-    //       org: payload.repositoryOwner,
-    //     })
-    //   : await githubInstallationClient.actions.listSelfHostedRunnersForRepo({
-    //       owner: payload.repositoryOwner,
-    //       repo: payload.repositoryName,
-    //     });
-    // // const currentOnlineRunners = currentRunners.data.runners.filter((r) => r.status === 'online');
-    // // if (currentOnlineRunners.length > 0)
+    const currentRunners = await listRunners({
+      repoName: enableOrgLevel ? undefined : `${payload.repositoryOwner}/${payload.repositoryName}`,
+    });
+    console.info(
+      `${
+        enableOrgLevel
+          ? `Organization ${payload.repositoryOwner}`
+          : `Repo ${payload.repositoryOwner}/${payload.repositoryName}`
+      } has ${currentRunners.length}/${maximumRunners} runners`,
+    );
+    console.log(currentRunners.length);
+    console.log(maximumRunners);
+    if (currentRunners.length < maximumRunners) {
+      // create token
+      const registrationToken = enableOrgLevel
+        ? await githubInstallationClient.actions.createRegistrationTokenForOrg({ org: payload.repositoryOwner })
+        : await githubInstallationClient.actions.createRegistrationTokenForRepo({
+            owner: payload.repositoryOwner,
+            repo: payload.repositoryName,
+          });
+      const token = registrationToken.data.token;
+      // create runner
+    }
   }
 };
