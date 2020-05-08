@@ -1,4 +1,4 @@
-import { handle } from './cleanup-runners/handler';
+import { handle } from './scale-down/handler';
 
 handle().catch((e) => {
   console.log(e);

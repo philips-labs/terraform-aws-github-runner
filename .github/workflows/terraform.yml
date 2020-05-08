@@ -20,9 +20,9 @@ jobs:
         uses: actions/checkout@v2
       - name: "Fake zip files" # Validate will fail if it cannot find the zip files
         run: |
-          touch modules/agent/lambdas/webhook/webhook.zip
+          touch modules/webhook/lambdas/webhook/webhook.zip
           touch modules/runners/lambdas/scale-runners/scale-runners.zip
-          touch  modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip
+          touch modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip
       - name: "Terraform Format"
         uses: hashicorp/terraform-github-actions@master
         with:
