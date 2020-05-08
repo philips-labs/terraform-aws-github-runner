@@ -43,6 +43,15 @@ module "runners" {
 
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
+
+  sqs = aws_sqs_queue.queued_builds
+
+  github_app_client_id     = var.github_app_client_id
+  github_app_client_secret = var.github_app_client_secret
+  github_app_id            = var.github_app_id
+  github_app_key_base64    = var.github_app_key_base64
+
+  enable_organization_runners = var.enable_organization_runners
 }
 
 module "runner_binaries" {
