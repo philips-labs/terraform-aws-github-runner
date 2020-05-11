@@ -56,6 +56,16 @@ export interface RunnerInputParameters {
   orgName?: string;
 }
 
+export async function terminateRunner(runner: RunnerInfo): Promise<void> {
+  const ec2 = new EC2();
+  const result = await ec2
+    .terminateInstances({
+      InstanceIds: [runner.instanceId],
+    })
+    .promise();
+  console.debug('Runner terminated.' + result.TerminatingInstances);
+}
+
 export async function createRunner(runnerParameters: RunnerInputParameters): Promise<void> {
   const launchTemplateName = process.env.LAUNCH_TEMPLATE_NAME as string;
   const launchTemplateVersion = process.env.LAUNCH_TEMPLATE_VERSION as string;

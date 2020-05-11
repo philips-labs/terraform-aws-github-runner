@@ -12,7 +12,7 @@ export interface ActionRequestMessage {
   installationId: number;
 }
 
-function createGithubAppAuth(installationId: number): AppAuth {
+export function createGithubAppAuth(installationId: number | undefined): AppAuth {
   const privateKey = Buffer.from(process.env.GITHUB_APP_KEY_BASE64 as string, 'base64').toString();
   const appId: number = parseInt(process.env.GITHUB_APP_ID as string);
   const clientId = process.env.GITHUB_APP_CLIENT_ID as string;
@@ -27,7 +27,7 @@ function createGithubAppAuth(installationId: number): AppAuth {
   });
 }
 
-async function createInstallationClient(githubAppAuth: AppAuth): Promise<Octokit> {
+export async function createInstallationClient(githubAppAuth: AppAuth): Promise<Octokit> {
   const auth = await githubAppAuth({ type: 'installation' });
   return new Octokit({ auth: auth.token });
 }
