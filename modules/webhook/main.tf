@@ -18,7 +18,9 @@ resource "aws_apigatewayv2_stage" "webhook" {
   lifecycle {
     ignore_changes = [
       // see bug https://github.com/terraform-providers/terraform-provider-aws/issues/12893
-      default_route_settings
+      default_route_settings,
+      // not terraform managed
+      deployment_id
     ]
   }
 
@@ -29,6 +31,13 @@ resource "aws_apigatewayv2_stage" "webhook" {
 }
 
 resource "aws_apigatewayv2_integration" "webhook" {
+  lifecycle {
+    ignore_changes = [
+      // not terraform managed
+      passthrough_behavior
+    ]
+  }
+
   api_id           = aws_apigatewayv2_api.webhook.id
   integration_type = "AWS_PROXY"
 
