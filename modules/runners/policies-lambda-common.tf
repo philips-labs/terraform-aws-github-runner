@@ -18,6 +18,6 @@ resource "aws_iam_policy" "lambda_logging" {
 
 resource "aws_iam_policy_attachment" "lambda_logging" {
   name       = "${var.environment}-lambda-logging"
-  roles      = [aws_iam_role.scale_down.name, aws_iam_role.scale_runners_lambda.name]
+  roles      = [aws_iam_role.scale_down.name, aws_iam_role.scale_up.name]
   policy_arn = aws_iam_policy.lambda_logging.arn
 }

@@ -1,9 +1,9 @@
-resource "aws_lambda_function" "scale_runners_lambda" {
+resource "aws_lambda_function" "scale_up" {
   filename         = "${path.module}/lambdas/scale-runners/scale-runners.zip"
   source_code_hash = filebase64sha256("${path.module}/lambdas/scale-runners/scale-runners.zip")
-  function_name    = "${var.environment}-scale-runners"
-  role             = aws_iam_role.scale_runners_lambda.arn
-  handler          = "index.handler"
+  function_name    = "${var.environment}-scale-up"
+  role             = aws_iam_role.scale_up.arn
+  handler          = "index.scaleUp"
   runtime          = "nodejs12.x"
   timeout          = 60
 
@@ -22,52 +22,37 @@ resource "aws_lambda_function" "scale_runners_lambda" {
   }
 }
 
-resource "aws_lambda_event_source_mapping" "scale_runners_lambda" {
+resource "aws_lambda_event_source_mapping" "scale_up" {
   event_source_arn = var.sqs.arn
-  function_name    = aws_lambda_function.scale_runners_lambda.arn
+  function_name    = aws_lambda_function.scale_up.arn
 }
 
 resource "aws_lambda_permission" "scale_runners_lambda" {
   statement_id  = "AllowExecutionFromSQS"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.scale_runners_lambda.function_name
+  function_name = aws_lambda_function.scale_up.function_name
   principal     = "sqs.amazonaws.com"
   source_arn    = var.sqs.arn
 }
 
-resource "aws_iam_role" "scale_runners_lambda" {
-  name               = "${var.environment}-action-scale-runners-lambda-role"
+resource "aws_iam_role" "scale_up" {
+  name               = "${var.environment}-action-scale-up-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
 }
 
-resource "aws_iam_policy" "scale_runners_lambda_sqs" {
-  name        = "${var.environment}-lambda-scale-runners-sqs-receive-policy"
-  description = "Lambda scale up sqs policy"
-
-  policy = templatefile("${path.module}/policies/lambda-scale-runners.json", {
-    sqs_arn = var.sqs.arn
-  })
-}
-
-resource "aws_iam_policy_attachment" "scale_runners_lambda_sqs" {
-  name       = "${var.environment}-scale-up-sqs"
-  roles      = [aws_iam_role.scale_runners_lambda.name]
-  policy_arn = aws_iam_policy.scale_runners_lambda_sqs.arn
-}
-
-
-resource "aws_iam_policy" "scale_runners_lambda" {
+resource "aws_iam_policy" "scale_up" {
   name        = "${var.environment}-lambda-scale-up-policy"
   description = "Lambda scale up policy"
 
   policy = templatefile("${path.module}/policies/lambda-scale-up.json", {
     arn_runner_instance_role = aws_iam_role.runner.arn
+    sqs_arn                  = var.sqs.arn
   })
 }
 
-resource "aws_iam_policy_attachment" "scale_runners_lambda" {
+resource "aws_iam_policy_attachment" "scale_up" {
   name       = "${var.environment}-scale-up"
-  roles      = [aws_iam_role.scale_runners_lambda.name]
-  policy_arn = aws_iam_policy.scale_runners_lambda.arn
+  roles      = [aws_iam_role.scale_up.name]
+  policy_arn = aws_iam_policy.scale_up.arn
 }
 

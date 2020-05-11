@@ -1,5 +1,5 @@
 import { mocked } from 'ts-jest/utils';
-import { ActionRequestMessage, handle } from './handler';
+import { ActionRequestMessage, scaleUp } from './scale-up';
 
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
@@ -30,7 +30,7 @@ const TEST_DATA: ActionRequestMessage = {
   installationId: 2,
 };
 
-describe('handler', () => {
+describe('scaleUp', () => {
   beforeEach(() => {
     process.env.GITHUB_APP_KEY_BASE64 = 'TEST_CERTIFICATE_DATA';
     process.env.GITHUB_APP_ID = '1337';
@@ -64,11 +64,11 @@ describe('handler', () => {
 
   it('ignores non-sqs events', async () => {
     expect.assertions(1);
-    expect(handle('aws:s3', TEST_DATA)).rejects.toEqual(Error('Cannot handle non-SQS events!'));
+    expect(scaleUp('aws:s3', TEST_DATA)).rejects.toEqual(Error('Cannot handle non-SQS events!'));
   });
 
   it('checks queued workflows', async () => {
-    await handle('aws:sqs', TEST_DATA);
+    await scaleUp('aws:sqs', TEST_DATA);
     expect(mockOctokit.actions.listRepoWorkflowRuns).toBeCalledWith({
       owner: TEST_DATA.repositoryOwner,
       repo: TEST_DATA.repositoryName,
@@ -80,7 +80,7 @@ describe('handler', () => {
     mockOctokit.actions.listRepoWorkflowRuns.mockImplementation(() => ({
       data: { total_count: 0, runners: [] },
     }));
-    await handle('aws:sqs', TEST_DATA);
+    await scaleUp('aws:sqs', TEST_DATA);
     expect(listRunners).not.toBeCalled();
   });
 
@@ -90,7 +90,7 @@ describe('handler', () => {
     });
 
     it('gets the current org level runners', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(listRunners).toBeCalledWith({
         environment: 'unit-test-environment',
         repoName: undefined,
@@ -99,12 +99,12 @@ describe('handler', () => {
 
     it('does not create a token when maximum runners has been reached', async () => {
       process.env.RUNNERS_MAXIMUM_COUNT = '1';
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(mockOctokit.actions.createRegistrationTokenForOrg).not.toBeCalled();
     });
 
     it('creates a token when maximum runners has not been reached', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(mockOctokit.actions.createRegistrationTokenForOrg).toBeCalled();
       expect(mockOctokit.actions.createRegistrationTokenForOrg).toBeCalledWith({
         org: TEST_DATA.repositoryOwner,
@@ -112,7 +112,7 @@ describe('handler', () => {
     });
 
     it('creates a runner with correct config', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(createRunner).toBeCalledWith({
         environment: 'unit-test-environment',
         runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner} --token 1234abcd`,
@@ -128,7 +128,7 @@ describe('handler', () => {
     });
 
     it('gets the current repo level runners', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(listRunners).toBeCalledWith({
         environment: 'unit-test-environment',
         repoName: `${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName}`,
@@ -137,12 +137,12 @@ describe('handler', () => {
 
     it('does not create a token when maximum runners has been reached', async () => {
       process.env.RUNNERS_MAXIMUM_COUNT = '1';
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(mockOctokit.actions.createRegistrationTokenForRepo).not.toBeCalled();
     });
 
     it('creates a token when maximum runners has not been reached', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(mockOctokit.actions.createRegistrationTokenForRepo).toBeCalledWith({
         owner: TEST_DATA.repositoryOwner,
         repo: TEST_DATA.repositoryName,
@@ -150,7 +150,7 @@ describe('handler', () => {
     });
 
     it('creates a runner with correct config', async () => {
-      await handle('aws:sqs', TEST_DATA);
+      await scaleUp('aws:sqs', TEST_DATA);
       expect(createRunner).toBeCalledWith({
         environment: 'unit-test-environment',
         runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName} --token 1234abcd`,

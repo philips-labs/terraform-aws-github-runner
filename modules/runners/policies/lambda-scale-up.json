@@ -20,6 +20,15 @@
       "Effect": "Allow",
       "Action": ["ssm:PutParameter"],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:DeleteMessage"
+      ],
+      "Resource": "${sqs_arn}"
     }
   ]
 }

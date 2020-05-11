@@ -1,4 +1,4 @@
-import { handle } from './scale-runners/handler';
+import { scaleUp } from './scale-runners/scale-up';
 import { scaleDown } from './scale-runners/scale-down';
 import { SQSEvent } from 'aws-lambda';
 
@@ -6,7 +6,7 @@ module.exports.handler = async (event: SQSEvent, context: any, callback: any) =>
   console.log(event);
   try {
     for (const e of event.Records) {
-      await handle(e.eventSource, JSON.parse(e.body));
+      await scaleUp(e.eventSource, JSON.parse(e.body));
     }
     return callback(null);
   } catch (e) {
