@@ -1,9 +1,11 @@
-import { listRunners, RunnerInfo } from './runners';
-import { EC2 } from 'aws-sdk';
+import { listRunners, RunnerInfo, createRunner } from './runners';
+import { EC2, SSM } from 'aws-sdk';
 
-const mockEC2 = { describeInstances: jest.fn() };
+const mockEC2 = { describeInstances: jest.fn(), runInstances: jest.fn() };
+const mockSSM = { putParameter: jest.fn() };
 jest.mock('aws-sdk', () => ({
   EC2: jest.fn().mockImplementation(() => mockEC2),
+  SSM: jest.fn().mockImplementation(() => mockSSM),
 }));
 
 describe('list instances', () => {
@@ -94,5 +96,100 @@ describe('list instances', () => {
         { Name: 'tag:Org', Values: ['SomeAwesomeCoder'] },
       ],
     });
+  });
+});
+
+describe('create runner', () => {
+  const mockRunInstances = { promise: jest.fn() };
+  const mockPutParameter = { promise: jest.fn() };
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockEC2.runInstances.mockImplementation(() => mockRunInstances);
+    mockRunInstances.promise.mockReturnValue({
+      Instances: [
+        {
+          InstanceId: 'i-1234',
+        },
+      ],
+    });
+    mockSSM.putParameter.mockImplementation(() => mockPutParameter);
+    process.env.LAUNCH_TEMPLATE_NAME = 'launch-template-name';
+    process.env.LAUNCH_TEMPLATE_VERSION = '1';
+    process.env.SUBNET_IDS = 'sub-1234';
+  });
+
+  it('calls run instances with the correct config for repo', async () => {
+    await createRunner({
+      runnerConfig: 'bla',
+      environment: 'unit-test-env',
+      repoName: 'SomeAwesomeCoder/some-amazing-library',
+      orgName: undefined,
+    });
+    expect(mockEC2.runInstances).toBeCalledWith({
+      MaxCount: 1,
+      MinCount: 1,
+      LaunchTemplate: { LaunchTemplateName: 'launch-template-name', Version: '1' },
+      SubnetId: 'sub-1234',
+      TagSpecifications: [
+        {
+          ResourceType: 'instance',
+          Tags: [
+            { Key: 'Application', Value: 'github-action-runner' },
+            { Key: 'Repo', Value: 'SomeAwesomeCoder/some-amazing-library' },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('calls run instances with the correct config for org', async () => {
+    await createRunner({
+      runnerConfig: 'bla',
+      environment: 'unit-test-env',
+      repoName: undefined,
+      orgName: 'SomeAwesomeCoder',
+    });
+    expect(mockEC2.runInstances).toBeCalledWith({
+      MaxCount: 1,
+      MinCount: 1,
+      LaunchTemplate: { LaunchTemplateName: 'launch-template-name', Version: '1' },
+      SubnetId: 'sub-1234',
+      TagSpecifications: [
+        {
+          ResourceType: 'instance',
+          Tags: [
+            { Key: 'Application', Value: 'github-action-runner' },
+            { Key: 'Org', Value: 'SomeAwesomeCoder' },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('creates ssm parameters for each created instance', async () => {
+    await createRunner({
+      runnerConfig: 'bla',
+      environment: 'unit-test-env',
+      repoName: undefined,
+      orgName: 'SomeAwesomeCoder',
+    });
+    expect(mockSSM.putParameter).toBeCalledWith({
+      Name: 'unit-test-env-i-1234',
+      Value: 'bla',
+      Type: 'SecureString',
+    });
+  });
+
+  it('does not create ssm parameters when no instance is created', async () => {
+    mockRunInstances.promise.mockReturnValue({
+      Instances: [],
+    });
+    await createRunner({
+      runnerConfig: 'bla',
+      environment: 'unit-test-env',
+      repoName: undefined,
+      orgName: 'SomeAwesomeCoder',
+    });
+    expect(mockSSM.putParameter).not.toBeCalled();
   });
 });

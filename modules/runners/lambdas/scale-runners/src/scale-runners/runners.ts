@@ -91,14 +91,13 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
   );
 
   const ssm = new SSM();
-  runInstancesResponse.Instances?.forEach((i: EC2.Instance) => {
-    const r = ssm
+  runInstancesResponse.Instances?.forEach(async (i: EC2.Instance) => {
+    await ssm
       .putParameter({
         Name: runnerParameters.environment + '-' + (i.InstanceId as string),
         Value: runnerParameters.runnerConfig,
         Type: 'SecureString',
       })
       .promise();
-    console.log(r);
   });
 }
