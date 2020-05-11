@@ -86,6 +86,17 @@ describe('list instances', () => {
     });
   });
 
+  it('filters instances on org name', async () => {
+    await listRunners({ environment: 'unit-test-environment' });
+    expect(mockEC2.describeInstances).toBeCalledWith({
+      Filters: [
+        { Name: 'tag:Application', Values: ['github-action-runner'] },
+        { Name: 'instance-state-name', Values: ['running', 'pending'] },
+        { Name: 'tag:Environment', Values: ['unit-test-environment'] },
+      ],
+    });
+  });
+
   it('filters instances on both org name and repo name', async () => {
     await listRunners({ orgName: 'SomeAwesomeCoder', repoName: 'SomeAwesomeCoder/some-amazing-library' });
     expect(mockEC2.describeInstances).toBeCalledWith({
