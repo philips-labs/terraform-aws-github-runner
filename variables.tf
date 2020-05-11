@@ -40,4 +40,10 @@ variable "github_app" {
   })
 }
 
+variable "scale_down_schedule_expression" {
+  description = "Scheduler expression to check every x for scale down."
+  type        = string
+  default     = "cron(*/5 * * * *)"
+}
+
 
