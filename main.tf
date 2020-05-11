@@ -15,6 +15,7 @@ resource "random_string" "random" {
 resource "aws_sqs_queue" "queued_builds" {
   name                        = "${var.environment}-queued-builds.fifo"
   delay_seconds               = 30
+  visibility_timeout_seconds  = 60
   fifo_queue                  = true
   receive_wait_time_seconds   = 10
   content_based_deduplication = true
