@@ -2,7 +2,7 @@ import { scaleUp } from './scale-runners/scale-up';
 import { scaleDown } from './scale-runners/scale-down';
 import { SQSEvent } from 'aws-lambda';
 
-module.exports.handler = async (event: SQSEvent, context: any, callback: any) => {
+module.exports.scaleUp = async (event: SQSEvent, context: any, callback: any) => {
   console.log(event);
   try {
     for (const e of event.Records) {
