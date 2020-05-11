@@ -73,7 +73,7 @@ resource "aws_cloudwatch_event_target" "syncer" {
   arn  = aws_lambda_function.syncer.arn
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_foo" {
+resource "aws_lambda_permission" "syncer" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.syncer.function_name

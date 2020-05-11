@@ -45,11 +45,10 @@ module "runners" {
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
 
-  sqs = aws_sqs_queue.queued_builds
-
-  github_app = var.github_app
-
-  enable_organization_runners = var.enable_organization_runners
+  sqs                            = aws_sqs_queue.queued_builds
+  github_app                     = var.github_app
+  enable_organization_runners    = var.enable_organization_runners
+  scale_down_schedule_expression = var.scale_down_schedule_expression
 }
 
 module "runner_binaries" {

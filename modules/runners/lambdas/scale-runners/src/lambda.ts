@@ -1,4 +1,5 @@
 import { handle } from './scale-runners/handler';
+import { scaleDown } from './scale-runners/scale-down';
 import { SQSEvent } from 'aws-lambda';
 
 module.exports.handler = async (event: SQSEvent, context: any, callback: any) => {
@@ -11,5 +12,15 @@ module.exports.handler = async (event: SQSEvent, context: any, callback: any) =>
   } catch (e) {
     console.error(e);
     return callback('Failed handling SQS event');
+  }
+};
+
+module.exports.scaleDown = async (event: any, context: any, callback: any) => {
+  try {
+    scaleDown();
+    return callback(null);
+  } catch (e) {
+    console.error(e);
+    return callback('Failed');
   }
 };
