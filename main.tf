@@ -30,7 +30,7 @@ module "webhook" {
   tags        = local.tags
 
   sqs_build_queue           = aws_sqs_queue.queued_builds
-  github_app_webhook_secret = var.github_app_webhook_secret
+  github_app_webhook_secret = var.github_app.webhook_secret
 }
 
 module "runners" {
@@ -47,10 +47,7 @@ module "runners" {
 
   sqs = aws_sqs_queue.queued_builds
 
-  github_app_client_id     = var.github_app_client_id
-  github_app_client_secret = var.github_app_client_secret
-  github_app_id            = var.github_app_id
-  github_app_key_base64    = var.github_app_key_base64
+  github_app = var.github_app
 
   enable_organization_runners = var.enable_organization_runners
 }

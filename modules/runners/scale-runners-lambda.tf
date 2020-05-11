@@ -10,10 +10,10 @@ resource "aws_lambda_function" "scale_runners_lambda" {
   environment {
     variables = {
       ENABLE_ORGANIZATION_RUNNERS = var.enable_organization_runners
-      GITHUB_APP_KEY_BASE64       = var.github_app_key_base64
-      GITHUB_APP_ID               = var.github_app_id
-      GITHUB_APP_CLIENT_ID        = var.github_app_client_id
-      GITHUB_APP_CLIENT_SECRET    = var.github_app_client_secret
+      GITHUB_APP_KEY_BASE64       = var.github_app.key_base64
+      GITHUB_APP_ID               = var.github_app.id
+      GITHUB_APP_CLIENT_ID        = var.github_app.client_id
+      GITHUB_APP_CLIENT_SECRET    = var.github_app.client_secret
       SUBNET_IDS                  = join(",", var.subnet_ids)
       LAUNCH_TEMPLATE_NAME        = aws_launch_template.runner.name
       LAUNCH_TEMPLATE_VERSION     = aws_launch_template.runner.latest_version

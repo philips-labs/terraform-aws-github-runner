@@ -25,19 +25,19 @@ variable "environment" {
   type        = string
 }
 
-variable "github_app_webhook_secret" {
-  description = "Secret for the GitHub App webhook"
-  type        = string
-}
-
 variable "enable_organization_runners" {
   type = bool
 }
 
-variable "github_app_key_base64" {}
+variable "github_app" {
+  description = "GitHub app parameters, see your github aapp. Ensure the key is base64 encoded."
+  type = object({
+    key_base64     = string
+    id             = string
+    client_id      = string
+    client_secret  = string
+    webhook_secret = string
+  })
+}
 
-variable "github_app_id" {}
 
-variable "github_app_client_id" {}
-
-variable "github_app_client_secret" {}
