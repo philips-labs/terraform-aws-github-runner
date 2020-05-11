@@ -3,7 +3,7 @@ import { ActionRequestMessage, handle } from './handler';
 
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
-import { listRunners } from './runners';
+import { listRunners, createRunner } from './runners';
 
 jest.mock('@octokit/auth-app', () => ({
   createAppAuth: jest.fn().mockImplementation(() => jest.fn().mockImplementation(() => ({ token: 'Blaat' }))),
@@ -37,6 +37,7 @@ describe('handler', () => {
     process.env.GITHUB_APP_CLIENT_ID = 'TEST_CLIENT_ID';
     process.env.GITHUB_APP_CLIENT_SECRET = 'TEST_CLIENT_SECRET';
     process.env.RUNNERS_MAXIMUM_COUNT = '3';
+    process.env.ENVIRONMENT = 'unit-test-environment';
     jest.clearAllMocks();
     mockOctokit.actions.listRepoWorkflowRuns.mockImplementation(() => ({
       data: {
@@ -106,6 +107,16 @@ describe('handler', () => {
         org: TEST_DATA.repositoryOwner,
       });
     });
+
+    it('creates a runner with correct config', async () => {
+      await handle('aws:sqs', TEST_DATA);
+      expect(createRunner).toBeCalledWith({
+        environment: 'unit-test-environment',
+        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner} --token 1234abcd`,
+        orgName: TEST_DATA.repositoryOwner,
+        repoName: undefined,
+      });
+    });
   });
 
   describe('on repo level', () => {
@@ -129,6 +140,16 @@ describe('handler', () => {
       expect(mockOctokit.actions.createRegistrationTokenForRepo).toBeCalledWith({
         owner: TEST_DATA.repositoryOwner,
         repo: TEST_DATA.repositoryName,
+      });
+    });
+
+    it('creates a runner with correct config', async () => {
+      await handle('aws:sqs', TEST_DATA);
+      expect(createRunner).toBeCalledWith({
+        environment: 'unit-test-environment',
+        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName} --token 1234abcd`,
+        orgName: undefined,
+        repoName: `${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName}`,
       });
     });
   });

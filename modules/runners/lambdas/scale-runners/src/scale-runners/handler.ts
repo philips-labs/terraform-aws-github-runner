@@ -60,8 +60,7 @@ export const handle = async (eventSource: string, payload: ActionRequestMessage)
           : `Repo ${payload.repositoryOwner}/${payload.repositoryName}`
       } has ${currentRunners.length}/${maximumRunners} runners`,
     );
-    console.log(currentRunners.length);
-    console.log(maximumRunners);
+
     if (currentRunners.length < maximumRunners) {
       // create token
       const registrationToken = enableOrgLevel
