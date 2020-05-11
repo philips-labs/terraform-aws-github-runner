@@ -40,14 +40,8 @@ resource "aws_iam_role" "scale_runners_lambda" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
 }
 
-resource "aws_iam_policy_attachment" "scale_runners_lambda_logging" {
-  name       = "${var.environment}-logging"
-  roles      = [aws_iam_role.scale_runners_lambda.name]
-  policy_arn = aws_iam_policy.lambda_logging.arn
-}
-
 resource "aws_iam_policy" "scale_runners_lambda_sqs" {
-  name        = "${var.environment}-lamda-scale-runners-sqs-receive-policy"
+  name        = "${var.environment}-lambda-scale-runners-sqs-receive-policy"
   description = "Lambda scale up sqs policy"
 
   policy = templatefile("${path.module}/policies/lambda-scale-runners.json", {
@@ -63,7 +57,7 @@ resource "aws_iam_policy_attachment" "scale_runners_lambda_sqs" {
 
 
 resource "aws_iam_policy" "scale_runners_lambda" {
-  name        = "${var.environment}-lamda-scale-up-policy"
+  name        = "${var.environment}-lambda-scale-up-policy"
   description = "Lambda scale up policy"
 
   policy = templatefile("${path.module}/policies/lambda-scale-up.json", {

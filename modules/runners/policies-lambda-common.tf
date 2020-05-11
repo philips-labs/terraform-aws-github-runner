@@ -15,3 +15,9 @@ resource "aws_iam_policy" "lambda_logging" {
 
   policy = templatefile("${path.module}/policies/lambda-cloudwatch.json", {})
 }
+
+resource "aws_iam_policy_attachment" "lambda_logging" {
+  name       = "${var.environment}-lambda-logging"
+  roles      = [aws_iam_role.scale_down.name, aws_iam_role.scale_runners_lambda.name]
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
