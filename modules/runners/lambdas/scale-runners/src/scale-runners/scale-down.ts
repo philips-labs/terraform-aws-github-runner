@@ -3,60 +3,37 @@ import { Octokit } from '@octokit/rest';
 import { AppAuth } from '@octokit/auth-app/dist-types/types';
 import { listRunners, terminateRunner, RunnerInfo } from './runners';
 import { createGithubAppAuth, createInstallationClient } from './scale-up';
+import yn from 'yn';
 
-// function createGithubAppAuth(installationId: number | undefined): AppAuth {
-//   const privateKey = Buffer.from(process.env.GITHUB_APP_KEY_BASE64 as string, 'base64').toString();
-//   const appId: number = parseInt(process.env.GITHUB_APP_ID as string);
-//   const clientId = process.env.GITHUB_APP_CLIENT_ID as string;
-//   const clientSecret = process.env.GITHUB_APP_CLIENT_SECRET as string;
-
-//   return createAppAuth({
-//     id: appId,
-//     privateKey: privateKey,
-//     installationId: installationId,
-//     clientId: clientId,
-//     clientSecret: clientSecret,
-//   });
-// }
-
-// async function createInstallationClient(githubAppAuth: AppAuth): Promise<Octokit> {
-//   const auth = await githubAppAuth({ type: 'installation' });
-//   return new Octokit({ auth: auth.token });
-// }
-
-// specific to scale down
 async function createAppClient(githubAppAuth: AppAuth): Promise<Octokit> {
   const auth = await githubAppAuth({ type: 'app' });
   return new Octokit({ auth: auth.token });
 }
 
 interface Repo {
-  isOrg: boolean;
   repoName: string;
   repoOwner: string;
 }
 
-function getRepo(runner: RunnerInfo): Repo {
-  if (runner.repo) {
-    return {
-      repoOwner: runner.repo?.split('/')[0] as string,
-      repoName: runner.repo?.split('/')[1] as string,
-      isOrg: false,
-    };
-  } else {
+function getRepo(runner: RunnerInfo, orgLevel: boolean): Repo {
+  if (orgLevel) {
     return {
       repoOwner: runner.org as string,
       repoName: '',
-      isOrg: true,
+    };
+  } else {
+    return {
+      repoOwner: runner.repo?.split('/')[0] as string,
+      repoName: runner.repo?.split('/')[1] as string,
     };
   }
 }
 
-async function createGitHubClientForRunner(runner: RunnerInfo): Promise<Octokit> {
+async function createGitHubClientForRunner(runner: RunnerInfo, orgLevel: boolean): Promise<Octokit> {
   const githubClient = await createAppClient(createGithubAppAuth(undefined));
-  const repo = getRepo(runner);
+  const repo = getRepo(runner, orgLevel);
 
-  const repoInstallationId = repo.isOrg
+  const installationId = orgLevel
     ? (
         await githubClient.apps.getOrgInstallation({
           org: repo.repoOwner,
@@ -69,10 +46,11 @@ async function createGitHubClientForRunner(runner: RunnerInfo): Promise<Octokit>
         })
       ).data.id;
 
-  return createInstallationClient(createGithubAppAuth(repoInstallationId));
+  return createInstallationClient(createGithubAppAuth(installationId));
 }
 
 export async function scaleDown(): Promise<void> {
+  const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
   const environment = process.env.ENVIRONMENT as string;
   const runners = await listRunners({
     environment: environment,
@@ -82,42 +60,46 @@ export async function scaleDown(): Promise<void> {
     console.debug(`No active runners found for environment: '${environment}'`);
     return;
   }
+  console.log(runners);
 
-  runners.forEach(async (r) => {
-    const githubAppClient = await createGitHubClientForRunner(r);
+  for (const r of runners) {
+    const githubAppClient = await createGitHubClientForRunner(r, enableOrgLevel);
 
-    const repo = getRepo(r);
-    const registered = await githubAppClient.actions.listSelfHostedRunnersForRepo({
-      owner: repo.repoOwner,
-      repo: repo.repoName,
-    });
+    const repo = getRepo(r, enableOrgLevel);
+    console.log(repo);
+    const registered = enableOrgLevel
+      ? await githubAppClient.actions.listSelfHostedRunnersForOrg({
+          org: repo.repoOwner,
+        })
+      : await githubAppClient.actions.listSelfHostedRunnersForRepo({
+          owner: repo.repoOwner,
+          repo: repo.repoName,
+        });
+    console.log(registered);
 
     console.log(registered.data.runners);
-    registered.data.runners.forEach(async (a: any) => {
+    for (const a of registered.data.runners) {
       const runnerName = a.name as string;
       if (runnerName === r.instanceId) {
-        console.log(r.instanceId);
         try {
-          const result = repo.isOrg
+          const result = enableOrgLevel
             ? await githubAppClient.actions.deleteSelfHostedRunnerFromOrg({ runner_id: a.id, org: repo.repoOwner })
             : await githubAppClient.actions.deleteSelfHostedRunnerFromRepo({
                 runner_id: a.id,
                 owner: repo.repoOwner,
                 repo: repo.repoName,
               });
+
           if (result?.status == 204) {
-            terminateRunner(r);
+            await terminateRunner(r);
             console.info(
               `AWS runner instance '${r.instanceId}' is terminated and GitHub runner '${runnerName}' is de-registered.`,
             );
           }
-          console.info(
-            `AWS runner instance '${r.instanceId}' is terminated and GitHub runner '${runnerName}' is de-registered.`,
-          );
         } catch (e) {
           console.debug(`Runner '${runnerName}' cannot be de-registered, most likely the runner is active.`);
         }
       }
-    });
-  });
+    }
+  }
 }
