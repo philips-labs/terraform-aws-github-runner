@@ -72,7 +72,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
 
   const subnets = (process.env.SUBNET_IDS as string).split(',');
   const randomSubnet = subnets[Math.floor(Math.random() * subnets.length)];
-
+  console.debug('Runner configuration: ' + JSON.stringify(runnerParameters));
   const ec2 = new EC2();
   const runInstancesResponse = await ec2
     .runInstances({

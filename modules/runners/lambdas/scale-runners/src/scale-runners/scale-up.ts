@@ -36,6 +36,7 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
   if (eventSource !== 'aws:sqs') throw Error('Cannot handle non-SQS events!');
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
   const maximumRunners = parseInt(process.env.RUNNERS_MAXIMUM_COUNT || '3');
+  const runnerExtraLabels = process.env.RUNNER_EXTRA_LABELS;
   const environment = process.env.ENVIRONMENT as string;
   const githubAppAuth = createGithubAppAuth(payload.installationId);
   const githubInstallationClient = await createInstallationClient(githubAppAuth);
@@ -72,11 +73,12 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
           });
       const token = registrationToken.data.token;
 
+      const labelsArgument = runnerExtraLabels !== undefined ? `--labels ${runnerExtraLabels}` : '';
       await createRunner({
         environment: environment,
         runnerConfig: enableOrgLevel
-          ? `--url https://github.com/${payload.repositoryOwner} --token ${token}`
-          : `--url https://github.com/${payload.repositoryOwner}/${payload.repositoryName} --token ${token}`,
+          ? `--url https://github.com/${payload.repositoryOwner} --token ${token} ${labelsArgument}`
+          : `--url https://github.com/${payload.repositoryOwner}/${payload.repositoryName} --token ${token} ${labelsArgument}`,
         orgName: enableOrgLevel ? payload.repositoryOwner : undefined,
         repoName: enableOrgLevel ? undefined : `${payload.repositoryOwner}/${payload.repositoryName}`,
       });

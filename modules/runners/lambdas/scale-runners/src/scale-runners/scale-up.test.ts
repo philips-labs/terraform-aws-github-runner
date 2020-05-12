@@ -38,6 +38,7 @@ describe('scaleUp', () => {
     process.env.GITHUB_APP_CLIENT_SECRET = 'TEST_CLIENT_SECRET';
     process.env.RUNNERS_MAXIMUM_COUNT = '3';
     process.env.ENVIRONMENT = 'unit-test-environment';
+
     jest.clearAllMocks();
     mockOctokit.actions.listRepoWorkflowRuns.mockImplementation(() => ({
       data: {
@@ -115,7 +116,7 @@ describe('scaleUp', () => {
       await scaleUp('aws:sqs', TEST_DATA);
       expect(createRunner).toBeCalledWith({
         environment: 'unit-test-environment',
-        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner} --token 1234abcd`,
+        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner} --token 1234abcd `,
         orgName: TEST_DATA.repositoryOwner,
         repoName: undefined,
       });
@@ -149,11 +150,12 @@ describe('scaleUp', () => {
       });
     });
 
-    it('creates a runner with correct config', async () => {
+    it('creates a runner with correct config and labels', async () => {
+      process.env.RUNNER_EXTRA_LABELS = 'label1,label2';
       await scaleUp('aws:sqs', TEST_DATA);
       expect(createRunner).toBeCalledWith({
         environment: 'unit-test-environment',
-        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName} --token 1234abcd`,
+        runnerConfig: `--url https://github.com/${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName} --token 1234abcd --labels label1,label2`,
         orgName: undefined,
         repoName: `${TEST_DATA.repositoryOwner}/${TEST_DATA.repositoryName}`,
       });
