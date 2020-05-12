@@ -114,3 +114,9 @@ variable "scale_down_schedule_expression" {
   type        = string
   default     = "cron(*/5 * * * ? *)"
 }
+
+variable "minimum_running_time_in_minutes" {
+  description = "The time an ec2 action runner should be running at minium before terminated if non busy."
+  type        = number
+  default     = 5
+}

@@ -9,12 +9,13 @@ resource "aws_lambda_function" "scale_down" {
 
   environment {
     variables = {
-      ENABLE_ORGANIZATION_RUNNERS = var.enable_organization_runners
-      GITHUB_APP_KEY_BASE64       = var.github_app.key_base64
-      GITHUB_APP_ID               = var.github_app.id
-      GITHUB_APP_CLIENT_ID        = var.github_app.client_id
-      GITHUB_APP_CLIENT_SECRET    = var.github_app.client_secret
-      ENVIRONMENT                 = var.environment
+      ENABLE_ORGANIZATION_RUNNERS     = var.enable_organization_runners
+      MINIMUM_RUNNING_TIME_IN_MINUTES = var.minimum_running_time_in_minutes
+      GITHUB_APP_KEY_BASE64           = var.github_app.key_base64
+      GITHUB_APP_ID                   = var.github_app.id
+      GITHUB_APP_CLIENT_ID            = var.github_app.client_id
+      GITHUB_APP_CLIENT_SECRET        = var.github_app.client_secret
+      ENVIRONMENT                     = var.environment
     }
   }
 }
