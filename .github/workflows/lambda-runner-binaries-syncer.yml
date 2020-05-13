@@ -7,8 +7,8 @@ on:
       - master
   pull_request:
     paths:
-      - .github/workflows/runner-binaries-syncer.yml
-      - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
+      - .github/workflows/${lambda_name}.yml
+      - "modules/${lambda_name}/lambdas/${lambda_name}/**"
 
 jobs:
   build:
