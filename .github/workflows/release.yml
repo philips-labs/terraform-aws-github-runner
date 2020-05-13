@@ -24,9 +24,10 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: true
           prerelease: true
-
+      - name: Extract tag name
+        id: tag_name
+        run: echo ::set-output name=TAG::${GITHUB_REF##*/}
       - uses: actions/checkout@v2
-
       - name: Add zip
         run: apt update && apt install zip
 
