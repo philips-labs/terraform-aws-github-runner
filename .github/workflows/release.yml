@@ -18,7 +18,7 @@ jobs:
     container: node:12
     env:
       lambda_webhook_name: webhook
-      lambda_runners_name: scale-runners
+      lambda_runners_name: runners
       lambda_syncer_name: runner-binaries-syncer
     steps:
       - name: Create Release
@@ -63,12 +63,12 @@ jobs:
           asset_name: ${{ env.lambda_syncer_name }}-${{ steps.tag_name.outputs.TAG }}.zip
           asset_content_type: application/zip
 
-      - name: Lambda scale runners - build
+      - name: Lambda runners - build
         env:
-          lambda_path: modules/runners/lambdas/scale-runners
-        working-directory: modules/runners/lambdas/scale-runners
+          lambda_path: modules/runners/lambdas/runners
+        working-directory: modules/runners/lambdas/runners
         run: yarn install && yarn dist
-      - name: Lambda scale runners - Upload asset
+      - name: Lambda runners - Upload asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
