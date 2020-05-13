@@ -6,9 +6,9 @@ on:
     branches:
       - master
   pull_request:
-    # paths:
-    #   - .github/workflows/${lambda_name}.yml
-    #   - "modules/${lambda_name}/lambdas/${lambda_name}/**"
+    paths:
+      - .github/workflows/runner-binaries-syncer.yml
+      - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
     container: node:12
     defaults:
       run:
-        working-directory: modules/${lambda_name}/lambdas/${lambda_name}
+        working-directory: modules/{{ env.lambda_name }}/lambdas/{{ env.lambda_name }}
 
     steps:
       - uses: actions/checkout@v2
