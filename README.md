@@ -62,7 +62,36 @@ Go to GitHub and create a new app. Beware you can create apps your organization 
 
 ### Setup terraform module
 
-1. Create a terraform workspace and initiate the module, see the examples for more details.
+First you need to download the lambda's releases. THe lambda code is available as a GitHub release asset. Downloading can be done with the provided terraform module for example. Create in an empty workspace a terraform module:
+
+```terraform
+module "lambdas" {
+  source = "../../../modules/download-lambda"
+  lambdas = [
+    {
+      name = "webhook"
+      tag  = "v0.0.0-beta"
+    },
+    {
+      name = "runners"
+      tag  = "v0.0.0-beta"
+    },
+    {
+      name = "runner-binaries-syncer"
+      tag  = "v0.0.0-beta"
+    }
+  ]
+}
+
+output "files" {
+  value = module.lambdas.files
+}
+```
+
+Next run `terraform init && terraform apply` as result the lambdas will be download to the same directory.
+
+
+Next create a second terraform workspace and initiate the module, see the examples for more details.
 
 ```terraform
 module "runners" {
@@ -82,6 +111,9 @@ module "runners" {
     webhook_secret = "secret"
   }
 
+  webhook_lambda_zip                = "lambdas-download/webhook.zip"
+  runner_binaries_syncer_lambda_zip = "lambdas-download/runner-binaries-syncer.zip.zip"
+  runners_lambda_zip                = "lambdas-download/runners.zip"
   enable_organization_runners = true
 }
 ```
@@ -93,7 +125,7 @@ terraform init
 terrafrom apply
 ```
 
-3. Check the terraform output for the API gateway url, which you need in the next step.
+Check the terraform output for the API gateway url, which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via Cloud Watch. To ensure the binary is cached, trigger the `runner-binaries-syncer` manually. The payload does not matter.
 
 ### Setup GitHub App (part 2)
 
