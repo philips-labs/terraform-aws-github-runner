@@ -4,9 +4,10 @@ env:
   lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
 on:
   push:
-    branches:
-      - master
-    tags:
+  # branches:
+  #   - master
+  # tags:
+  #   - *
   pull_request:
     paths:
       - .github/workflows/lambda-runner-binaries-syncer.yml
@@ -28,7 +29,7 @@ jobs:
       - name: Build distribution
         run: yarn build
       - name: Upload distribution
-        # if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v1
         with:
           name: dist
@@ -39,7 +40,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container: node:12
-    # if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Create Release
