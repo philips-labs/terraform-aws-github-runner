@@ -17,7 +17,7 @@ jobs:
     container: node:12
     defaults:
       run:
-        working-directory: { env.ambda_path }
+        working-directory: env.lambda_path
         # working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
     steps:
       - uses: actions/checkout@v2
