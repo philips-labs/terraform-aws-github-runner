@@ -6,9 +6,9 @@ on:
     branches:
       - master
   pull_request:
-    paths:
-      - .github/workflows/${lambda_name}.yml
-      - "modules/${lambda_name}/lambdas/${lambda_name}/**"
+    # paths:
+    #   - .github/workflows/${lambda_name}.yml
+    #   - "modules/${lambda_name}/lambdas/${lambda_name}/**"
 
 jobs:
   build:
