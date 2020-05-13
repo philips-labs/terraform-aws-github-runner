@@ -13,6 +13,7 @@ locals {
   name_sg     = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
   name_runner = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
 
+  lambda_zip = var.lambda_zip == null ? "${path.module}/lambdas/scale-runners/scale-runners.zip" : var.lambda_zip
 }
 
 data "aws_ami" "runner" {

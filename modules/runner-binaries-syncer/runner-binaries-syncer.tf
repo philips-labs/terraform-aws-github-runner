@@ -1,11 +1,15 @@
+locals {
+  lambda_zip = var.lambda_zip == null ? "${path.module}/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip" : var.lambda_zip
+}
+
 resource "aws_lambda_function" "syncer" {
-  filename         = "${path.module}/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip")
+  filename         = local.lambda_zip
+  source_code_hash = filebase64sha256(local.lambda_zip)
   function_name    = "${var.environment}-syncer"
   role             = aws_iam_role.syncer_lambda.arn
   handler          = "index.handler"
   runtime          = "nodejs12.x"
-  timeout          = 300
+  timeout          = var.lambda_timeoutp
 
   environment {
     variables = {

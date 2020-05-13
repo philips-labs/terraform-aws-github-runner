@@ -24,3 +24,15 @@ variable "lambda_schedule_expression" {
   type        = string
   default     = "cron(27 * * * ? *)"
 }
+
+variable "lambda_zip" {
+  description = "File location of the lambda zip file."
+  type        = string
+  default     = null
+}
+
+variable "lambda_timeoutp" {
+  description = "Time out of the lambda in seconds."
+  type        = number
+  default     = 300
+}

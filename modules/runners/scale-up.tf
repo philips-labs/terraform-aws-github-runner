@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "scale_up" {
-  filename         = "${path.module}/lambdas/scale-runners/scale-runners.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambdas/scale-runners/scale-runners.zip")
+  filename         = local.lambda_zip
+  source_code_hash = filebase64sha256(local.lambda_zip)
   function_name    = "${var.environment}-scale-up"
   role             = aws_iam_role.scale_up.arn
   handler          = "index.scaleUp"
   runtime          = "nodejs12.x"
-  timeout          = 60
+  timeout          = var.lambda_timeout_scale_up
 
   environment {
     variables = {

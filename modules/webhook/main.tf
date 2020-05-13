@@ -1,5 +1,6 @@
 locals {
   webhook_endpoint = "webhook"
+  lambda_zip       = var.lambda_zip == null ? "${path.module}/lambdas/webhook/webhook.zip" : var.lambda_zip
 }
 
 resource "aws_apigatewayv2_api" "webhook" {
@@ -47,14 +48,14 @@ resource "aws_apigatewayv2_integration" "webhook" {
   integration_uri    = aws_lambda_function.webhook.invoke_arn
 }
 
-
 resource "aws_lambda_function" "webhook" {
-  filename         = "${path.module}/lambdas/webhook/webhook.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambdas/webhook/webhook.zip")
+  filename         = local.lambda_zip
+  source_code_hash = filebase64sha256(local.lambda_zip)
   function_name    = "${var.environment}-webhook"
   role             = aws_iam_role.webhook_lambda.arn
   handler          = "index.githubWebhook"
   runtime          = "nodejs12.x"
+  timeout          = var.lambda_timeoutp
 
   environment {
     variables = {
