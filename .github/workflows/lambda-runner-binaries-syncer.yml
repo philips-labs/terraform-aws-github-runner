@@ -1,7 +1,7 @@
 name: Lambda Runner Binaries Syncer
 env:
   lambda_name: runner-binaries-syncer
-  lambda_path: modules/${{lambda_name}}/lambdas/${{lambda_name}}
+  lambda_path: modules/${lambda_name}/lambdas/${lambda_name}
 on:
   push:
     branches:
