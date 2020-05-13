@@ -27,47 +27,49 @@ jobs:
         run: yarn build
       - name: Upload distribution
         # if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: dist
           path: dist
-  # release_draft:
-  #   name: Create Draft Release
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   container: node:12
-  #   # if: startsWith(github.ref, 'refs/tags/')
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Extract tag name
-  #       id: tag_name
-  #       run: echo ::set-output name=TAG::${GITHUB_REF##*/}
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: dist
-  #         path: dist
-  #     - name: Create zip
-  #       run: |
-  #         apt update && apt install zip
-  #         cd dist
-  #         zip -r ../dist.zip ${lambda_name}.zip
-  # - name: Create Release
-  #   id: create_release
-  #   uses: actions/create-release@latest
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-  #   with:
-  #     tag_name: ${{ github.ref }}
-  #     release_name: Release ${{ github.ref }}
-  #     draft: true
-  #     prerelease: true
-  # - name: Upload Release Asset
-  #   id: upload-release-asset
-  #   uses: actions/upload-release-asset@v1
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   with:
-  #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-  #     asset_path: ./webhook.zip
-  #     asset_name: parser-${{ steps.tag_name.outputs.TAG }}.zip
-  #     asset_content_type: application/zip
+
+  release_draft:
+    name: Create Draft Release
+    needs: build
+    runs-on: ubuntu-latest
+    container: node:12
+    # if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Extract tag name
+        id: tag_name
+        run: echo ::set-output name=TAG::${GITHUB_REF##*/}
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - name: Create zip
+        run: |
+          apt update && apt install zip
+          cd dist
+          zip -r ../dist.zip ${lambda_name}.zip
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@latest
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: Release ${{ github.ref }}
+      #     draft: true
+      #     prerelease: true
+      # - name: Upload Release Asset
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+      #     asset_path: ./webhook.zip
+      #     asset_name: parser-${{ steps.tag_name.outputs.TAG }}.zip
+      #     asset_content_type: application/zip
