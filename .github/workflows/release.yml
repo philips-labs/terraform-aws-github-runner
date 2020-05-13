@@ -38,7 +38,6 @@ jobs:
         run: apt update && apt install zip
 
       - name: Lambda webhook - build
-        env:
         working-directory: modules/webhook/lambdas/webhook
         run: yarn install && yarn dist
       - name: Lambda webhook - Upload asset
@@ -52,8 +51,6 @@ jobs:
           asset_content_type: application/zip
 
       - name: Lambda syncer - build
-        env:
-          lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
         working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
         run: yarn install && yarn dist
       - name: Lambda syncer - Upload asset
