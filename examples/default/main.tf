@@ -3,15 +3,9 @@ locals {
   aws_region  = "eu-west-1"
 }
 
-
 resource "random_password" "random" {
   length = 32
 }
-
-
-
-
-
 
 module "runners" {
   source = "../../"
