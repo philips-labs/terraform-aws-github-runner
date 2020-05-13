@@ -39,7 +39,6 @@ jobs:
 
       - name: Lambda webhook - build
         env:
-          lambda_path: modules/webhook/lambdas/webhook
         working-directory: modules/webhook/lambdas/webhook
         run: yarn install && yarn dist
       - name: Lambda webhook - Upload asset
@@ -48,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.lambda_path }}/${{ env.lambda_webhook_name }}.zip
+          asset_path: modules/${{ env.lambda_webhook_name }}/lambdas/${{ env.lambda_webhook_name }}/${{ env.lambda_webhook_name }}.zip
           asset_name: ${{ env.lambda_webhook_name }}-${{ steps.tag_name.outputs.TAG }}.zip
           asset_content_type: application/zip
 
@@ -63,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.lambda_path }}/${{ env.lambda_syncer_name }}.zip
+          asset_path: modules/${{ env.lambda_webhook_name }}/lambdas/${{ env.lambda_webhook_name }}/${{ env.lambda_webhook_name }}.zip
           asset_name: ${{ env.lambda_syncer_name }}-${{ steps.tag_name.outputs.TAG }}.zip
           asset_content_type: application/zip
 
@@ -78,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.lambda_path }}/${{ env.lambda_runners_name }}.zip
+          asset_path: modules/${{ env.lambda_webhook_name }}/lambdas/${{ env.lambda_webhook_name }}/${{ env.lambda_webhook_name }}.zip
           asset_name: ${{ env.lambda_runners_name }}-${{ steps.tag_name.outputs.TAG }}.zip
           asset_content_type: application/zip
   # release_draft:
