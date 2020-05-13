@@ -1,15 +1,15 @@
 name: Lambda Runner Binaries Syncer
 env:
   lambda_name: runner-binaries-syncer
-  lambda_path: modules/${lambda_name}/lambdas/${lambda_name}
+  lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
 on:
   push:
     branches:
       - master
   pull_request:
-    # paths:
-    # - .github/workflows/runner-binaries-syncer.yml
-    # - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
+    paths:
+      - .github/workflows/lambda-runner-binaries-syncer.yml
+      - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
 
 jobs:
   build:
@@ -18,7 +18,6 @@ jobs:
     defaults:
       run:
         working-directory: ${{ env.lambda_path }}
-        # working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
