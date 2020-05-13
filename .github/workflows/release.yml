@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: yarn install && yarn build
       - name: Upload distribution
-        if: startsWith(github.ref, 'refs/tags/')
+        #if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v1
         with:
           name: ${{ github.job }}
@@ -48,7 +48,7 @@ jobs:
       - name: Install dependencies
         run: yarn install && yarn build
       - name: Upload distribution
-        if: startsWith(github.ref, 'refs/tags/')
+        #if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v1
         with:
           name: ${{ github.job }}
@@ -59,7 +59,7 @@ jobs:
     container: node:12
     env:
       lambda_name: scale-runners
-      lambda_path: modules/scale-runners/lambdas/scale-runners
+      lambda_path: modules/runners/lambdas/scale-runners
     defaults:
       run:
         working-directory: ${{ env.lambda_path }}
@@ -68,7 +68,7 @@ jobs:
       - name: Install dependencies
         run: yarn install && yarn build
       - name: Upload distribution
-        if: startsWith(github.ref, 'refs/tags/')
+        #if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v1
         with:
           name: ${{ github.job }}
