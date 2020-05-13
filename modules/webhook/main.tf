@@ -55,7 +55,7 @@ resource "aws_lambda_function" "webhook" {
   role             = aws_iam_role.webhook_lambda.arn
   handler          = "index.githubWebhook"
   runtime          = "nodejs12.x"
-  timeout          = var.lambda_timeoutp
+  timeout          = var.lambda_timeout
 
   environment {
     variables = {

@@ -36,8 +36,8 @@ variable "lambda_zip" {
   default     = null
 }
 
-variable "lambda_timeoutp" {
+variable "lambda_timeout" {
   description = "Time out of the lambda in seconds."
   type        = number
-  default     = 300
+  default     = 10
 }

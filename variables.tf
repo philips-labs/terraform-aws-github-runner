@@ -57,3 +57,47 @@ variable "runner_extra_labels" {
   type        = string
   default     = ""
 }
+
+
+
+variable "webhook_lambda_zip" {
+  description = "File location of the wehbook lambda zip file."
+  type        = string
+  default     = null
+}
+
+variable "webhook_lambda_timeout" {
+  description = "Time out of the webhook lambda in seconds."
+  type        = number
+  default     = 10
+}
+
+variable "runners_lambda_zip" {
+  description = "File location of the lambda zip file for scaling runners."
+  type        = string
+  default     = null
+}
+
+variable "runners_scale_up_lambda_timeout" {
+  description = "Time out for the scale down lambda in seconds."
+  type        = number
+  default     = 60
+}
+
+variable "runners_scale_down_lambda_timeout" {
+  description = "Time out for the scale up lambda in seconds."
+  type        = number
+  default     = 60
+}
+
+variable "runner_binaries_syncer_lambda_zip" {
+  description = "File location of the binaries sync lambda zip file."
+  type        = string
+  default     = null
+}
+
+variable "runner_binaries_syncer_lambda_timeout" {
+  description = "Time out of the binaries sync lambda in seconds."
+  type        = number
+  default     = 300
+}

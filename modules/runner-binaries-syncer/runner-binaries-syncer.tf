@@ -9,7 +9,7 @@ resource "aws_lambda_function" "syncer" {
   role             = aws_iam_role.syncer_lambda.arn
   handler          = "index.handler"
   runtime          = "nodejs12.x"
-  timeout          = var.lambda_timeoutp
+  timeout          = var.lambda_timeout
 
   environment {
     variables = {
