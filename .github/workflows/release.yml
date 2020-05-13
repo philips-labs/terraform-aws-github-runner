@@ -20,9 +20,6 @@ jobs:
       lambda_webhook_name: webhook
       lambda_runners_name: scale-runners
       lambda_syncer_name: runner-binaries-syncer
-    defaults:
-      run:
-        working-directory: ${{ env.lambda_path }}
     steps:
       - name: Create Release
         id: create_release
