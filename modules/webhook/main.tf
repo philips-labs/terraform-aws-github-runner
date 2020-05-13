@@ -18,7 +18,9 @@ resource "aws_apigatewayv2_stage" "webhook" {
   lifecycle {
     ignore_changes = [
       // see bug https://github.com/terraform-providers/terraform-provider-aws/issues/12893
-      default_route_settings
+      default_route_settings,
+      // not terraform managed
+      deployment_id
     ]
   }
 
@@ -29,6 +31,13 @@ resource "aws_apigatewayv2_stage" "webhook" {
 }
 
 resource "aws_apigatewayv2_integration" "webhook" {
+  lifecycle {
+    ignore_changes = [
+      // not terraform managed
+      passthrough_behavior
+    ]
+  }
+
   api_id           = aws_apigatewayv2_api.webhook.id
   integration_type = "AWS_PROXY"
 
@@ -44,7 +53,7 @@ resource "aws_lambda_function" "webhook" {
   source_code_hash = filebase64sha256("${path.module}/lambdas/webhook/webhook.zip")
   function_name    = "${var.environment}-webhook"
   role             = aws_iam_role.webhook_lambda.arn
-  handler          = "lambda.githubWebhook"
+  handler          = "index.githubWebhook"
   runtime          = "nodejs12.x"
 
   environment {
@@ -113,6 +122,3 @@ resource "aws_iam_policy_attachment" "webhook" {
   roles      = [aws_iam_role.webhook_lambda.name]
   policy_arn = aws_iam_policy.webhook[0].arn
 }
-
-
-

@@ -8,12 +8,18 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "subnet_ids" {
+  description = "List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`."
+  type        = list(string)
+}
+
 variable "overrides" {
   description = "This maps provides the possibility to override some defaults. The following attributes are supported: `name_sg` overwrite the `Name` tag for all security groups created by this module. `name_runner_agent_instance` override the `Name` tag for the ec2 instance defined in the auto launch configuration. `name_docker_machine_runners` ovverrid the `Name` tag spot instances created by the runner agent."
   type        = map(string)
 
   default = {
-    name_sg = ""
+    name_runner = ""
+    name_sg     = ""
   }
 }
 
@@ -82,6 +88,41 @@ variable "userdata_pre_install" {
 
 variable "userdata_post_install" {
   description = "User-data script snippet to insert after GitHub acton runner install"
+  type        = string
+  default     = ""
+}
+
+variable "sqs" {}
+
+variable "enable_organization_runners" {
+  type = bool
+}
+
+variable "github_app" {
+  description = "GitHub app parameters, see your github aapp. Ensure the key is base64 encoded."
+  type = object({
+    key_base64    = string
+    id            = string
+    client_id     = string
+    client_secret = string
+  })
+}
+
+
+variable "scale_down_schedule_expression" {
+  description = "Scheduler expression to check every x for scale down."
+  type        = string
+  default     = "cron(*/5 * * * ? *)"
+}
+
+variable "minimum_running_time_in_minutes" {
+  description = "The time an ec2 action runner should be running at minium before terminated if non busy."
+  type        = number
+  default     = 5
+}
+
+variable "runner_extra_labels" {
+  description = "Extra labels for the runners (GitHub). Separate each label by a comma"
   type        = string
   default     = ""
 }

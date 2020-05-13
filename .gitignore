@@ -16,3 +16,4 @@ example/*.secrets*.tfvars
 *.zip
 *.gz
 *.tgz
+*.env
