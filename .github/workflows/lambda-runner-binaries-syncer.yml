@@ -16,8 +16,7 @@ jobs:
     container: node:12
     defaults:
       run:
-        working-directory: modules/{{ env.lambda_name }}/lambdas/{{ env.lambda_name }}
-
+        working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
