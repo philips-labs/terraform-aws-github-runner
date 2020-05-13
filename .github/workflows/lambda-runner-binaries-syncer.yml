@@ -3,15 +3,15 @@ env:
   lambda_name: runner-binaries-syncer
   lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
 on:
-  push:
-  # branches:
-  #   - master
-  # tags:
-  #   - *
-  pull_request:
-    paths:
-      - .github/workflows/lambda-runner-binaries-syncer.yml
-      - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
+  [push]
+  #   branches:
+  #     - master
+  #   tags:
+  #     - *
+  # pull_request:
+  #   paths:
+  #     - .github/workflows/lambda-runner-binaries-syncer.yml
+  #     - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
 
 jobs:
   build:
