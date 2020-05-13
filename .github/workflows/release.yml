@@ -12,67 +12,80 @@ on:
   #     - "modules/runner-binaries-syncer/lambdas/runner-binaries-syncer/**"
 
 jobs:
-  build_syncer:
-    name: Build runner binaries syncer
+  Release build:
+    name: Build runners distribution
     runs-on: ubuntu-latest
     container: node:12
     env:
-      lambda_name: runner-binaries-syncer
-      lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
+      lambda_webhook_name: webhook
+      lambda_runners_name: scale-runners
+      lambda_syncer_name: runner-binaries-syncer
     defaults:
       run:
         working-directory: ${{ env.lambda_path }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: yarn install && yarn build
-      - name: Upload distribution
-        #if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v1
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ github.job }}
-          path: ${{ env.lambda_path }}/dist
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: true
 
-  build_webhook:
-    name: Build webhook distribution
-    runs-on: ubuntu-latest
-    container: node:12
-    env:
-      lambda_name: webhook
-      lambda_path: modules/webhook/lambdas/webhook
-    defaults:
-      run:
-        working-directory: ${{ env.lambda_path }}
-    steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: yarn install && yarn build
-      - name: Upload distribution
-        #if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ github.job }}
-          path: ${{ env.lambda_path }}/dist
 
-  build_runners:
-    runs-on: ubuntu-latest
-    container: node:12
-    env:
-      lambda_name: scale-runners
-      lambda_path: modules/runners/lambdas/scale-runners
-    defaults:
-      run:
-        working-directory: ${{ env.lambda_path }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: yarn install && yarn build
-      - name: Upload distribution
-        #if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-artifact@v1
+      - name: Add zip
+        run: apt update && apt install zip
+
+      - name: Lambda webhook - build
+        env:
+          lambda_path: modules/webhook/lambdas/webhook
+        working-directory: modules/webhook/lambdas/webhook
+        run: yarn install && yarn dist
+      - name: Lambda webhook - Upload asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ github.job }}
-          path: ${{ env.lambda_path }}/dist
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.lambda_path }}/${{ env.lambda_runners_name }}.zip
+          asset_name: ${{ env.lambda_syncer_name }}-${{ steps.tag_name.outputs.TAG }}.zip
+          asset_content_type: application/zip
+
+      - name: Lambda syncer - build
+        env:
+          lambda_path: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
+        working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
+        run: yarn install && yarn dist
+      - name: Lambda syncer - Upload asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.lambda_path }}/${{ env.lambda_runners_name }}.zip
+          asset_name: ${{ env.lambda_syncer_name }}-${{ steps.tag_name.outputs.TAG }}.zip
+          asset_content_type: application/zip
+
+      - name: Lambda scale runners - build
+        env:
+          lambda_path: modules/runners/lambdas/scale-runners
+        working-directory: modules/runners/lambdas/scale-runners
+        run: yarn install && yarn dist
+      - name: Lambda scale runners - Upload asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.lambda_path }}/${{ env.lambda_runners_name }}.zip
+          asset_name: ${{ env.lambda_runners_name }}-${{ steps.tag_name.outputs.TAG }}.zip
+          asset_content_type: application/zip
   # release_draft:
   #   name: Create Draft Release
   #   needs: build
@@ -95,8 +108,7 @@ jobs:
   #       run: echo ::set-output name=TAG::${GITHUB_REF##*/}
   #     - uses: actions/download-artifact@v2
   #       with:
-  #         name: dist
-  #         path: dist
+  #         path: artifacts
   #     - name: Create zip
   #       run: |
   #         apt update && apt install zip
