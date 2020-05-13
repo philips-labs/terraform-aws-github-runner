@@ -25,6 +25,7 @@ jobs:
         working-directory: ${{ env.lambda_path }}
     steps:
       - name: Create Release
+        id: create_release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -61,7 +62,6 @@ jobs:
         working-directory: modules/runner-binaries-syncer/lambdas/runner-binaries-syncer
         run: yarn install && yarn dist
       - name: Lambda syncer - Upload asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,7 +77,6 @@ jobs:
         working-directory: modules/runners/lambdas/scale-runners
         run: yarn install && yarn dist
       - name: Lambda scale runners - Upload asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
