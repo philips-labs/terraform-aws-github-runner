@@ -37,6 +37,22 @@ module "webhook" {
   lambda_timeout = var.webhook_lambda_timeout
 }
 
+resource "aws_iam_policy" "webhook" {
+  name        = "${var.environment}-lambda-webhook-publish-sqs-policy"
+  description = "Lambda webhook sqs policy"
+
+  policy = templatefile("${path.module}/policies/lambda-publish-sqs-policy.json", {
+    sqs_resource_arn = aws_sqs_queue.queued_builds.arn
+  })
+}
+
+resource "aws_iam_policy_attachment" "webhook" {
+  name       = "${var.environment}-webhook-sqs"
+  roles      = [module.webhook.role.name]
+  policy_arn = aws_iam_policy.webhook.arn
+}
+
+
 module "runners" {
   source = "./modules/runners"
 

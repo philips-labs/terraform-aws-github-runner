@@ -104,22 +104,3 @@ resource "aws_iam_policy_attachment" "webhook_logging" {
   roles      = [aws_iam_role.webhook_lambda.name]
   policy_arn = aws_iam_policy.webhook_logging.arn
 }
-
-resource "aws_iam_policy" "webhook" {
-  count = var.create_sqs_publish_policy ? 1 : 0
-
-  name        = "${var.environment}-lamda-webhook-sqs-publish-policy"
-  description = "Lambda webhook policy"
-
-  policy = templatefile("${path.module}/policies/lambda-webhook.json", {
-    sqs_resource_arn = var.sqs_build_queue.arn
-  })
-}
-
-resource "aws_iam_policy_attachment" "webhook" {
-  count = var.create_sqs_publish_policy ? 1 : 0
-
-  name       = "${var.environment}-webhook"
-  roles      = [aws_iam_role.webhook_lambda.name]
-  policy_arn = aws_iam_policy.webhook[0].arn
-}

@@ -1,6 +1,8 @@
 #!/bin/bash -e
 exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
 
+${pre_install}
+
 yum update -y
 
 # Install docker
@@ -9,8 +11,6 @@ service docker start
 usermod -a -G docker ec2-user
 
 yum install -y curl jq git
-
-${pre_install}
 
 # Install runner
 cd /home/ec2-user

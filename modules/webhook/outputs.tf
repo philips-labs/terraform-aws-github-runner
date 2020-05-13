@@ -6,6 +6,6 @@ output "lambda" {
   value = aws_lambda_function.webhook
 }
 
-output "lambda_role" {
+output "role" {
   value = aws_iam_role.webhook_lambda
 }

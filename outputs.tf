@@ -18,6 +18,6 @@ output "webhook" {
   value = {
     gateway     = module.webhook.gateway
     lambda      = module.webhook.lambda
-    lambda_role = module.webhook.lambda_role
+    lambda_role = module.webhook.role
   }
 }
