@@ -79,7 +79,7 @@ jobs:
           apt update && apt install zip
           cd dist
           ls -la 
-          zip -r ../dist.zip ${lambda_name}.zip
+          zip -r ../${lambda_name}.zip .
       # - name: Create Release
       #   id: create_release
       #   uses: actions/create-release@latest
