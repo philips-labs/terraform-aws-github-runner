@@ -11,6 +11,7 @@ resource "aws_lambda_function" "syncer" {
   runtime          = "nodejs12.x"
   timeout          = var.lambda_timeout
 
+
   environment {
     variables = {
       S3_BUCKET_NAME = aws_s3_bucket.action_dist.id

@@ -1,6 +1,6 @@
 output "runners" {
   value = {
-    lambda_syncer_name = module.runners.binaries_syncer.lambda.function_namea
+    lambda_syncer_name = module.runners.binaries_syncer.lambda.function_name
   }
 }
 

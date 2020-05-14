@@ -6,6 +6,7 @@ resource "aws_lambda_function" "scale_down" {
   handler          = "index.scaleDown"
   runtime          = "nodejs12.x"
   timeout          = var.lambda_timeout_scale_down
+  tags             = local.tags
 
   environment {
     variables = {
@@ -41,6 +42,7 @@ resource "aws_lambda_permission" "scale_down" {
 resource "aws_iam_role" "scale_down" {
   name               = "${var.environment}-action-scale-down-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  tags               = local.tags
 }
 
 resource "aws_iam_role_policy" "scale_down" {

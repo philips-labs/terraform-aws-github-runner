@@ -1,5 +1,4 @@
 locals {
-
   tags = merge(
     {
       "Name" = format("%s-action-runner", var.environment)
@@ -74,6 +73,8 @@ resource "aws_launch_template" "runner" {
     post_install                    = var.userdata_post_install
     s3_location_runner_distribution = var.s3_location_runner_binaries
   }))
+
+  tags = local.tags
 }
 
 resource "aws_security_group" "runner_sg" {

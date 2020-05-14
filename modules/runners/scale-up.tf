@@ -1,11 +1,13 @@
 resource "aws_lambda_function" "scale_up" {
-  filename         = local.lambda_zip
-  source_code_hash = filebase64sha256(local.lambda_zip)
-  function_name    = "${var.environment}-scale-up"
-  role             = aws_iam_role.scale_up.arn
-  handler          = "index.scaleUp"
-  runtime          = "nodejs12.x"
-  timeout          = var.lambda_timeout_scale_up
+  filename                       = local.lambda_zip
+  source_code_hash               = filebase64sha256(local.lambda_zip)
+  function_name                  = "${var.environment}-scale-up"
+  role                           = aws_iam_role.scale_up.arn
+  handler                        = "index.scaleUp"
+  runtime                        = "nodejs12.x"
+  timeout                        = var.lambda_timeout_scale_up
+  reserved_concurrent_executions = 1
+  tags                           = local.tags
 
   environment {
     variables = {
@@ -39,6 +41,7 @@ resource "aws_lambda_permission" "scale_runners_lambda" {
 resource "aws_iam_role" "scale_up" {
   name               = "${var.environment}-action-scale-up-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  tags               = local.tags
 }
 
 resource "aws_iam_role_policy" "scale_up" {
