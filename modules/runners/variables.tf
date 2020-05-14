@@ -92,7 +92,12 @@ variable "userdata_post_install" {
   default     = ""
 }
 
-variable "sqs" {}
+variable "sqs_build_queue" {
+  description = "SQS queue to consume accepted build events."
+  type = object({
+    arn = string
+  })
+}
 
 variable "enable_organization_runners" {
   type = bool

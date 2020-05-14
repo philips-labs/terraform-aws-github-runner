@@ -19,14 +19,11 @@ variable "tags" {
 }
 
 variable "sqs_build_queue" {
+  description = "SQS queue to publish accepted build events."
   type = object({
-    id = string
+    id  = string
+    arn = string
   })
-}
-
-variable "create_sqs_publish_policy" {
-  type    = bool
-  default = true
 }
 
 variable "lambda_zip" {

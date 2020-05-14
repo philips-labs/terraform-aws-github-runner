@@ -9,3 +9,7 @@ output "lambda" {
 output "role" {
   value = aws_iam_role.webhook_lambda
 }
+
+output "endpoint_relative_path" {
+  value = local.webhook_endpoint
+}

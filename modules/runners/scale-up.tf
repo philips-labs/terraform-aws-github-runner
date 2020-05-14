@@ -24,7 +24,7 @@ resource "aws_lambda_function" "scale_up" {
 }
 
 resource "aws_lambda_event_source_mapping" "scale_up" {
-  event_source_arn = var.sqs.arn
+  event_source_arn = var.sqs_build_queue.arn
   function_name    = aws_lambda_function.scale_up.arn
 }
 
@@ -33,7 +33,7 @@ resource "aws_lambda_permission" "scale_runners_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.scale_up.function_name
   principal     = "sqs.amazonaws.com"
-  source_arn    = var.sqs.arn
+  source_arn    = var.sqs_build_queue.arn
 }
 
 resource "aws_iam_role" "scale_up" {
@@ -47,6 +47,6 @@ resource "aws_iam_role_policy" "scale_up" {
 
   policy = templatefile("${path.module}/policies/lambda-scale-up.json", {
     arn_runner_instance_role = aws_iam_role.runner.arn
-    sqs_arn                  = var.sqs.arn
+    sqs_arn                  = var.sqs_build_queue.arn
   })
 }

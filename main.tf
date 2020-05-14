@@ -37,15 +37,6 @@ module "webhook" {
   lambda_timeout = var.webhook_lambda_timeout
 }
 
-resource "aws_iam_role_policy" "webhook" {
-  name = "${var.environment}-lambda-webhook-publish-sqs-policy"
-  role = module.webhook.role.name
-
-  policy = templatefile("${path.module}/policies/lambda-publish-sqs-policy.json", {
-    sqs_resource_arn = aws_sqs_queue.queued_builds.arn
-  })
-}
-
 module "runners" {
   source = "./modules/runners"
 
@@ -58,7 +49,7 @@ module "runners" {
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
 
-  sqs                             = aws_sqs_queue.queued_builds
+  sqs_build_queue                 = aws_sqs_queue.queued_builds
   github_app                      = var.github_app
   enable_organization_runners     = var.enable_organization_runners
   scale_down_schedule_expression  = var.scale_down_schedule_expression
@@ -85,20 +76,9 @@ module "runner_binaries" {
 
 resource "aws_resourcegroups_group" "resourcegroups_group" {
   name = "${var.environment}-group"
-
   resource_query {
-    query = <<-JSON
-{
-  "ResourceTypeFilters": [
-    "AWS::AllSupported"
-  ],
-  "TagFilters": [
-    {
-      "Key": "Environment",
-      "Values": ["${var.environment}"]
-    }
-  ]
-}
-  JSON
+    query = templatefile("${path.module}/templates/resource-group.json", {
+      environment = var.environment
+    })
   }
 }
