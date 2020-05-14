@@ -20,8 +20,7 @@ variable "tags" {
 
 variable "sqs_build_queue" {
   type = object({
-    id  = string
-    arn = string
+    id = string
   })
 }
 

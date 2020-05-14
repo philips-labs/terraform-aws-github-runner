@@ -41,19 +41,12 @@ resource "aws_iam_role" "scale_up" {
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
 }
 
-resource "aws_iam_policy" "scale_up" {
-  name        = "${var.environment}-lambda-scale-up-policy"
-  description = "Lambda scale up policy"
+resource "aws_iam_role_policy" "scale_up" {
+  name = "${var.environment}-lambda-scale-up-policy"
+  role = aws_iam_role.scale_up.name
 
   policy = templatefile("${path.module}/policies/lambda-scale-up.json", {
     arn_runner_instance_role = aws_iam_role.runner.arn
     sqs_arn                  = var.sqs.arn
   })
 }
-
-resource "aws_iam_policy_attachment" "scale_up" {
-  name       = "${var.environment}-scale-up"
-  roles      = [aws_iam_role.scale_up.name]
-  policy_arn = aws_iam_policy.scale_up.arn
-}
-
