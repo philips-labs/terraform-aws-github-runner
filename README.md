@@ -1,12 +1,10 @@
 # Terraform module for scalable self hosted GitHub action runners
 
-> WIP: Module is in development
-
 This [Terraform](https://www.terraform.io/) modules create the required infra structure needed to host [GitHub Action](https://github.com/features/actions) self hosted runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). All logic required to handle the lifecycle for an action runners is implemented in AWS Lambda functions.
 
 ## Motivation
 
-GitHub Actions `self hosted` runners provides you with a flexible option to run your CI workloads on compute of your choice. Currently there is no option provided to automate the creation and scaling of action runners. This module takes care of creating the AWS infra structure to host action runners on spot instances. And provides lambda modules to orchestrate the lifecycle of the action runners.
+GitHub Actions `self hosted` runners provides you with a flexible option to run your CI workloads on compute of your choice. Currently there is no option provided to automate the creation and scaling of action runners. This module takes care of creating the AWS infra structure to host action runners on spot instances. And provides lambda modules to orchestrate the life cycle of the action runners.
 
 Lambda is chosen as runtime for two major reasons. First it allows to create small components with minimal access to AWS and GitHub. Secondly it provides a scalable setup for minimal costs that works on repo level and scales to organization level. The lambdas will create Linux based EC2 instances with Docker to serve CI workloads that can run on Linux and/or Docker. The main goal is here to support Docker based workloads.
 
@@ -37,11 +35,14 @@ Besides these permissions, the lambdas also need permission to CloudWatch (for l
 Examples are provided in [the example directory](examples/). Please ensure you have installed the following tools.
 
 - Terraform, or [tfenv](https://github.com/tfutils/tfenv).
-- Bash shell or compatible.
-- TODO: building lambda ?
-- AWS cli
+- Bash shell or compatible
+- Docker (optional, to build lambdas without node).
+- AWS cli (optional)
+- Node and yarn (for lambda development).
 
 The module support two main scenarios for creating runners. On repository level a runner will be dedicated to only one repository, no other repository can use the runner. On organization level you can use the runner(s) for all the repositories within the organization. See https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners for more information. Before starting the deployment you have to choose one option.
+
+GitHub workflows will fail immediately if there is no action runner available for your builds. Since this module supports to scale from 0 and up, your builds will fail in case there is no active runner available. So we recommend to create an offline runner with matching labels to the configuration. Create this runner by following the GitHub instruction on your local machine. You can stop the process after the step of running the `config.sh`. This offline runner will ensure your builds will not fail immediately and stay queued until there is a runner to pick it up.
 
 The setup consists of running Terraform to create all AWS resources and configure the GitHub App. The Terraform module requires configuration from the GitHub App and the GitHub app requires output from Terraform. Therefore you should first create the GitHub App, configure the basics. Then run Terraform and finalize the configuration of the GitHub App afterwards.
 
@@ -62,11 +63,41 @@ Go to GitHub and create a new app. Beware you can create apps your organization 
 
 ### Setup terraform module
 
-1. Create a terraform workspace and initiate the module, see the examples for more details.
+First you need to download the lambda releases. The lambda code is available as a GitHub release asset. Downloading can be done with the provided terraform module for example. Note that this requires `curl` to be installed on your machine. Create an empty workspace with the following terraform code:
+
+```terraform
+module "lambdas" {
+  source = "../../../modules/download-lambda"
+  lambdas = [
+    {
+      name = "webhook"
+      tag  = "v0.0.0-beta"
+    },
+    {
+      name = "runners"
+      tag  = "v0.0.0-beta"
+    },
+    {
+      name = "runner-binaries-syncer"
+      tag  = "v0.0.0-beta"
+    }
+  ]
+}
+
+output "files" {
+  value = module.lambdas.files
+}
+```
+
+Next run `terraform init && terraform apply` as result the lambdas will be download to the same directory. Alternatively you can download the zip artifacts with any other tool of you favour.
+
+For local development you can build all the lambda's at once using `.ci/build.sh` or per lambda using `yarn dist`.
+
+Next create a second terraform workspace and initiate the module, see the examples for more details.
 
 ```terraform
 module "runners" {
-  source = "git::https://github.com/philips-labs/terraform-aws-github-runner/"
+  source = "git::https://github.com/philips-labs/terraform-aws-github-runner.git?ref=master"
 
   aws_region = "eu-west-1"
   vpc_id     = "vpc-123"
@@ -78,10 +109,13 @@ module "runners" {
     key_base64     = "base64string"
     id             = "1"
     client_id      = "c-123"
-    client_secret  = "secret"
-    webhook_secret = "secret"
+    client_secret  = "client_secret"
+    webhook_secret = "webhook_secret"
   }
 
+  webhook_lambda_zip                = "lambdas-download/webhook.zip"
+  runner_binaries_syncer_lambda_zip = "lambdas-download/runner-binaries-syncer.zip.zip"
+  runners_lambda_zip                = "lambdas-download/runners.zip"
   enable_organization_runners = true
 }
 ```
@@ -93,7 +127,7 @@ terraform init
 terrafrom apply
 ```
 
-3. Check the terraform output for the API gateway url, which you need in the next step.
+Check the terraform output for the API gateway url (endpoint), which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via CloudWatch. To ensure the binary is cached, trigger the `runner-binaries-syncer` manually. The payload does not matter. (e.g. `aws lambda invoke --function-name <environment>-syncer response.json`)
 
 ### Setup GitHub App (part 2)
 
@@ -104,7 +138,41 @@ Go back to the GitHub App and update the following settings.
 3. Provide the webhook secret.
 4. Enable the `Check run` event for the webhook.
 
+You are now ready to run action workloads on self hosted runner, remember builds will fail if there is no (offline) runner available with matching labels.
+
 ## Examples
+
+TODO
+
+## Inputs
+
+| Name                                  | Description                                                                                                         | Type                                                                                                                                             | Default                 | Required |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | :------: |
+| aws_region                            | AWS region.                                                                                                         | `string`                                                                                                                                         | n/a                     |   yes    |
+| enable_organization_runners           | n/a                                                                                                                 | `bool`                                                                                                                                           | n/a                     |   yes    |
+| environment                           | A name that identifies the environment, used as prefix and for tagging.                                             | `string`                                                                                                                                         | n/a                     |   yes    |
+| github_app                            | GitHub app parameters, see your github aapp. Ensure the key is base64 encoded.                                      | <pre>object({<br> key_base64 = string<br> id = string<br> client_id = string<br> client_secret = string<br> webhook_secret = string<br> })</pre> | n/a                     |   yes    |
+| subnet_ids                            | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`.      | `list(string)`                                                                                                                                   | n/a                     |   yes    |
+| vpc_id                                | The VPC for security groups of the action runners.                                                                  | `string`                                                                                                                                         | n/a                     |   yes    |
+| minimum_running_time_in_minutes       | The time an ec2 action runner should be running at minium before terminated if non busy.                            | `number`                                                                                                                                         | `5`                     |    no    |
+| runner_binaries_syncer_lambda_timeout | Time out of the binaries sync lambda in seconds.                                                                    | `number`                                                                                                                                         | `300`                   |    no    |
+| runner_binaries_syncer_lambda_zip     | File location of the binaries sync lambda zip file.                                                                 | `string`                                                                                                                                         | `null`                  |    no    |
+| runner_extra_labels                   | Extra labels for the runners (GitHub). Separate each label by a comma                                               | `string`                                                                                                                                         | `""`                    |    no    |
+| runners_lambda_zip                    | File location of the lambda zip file for scaling runners.                                                           | `string`                                                                                                                                         | `null`                  |    no    |
+| runners_scale_down_lambda_timeout     | Time out for the scale up lambda in seconds.                                                                        | `number`                                                                                                                                         | `60`                    |    no    |
+| runners_scale_up_lambda_timeout       | Time out for the scale down lambda in seconds.                                                                      | `number`                                                                                                                                         | `60`                    |    no    |
+| scale_down_schedule_expression        | Scheduler expression to check every x for scale down.                                                               | `string`                                                                                                                                         | `"cron(*/5 * * * ? *)"` |    no    |
+| tags                                  | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)`                                                                                                                                    | `{}`                    |    no    |
+| webhook_lambda_timeout                | Time out of the webhook lambda in seconds.                                                                          | `number`                                                                                                                                         | `10`                    |    no    |
+| webhook_lambda_zip                    | File location of the wehbook lambda zip file.                                                                       | `string`                                                                                                                                         | `null`                  |    no    |
+
+## Outputs
+
+| Name            | Description |
+| --------------- | ----------- |
+| binaries_syncer | n/a         |
+| runners         | n/a         |
+| webhook         | n/a         |
 
 ## Philips Forest
 

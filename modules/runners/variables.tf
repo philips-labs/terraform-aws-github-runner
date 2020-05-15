@@ -92,7 +92,12 @@ variable "userdata_post_install" {
   default     = ""
 }
 
-variable "sqs" {}
+variable "sqs_build_queue" {
+  description = "SQS queue to consume accepted build events."
+  type = object({
+    arn = string
+  })
+}
 
 variable "enable_organization_runners" {
   type = bool
@@ -126,3 +131,22 @@ variable "runner_extra_labels" {
   type        = string
   default     = ""
 }
+
+variable "lambda_zip" {
+  description = "File location of the lambda zip file."
+  type        = string
+  default     = null
+}
+
+variable "lambda_timeout_scale_down" {
+  description = "Time out for the scale down lambda in seconds."
+  type        = number
+  default     = 60
+}
+
+variable "lambda_timeout_scale_up" {
+  description = "Time out for the scale up lambda in seconds."
+  type        = number
+  default     = 60
+}
+

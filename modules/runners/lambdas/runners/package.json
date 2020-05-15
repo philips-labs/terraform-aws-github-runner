@@ -8,7 +8,7 @@
     "test": "NODE_ENV=test jest",
     "watch": "ts-node-dev --respawn --exit-child src/local.ts",
     "build": "ncc build src/lambda.ts -o dist",
-    "dist": "yarn build && cd dist && zip ../scale-runners.zip index.js"
+    "dist": "yarn build && cd dist && zip ../runners.zip index.js"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.51",

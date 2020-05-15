@@ -1,11 +1,12 @@
 resource "aws_lambda_function" "scale_down" {
-  filename         = "${path.module}/lambdas/scale-runners/scale-runners.zip"
-  source_code_hash = filebase64sha256("${path.module}/lambdas/scale-runners/scale-runners.zip")
+  filename         = local.lambda_zip
+  source_code_hash = filebase64sha256(local.lambda_zip)
   function_name    = "${var.environment}-scale-down"
   role             = aws_iam_role.scale_down.arn
   handler          = "index.scaleDown"
   runtime          = "nodejs12.x"
-  timeout          = 60
+  timeout          = var.lambda_timeout_scale_down
+  tags             = local.tags
 
   environment {
     variables = {
@@ -41,19 +42,15 @@ resource "aws_lambda_permission" "scale_down" {
 resource "aws_iam_role" "scale_down" {
   name               = "${var.environment}-action-scale-down-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  tags               = local.tags
 }
 
-resource "aws_iam_policy" "scale_down" {
-  name        = "${var.environment}-lambda-scale-down-policy"
-  description = "Lambda scale up policy"
-  policy      = templatefile("${path.module}/policies/lambda-scale-down.json", {})
+resource "aws_iam_role_policy" "scale_down" {
+  name   = "${var.environment}-lambda-scale-down-policy"
+  role   = aws_iam_role.scale_down.name
+  policy = templatefile("${path.module}/policies/lambda-scale-down.json", {})
 }
 
-resource "aws_iam_policy_attachment" "scale_down" {
-  name       = "${var.environment}-scale-down"
-  roles      = [aws_iam_role.scale_down.name]
-  policy_arn = aws_iam_policy.scale_down.arn
-}
 
 
 

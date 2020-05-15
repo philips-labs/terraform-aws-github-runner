@@ -1,5 +1,4 @@
 locals {
-
   tags = merge(
     {
       "Name" = format("%s-action-runner", var.environment)
@@ -13,6 +12,7 @@ locals {
   name_sg     = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
   name_runner = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
 
+  lambda_zip = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
 }
 
 data "aws_ami" "runner" {
@@ -73,6 +73,8 @@ resource "aws_launch_template" "runner" {
     post_install                    = var.userdata_post_install
     s3_location_runner_distribution = var.s3_location_runner_binaries
   }))
+
+  tags = local.tags
 }
 
 resource "aws_security_group" "runner_sg" {

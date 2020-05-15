@@ -32,6 +32,9 @@ module "webhook" {
 
   sqs_build_queue           = aws_sqs_queue.queued_builds
   github_app_webhook_secret = var.github_app.webhook_secret
+
+  lambda_zip     = var.webhook_lambda_zip
+  lambda_timeout = var.webhook_lambda_timeout
 }
 
 module "runners" {
@@ -46,12 +49,16 @@ module "runners" {
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
 
-  sqs                             = aws_sqs_queue.queued_builds
+  sqs_build_queue                 = aws_sqs_queue.queued_builds
   github_app                      = var.github_app
   enable_organization_runners     = var.enable_organization_runners
   scale_down_schedule_expression  = var.scale_down_schedule_expression
   minimum_running_time_in_minutes = var.minimum_running_time_in_minutes
   runner_extra_labels             = var.runner_extra_labels
+
+  lambda_zip                = var.runners_lambda_zip
+  lambda_timeout_scale_up   = var.runners_scale_up_lambda_timeout
+  lambda_timeout_scale_down = var.runners_scale_down_lambda_timeout
 }
 
 module "runner_binaries" {
@@ -62,24 +69,16 @@ module "runner_binaries" {
   tags        = local.tags
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
+
+  lambda_zip     = var.runner_binaries_syncer_lambda_zip
+  lambda_timeout = var.runner_binaries_syncer_lambda_timeout
 }
 
 resource "aws_resourcegroups_group" "resourcegroups_group" {
   name = "${var.environment}-group"
-
   resource_query {
-    query = <<-JSON
-{
-  "ResourceTypeFilters": [
-    "AWS::AllSupported"
-  ],
-  "TagFilters": [
-    {
-      "Key": "Environment",
-      "Values": ["${var.environment}"]
-    }
-  ]
-}
-  JSON
+    query = templatefile("${path.module}/templates/resource-group.json", {
+      environment = var.environment
+    })
   }
 }

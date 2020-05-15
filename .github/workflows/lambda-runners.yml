@@ -1,12 +1,12 @@
-name: Lambda Scale Runners
+name: Lambda Runners
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - .github/workflows/lambda-scale-runners.yml
-      - "modules/runners/lambdas/scale-runners/**"
+      - .github/workflows/lambda-runners.yml
+      - "modules/runners/lambdas/runners/**"
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
     container: node:12
     defaults:
       run:
-        working-directory: modules/runners/lambdas/scale-runners
+        working-directory: modules/runners/lambdas/runners
 
     steps:
       - uses: actions/checkout@v2
