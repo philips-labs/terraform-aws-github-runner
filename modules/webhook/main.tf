@@ -1,5 +1,6 @@
 locals {
   webhook_endpoint = "webhook"
+  role_path        = var.role_path == null ? "/${var.environment}/" : var.role_path
   lambda_zip       = var.lambda_zip == null ? "${path.module}/lambdas/webhook/webhook.zip" : var.lambda_zip
 }
 

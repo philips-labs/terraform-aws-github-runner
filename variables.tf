@@ -101,3 +101,21 @@ variable "runner_binaries_syncer_lambda_timeout" {
   type        = number
   default     = 300
 }
+
+variable "role_permissions_boundary" {
+  description = "Permissions boundary that will be added to the created roles."
+  type        = string
+  default     = null
+}
+
+variable "role_path" {
+  description = "The path that will be added to role path for created roles, if not set the environment name will be used."
+  type        = string
+  default     = null
+}
+
+variable "instance_profile_path" {
+  description = "The path that will be added to the instance_profile, if not set the environment name will be used."
+  type        = string
+  default     = null
+}

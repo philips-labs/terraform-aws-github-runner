@@ -1,5 +1,6 @@
 locals {
   lambda_zip = var.lambda_zip == null ? "${path.module}/lambdas/runner-binaries-syncer/runner-binaries-syncer.zip" : var.lambda_zip
+  role_path  = var.role_path == null ? "/${var.environment}/" : var.role_path
 }
 
 resource "aws_lambda_function" "syncer" {
@@ -23,9 +24,12 @@ resource "aws_lambda_function" "syncer" {
 }
 
 resource "aws_iam_role" "syncer_lambda" {
-  name               = "${var.environment}-action-syncer-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-  tags               = var.tags
+  name                 = "${var.environment}-action-syncer-lambda-role"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  path                 = local.role_path
+  permissions_boundary = var.role_permissions_boundary
+
+  tags = var.tags
 }
 
 data "aws_iam_policy_document" "lambda_assume_role_policy" {

@@ -40,9 +40,11 @@ resource "aws_lambda_permission" "scale_down" {
 }
 
 resource "aws_iam_role" "scale_down" {
-  name               = "${var.environment}-action-scale-down-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-  tags               = local.tags
+  name                 = "${var.environment}-action-scale-down-lambda-role"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  path                 = local.role_path
+  permissions_boundary = var.role_permissions_boundary
+  tags                 = local.tags
 }
 
 resource "aws_iam_role_policy" "scale_down" {
@@ -51,6 +53,11 @@ resource "aws_iam_role_policy" "scale_down" {
   policy = templatefile("${path.module}/policies/lambda-scale-down.json", {})
 }
 
+resource "aws_iam_role_policy" "scale_down_logging" {
+  name   = "${var.environment}-lambda-logging"
+  role   = aws_iam_role.scale_down.name
+  policy = templatefile("${path.module}/policies/lambda-cloudwatch.json", {})
+}
 
 
 

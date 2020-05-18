@@ -37,9 +37,11 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 }
 
 resource "aws_iam_role" "webhook_lambda" {
-  name               = "${var.environment}-action-webhook-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-  tags               = var.tags
+  name                 = "${var.environment}-action-webhook-lambda-role"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  path                 = local.role_path
+  permissions_boundary = var.role_permissions_boundary
+  tags                 = var.tags
 }
 
 resource "aws_iam_role_policy" "webhook_logging" {

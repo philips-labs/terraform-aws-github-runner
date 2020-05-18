@@ -150,3 +150,21 @@ variable "lambda_timeout_scale_up" {
   default     = 60
 }
 
+variable "role_permissions_boundary" {
+  description = "Permissions boundary that will be added to the created role for the lambda."
+  type        = string
+  default     = null
+}
+
+variable "role_path" {
+  description = "The path that will be added to the role, if not set the environment name will be used."
+  type        = string
+  default     = null
+}
+
+variable "instance_profile_path" {
+  description = "The path that will be added to the instance_profile, if not set the environment name will be used."
+  type        = string
+  default     = null
+}
+

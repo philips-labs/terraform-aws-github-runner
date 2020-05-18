@@ -39,9 +39,11 @@ resource "aws_lambda_permission" "scale_runners_lambda" {
 }
 
 resource "aws_iam_role" "scale_up" {
-  name               = "${var.environment}-action-scale-up-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-  tags               = local.tags
+  name                 = "${var.environment}-action-scale-up-lambda-role"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  path                 = local.role_path
+  permissions_boundary = var.role_permissions_boundary
+  tags                 = local.tags
 }
 
 resource "aws_iam_role_policy" "scale_up" {
@@ -52,4 +54,10 @@ resource "aws_iam_role_policy" "scale_up" {
     arn_runner_instance_role = aws_iam_role.runner.arn
     sqs_arn                  = var.sqs_build_queue.arn
   })
+}
+
+resource "aws_iam_role_policy" "scale_up_logging" {
+  name   = "${var.environment}-lambda-logging"
+  role   = aws_iam_role.scale_up.name
+  policy = templatefile("${path.module}/policies/lambda-cloudwatch.json", {})
 }

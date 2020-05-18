@@ -36,3 +36,16 @@ variable "lambda_timeout" {
   type        = number
   default     = 300
 }
+
+variable "role_permissions_boundary" {
+  description = "Permissions boundary that will be added to the created role for the lambda."
+  type        = string
+  default     = null
+}
+
+variable "role_path" {
+  description = "The path that will be added to the role, if not set the environment name will be used."
+  type        = string
+  default     = null
+}
+

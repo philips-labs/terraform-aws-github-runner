@@ -9,10 +9,11 @@ locals {
     var.tags,
   )
 
-  name_sg     = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
-  name_runner = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
-
-  lambda_zip = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
+  name_sg               = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
+  name_runner           = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
+  role_path             = var.role_path == null ? "/${var.environment}/" : var.role_path
+  instance_profile_path = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
+  lambda_zip            = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
 }
 
 data "aws_ami" "runner" {

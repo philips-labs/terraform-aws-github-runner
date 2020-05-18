@@ -35,6 +35,9 @@ module "webhook" {
 
   lambda_zip     = var.webhook_lambda_zip
   lambda_timeout = var.webhook_lambda_timeout
+
+  role_path                 = var.role_path
+  role_permissions_boundary = var.role_permissions_boundary
 }
 
 module "runners" {
@@ -59,6 +62,10 @@ module "runners" {
   lambda_zip                = var.runners_lambda_zip
   lambda_timeout_scale_up   = var.runners_scale_up_lambda_timeout
   lambda_timeout_scale_down = var.runners_scale_down_lambda_timeout
+
+  instance_profile_path     = var.instance_profile_path
+  role_path                 = var.role_path
+  role_permissions_boundary = var.role_permissions_boundary
 }
 
 module "runner_binaries" {
@@ -72,6 +79,9 @@ module "runner_binaries" {
 
   lambda_zip     = var.runner_binaries_syncer_lambda_zip
   lambda_timeout = var.runner_binaries_syncer_lambda_timeout
+
+  role_path                 = var.role_path
+  role_permissions_boundary = var.role_permissions_boundary
 }
 
 resource "aws_resourcegroups_group" "resourcegroups_group" {
