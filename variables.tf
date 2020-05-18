@@ -119,3 +119,9 @@ variable "instance_profile_path" {
   type        = string
   default     = null
 }
+
+variable "runner_as_root" {
+  description = "Run the action runner under the root user."
+  type        = bool
+  default     = false
+}
