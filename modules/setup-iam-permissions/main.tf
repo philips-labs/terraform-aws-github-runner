@@ -14,7 +14,7 @@ resource "aws_iam_policy" "boundary" {
   path = "/${var.namespaces.boundary_namespace}/"
 
   policy = templatefile("${path.module}/policies/boundary.json", {
-    role_namespace = "terraform"
+    role_namespace = var.namespaces.role_namespace
     account_id     = data.aws_caller_identity.current.account_id
   })
 }

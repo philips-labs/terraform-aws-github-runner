@@ -5,7 +5,12 @@
       "Action": "sts:AssumeRole",
       "Principal": { "AWS": "arn:aws:iam::${account_id}:root" },
       "Effect": "Allow",
-      "Sid": ""
+      "Sid": "",
+      "Condition": {
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true"
+        }
+      }
     }
   ]
 }
