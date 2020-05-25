@@ -88,20 +88,22 @@ Go to GitHub and create a new app. Beware you can create apps your organization 
 First you need to download the lambda releases. The lambda code is available as a GitHub release asset. Downloading can be done with the provided terraform module for example. Note that this requires `curl` to be installed on your machine. Create an empty workspace with the following terraform code:
 
 ```terraform
-module "lambdas" {
-  source = "../../../modules/download-lambda"
+module "github-runner_download-lambda" {
+  source  = "philips-labs/github-runner/aws//modules/download-lambda"
+  version = "0.1.0"
+ 
   lambdas = [
     {
       name = "webhook"
-      tag  = "v0.0.1"
+      tag  = "v0.1.0"
     },
     {
       name = "runners"
-      tag  = "v0.0.1"
+      tag  = "v0.1.0"
     },
     {
       name = "runner-binaries-syncer"
-      tag  = "v0.0.1"
+      tag  = "v0.1.0"
     }
   ]
 }
@@ -118,8 +120,9 @@ For local development you can build all the lambda's at once using `.ci/build.sh
 Next create a second terraform workspace and initiate the module, see the examples for more details.
 
 ```terraform
-module "runners" {
-  source = "git::https://github.com/philips-labs/terraform-aws-github-runner.git?ref=master"
+module "github-runner" {
+  source  = "philips-labs/github-runner/aws"
+  version = "0.1.0"
 
   aws_region = "eu-west-1"
   vpc_id     = "vpc-123"
@@ -146,7 +149,7 @@ module "runners" {
 
 ```bash
 terraform init
-terrafrom apply
+terraform apply
 ```
 
 Check the terraform output for the API gateway url (endpoint), which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via CloudWatch. To ensure the binary is cached, trigger the `runner-binaries-syncer` manually. The payload does not matter. (e.g. `aws lambda invoke --function-name <environment>-syncer response.json`)
