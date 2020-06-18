@@ -12,7 +12,6 @@ resource "aws_lambda_function" "syncer" {
   runtime          = "nodejs12.x"
   timeout          = var.lambda_timeout
 
-
   environment {
     variables = {
       S3_BUCKET_NAME = aws_s3_bucket.action_dist.id
@@ -77,3 +76,36 @@ resource "aws_lambda_permission" "syncer" {
   source_arn    = aws_cloudwatch_event_rule.syncer.arn
 }
 
+###################################################################################
+### Extra trigger to trigger from S3 to execute the lambda after first deployment
+###################################################################################
+
+resource "aws_s3_bucket_object" "trigger" {
+  bucket = aws_s3_bucket.action_dist.id
+  key    = "triggers/${aws_lambda_function.syncer.id}-trigger.json"
+  source = "${path.module}/trigger.json"
+  etag   = filemd5("${path.module}/trigger.json")
+
+  depends_on = [aws_s3_bucket_notification.on_deploy]
+}
+
+resource "aws_s3_bucket_notification" "on_deploy" {
+  bucket = aws_s3_bucket.action_dist.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.syncer.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "triggers/"
+    filter_suffix       = ".json"
+  }
+
+  depends_on = [aws_lambda_permission.on_deploy]
+}
+
+resource "aws_lambda_permission" "on_deploy" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.syncer.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.action_dist.arn
+}

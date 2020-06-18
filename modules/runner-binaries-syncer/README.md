@@ -1,6 +1,6 @@
 # Module - Runner binaries syncer
 
-This module creates a lambda that will sync GitHub action binary to a S3 bucket, the lambda will be triggered via a CloudWatch event. The distribution is cached to avoid the latency of downloading the distribution during the setup.
+This module creates a lambda that will sync GitHub action binary to a S3 bucket, the lambda will be triggered via a CloudWatch event. The distribution is cached to avoid the latency of downloading the distribution during the setup. After deployment the lambda will be triggered via an S3 object created at deployment time.
 
 ## Usages
 
@@ -41,31 +41,31 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
-| aws | n/a |
+| ---- | ------- |
+| aws  | n/a     |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| aws\_region | AWS region. | `string` | n/a | yes |
-| distribution\_bucket\_name | Bucket for storing the action runner distribution. | `string` | n/a | yes |
-| environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
-| lambda\_schedule\_expression | Scheduler expression for action runner binary syncer. | `string` | `"cron(27 * * * ? *)"` | no |
-| lambda\_timeout | Time out of the lambda in seconds. | `number` | `300` | no |
-| lambda\_zip | File location of the lambda zip file. | `string` | `null` | no |
-| role\_path | The path that will be added to the role, if not set the environment name will be used. | `string` | `null` | no |
-| role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | `string` | `null` | no |
-| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
+| Name                         | Description                                                                                                         | Type          | Default                | Required |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------- | :------: |
+| aws\_region                  | AWS region.                                                                                                         | `string`      | n/a                    |   yes    |
+| distribution\_bucket\_name   | Bucket for storing the action runner distribution.                                                                  | `string`      | n/a                    |   yes    |
+| environment                  | A name that identifies the environment, used as prefix and for tagging.                                             | `string`      | n/a                    |   yes    |
+| lambda\_schedule\_expression | Scheduler expression for action runner binary syncer.                                                               | `string`      | `"cron(27 * * * ? *)"` |    no    |
+| lambda\_timeout              | Time out of the lambda in seconds.                                                                                  | `number`      | `300`                  |    no    |
+| lambda\_zip                  | File location of the lambda zip file.                                                                               | `string`      | `null`                 |    no    |
+| role\_path                   | The path that will be added to the role, if not set the environment name will be used.                              | `string`      | `null`                 |    no    |
+| role\_permissions\_boundary  | Permissions boundary that will be added to the created role for the lambda.                                         | `string`      | `null`                 |    no    |
+| tags                         | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}`                   |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| bucket | n/a |
-| lambda | n/a |
-| lambda\_role | n/a |
-| runner\_distribution\_object\_key | n/a |
+| Name                              | Description |
+| --------------------------------- | ----------- |
+| bucket                            | n/a         |
+| lambda                            | n/a         |
+| lambda\_role                      | n/a         |
+| runner\_distribution\_object\_key | n/a         |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

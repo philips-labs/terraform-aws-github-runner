@@ -158,7 +158,7 @@ terraform init
 terraform apply
 ```
 
-Check the terraform output for the API gateway url (endpoint), which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via CloudWatch. To ensure the binary is cached, trigger the `runner-binaries-syncer` manually. The payload does not matter. (e.g. `aws lambda invoke --function-name <environment>-syncer response.json`)
+Check the terraform output for the API gateway url (endpoint), which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via CloudWatch. After deployment the function is triggered via S3 to ensure the distribution is cached.
 
 ### Setup GitHub App (part 2)
 
