@@ -78,6 +78,9 @@ module "runners" {
   instance_profile_path     = var.instance_profile_path
   role_path                 = var.role_path
   role_permissions_boundary = var.role_permissions_boundary
+
+  userdata_pre_install      = var.userdata_pre_install
+  userdata_post_install     = var.userdata_post_install
 }
 
 module "runner_binaries" {
