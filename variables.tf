@@ -155,3 +155,13 @@ variable "kms_key_id" {
   type        = string
   default     = null
 }
+variable "userdata_pre_install" {
+  type        = string
+  default     = ""
+  description = "Script to be ran before the GitHub Actions runner is installed on the EC2 instances"
+}
+variable "userdata_post_install" {
+  type        = string
+  default     = ""
+  description = "Script to be ran after the GitHub Actions runner is installed on the EC2 instances"
+}

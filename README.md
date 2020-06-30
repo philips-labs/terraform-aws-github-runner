@@ -262,6 +262,8 @@ No requirements.
 | scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | `string` | `"cron(*/5 * * * ? *)"` | no |
 | subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | n/a | yes |
 | tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
+| userdata\_post\_install | Script to be ran after the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
+| userdata\_pre\_install | Script to be ran before the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
 | vpc\_id | The VPC for security groups of the action runners. | `string` | n/a | yes |
 | webhook\_lambda\_timeout | Time out of the webhook lambda in seconds. | `number` | `10` | no |
 | webhook\_lambda\_zip | File location of the wehbook lambda zip file. | `string` | `null` | no |
