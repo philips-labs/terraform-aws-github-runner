@@ -58,6 +58,10 @@ Permission are managed on several places. Below the most important ones. For det
 
 Besides these permissions, the lambdas also need permission to CloudWatch (for logging and scheduling), SSM and S3. For more details about the required permissions see the [documentation](./modules/setup-iam-permissions/README.md) of the IAM module which uses permission boundaries.
 
+### ARM64 support via Graviton/Graviton2 instance-types
+
+When using the default example or top-level module, specifying an `instance_type` that matches a Graviton/Graviton 2 (ARM64) architecture (e.g. a1 or any 6th-gen `g` or `gd` type), the sub-modules will be automatically configured to provision with ARM64 AMIs and leverage GitHub's ARM64 action runner. See below for more details.
+
 ## Usages
 
 Examples are provided in [the example directory](examples/). Please ensure you have installed the following tools.
@@ -151,6 +155,8 @@ module "github-runner" {
 }
 ```
 
+**ARM64** support: Specify an `a1` or `*6g*` (6th-gen Graviton2) instance type to stand up an ARM64 runner, otherwise the default is x86_64.
+
 2. Run terraform by using the following commands
 
 ```bash
@@ -222,6 +228,18 @@ The following sub modules are optional and are provided as example or utility:
 
 - _[download-lambda](./modules/download-lambda/README.md)_ - Utility module to download lambda artifacts from GitHub Release
 - _[setup-iam-permissions](./modules/setup-iam-permissions/README.md)_ - Example module to setup permission boundaries
+
+### ARM64 configuration for submodules
+
+When not using the top-level module and specifying an `a1` or `*6g*` (6th-gen Graviton2) `instance_type`, the `runner-binaries-syncer` and `runners` submodules need to be configured appropriately for pulling the ARM64 GitHub action runner binary and leveraging the arm64 AMI for the runners.
+
+When configuring `runner-binaries-syncer`
+
+- _runner_architecture_ - set to `arm64`, defaults to `x64`
+
+When configuring `runners`
+
+- _ami_filter_ - set to `["amzn2-ami-hvm-2*-arm64-gp2"]`, defaults to `["amzn2-ami-hvm-2.*-x86_64-ebs"]`
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
