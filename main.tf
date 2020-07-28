@@ -62,7 +62,7 @@ module "runners" {
 
   instance_type = var.instance_type
 
-  ami_filter = substr(var.instance_type,0,2) == "a1" || substr(var.instance_type,1,2) == "6g" ? {name = ["amzn2-ami-hvm-2*-arm64-gp2"]} : {name = ["amzn2-ami-hvm-2.*-x86_64-ebs"]}
+  ami_filter = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? { name = ["amzn2-ami-hvm-2*-arm64-gp2"] } : { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
 
   sqs_build_queue                 = aws_sqs_queue.queued_builds
   github_app                      = var.github_app
@@ -94,7 +94,7 @@ module "runner_binaries" {
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
 
-  runner_architecture = substr(var.instance_type,0,2) == "a1" || substr(var.instance_type,1,2) == "6g" ? "arm64" : "x64"
+  runner_architecture = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
 
   lambda_zip     = var.runner_binaries_syncer_lambda_zip
   lambda_timeout = var.runner_binaries_syncer_lambda_timeout
