@@ -20,6 +20,7 @@ aws s3 cp ${s3_location_runner_distribution} actions-runner.tar.gz
 tar xzf ./actions-runner.tar.gz
 rm -rf actions-runner.tar.gz
 
+%{ if runner_architecture == "arm64" ~}
 # Patch for ARM64 (no ICU install by default)
 yum install -y patch
 patch -p1 <<ICU_PATCH
@@ -69,6 +70,7 @@ diff -Naur a/bin/Runner.Worker.runtimeconfig.json b/bin/Runner.Worker.runtimecon
 \ No newline at end of file
 +}
 ICU_PATCH
+%{ endif ~}
 
 INSTANCE_ID=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
 REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)
