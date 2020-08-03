@@ -25,27 +25,17 @@ module "lambdas" {
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
-
-No requirements.
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| null | n/a |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| lambdas | Name and tag for lambdas to download. | <pre>list(object({<br>    name = string<br>    tag  = string<br>  }))</pre> | n/a | yes |
+|------|-------------|:----:|:-----:|:-----:|
+| lambdas | Name and tag for lambdas to download. | object | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| files | n/a |
+| files |  |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

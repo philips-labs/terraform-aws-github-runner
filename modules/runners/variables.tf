@@ -185,8 +185,8 @@ variable "encryption" {
   })
 }
 
- variable "runner_architecture" {
+variable "runner_architecture" {
   description = "The platform architecture of the runner instance_type."
   type        = string
   default     = "x64"
- }
+}
