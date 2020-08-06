@@ -31,13 +31,13 @@ interface ReleaseAsset {
   downloadUrl: string;
 }
 
-async function getLinuxReleaseAsset(): Promise<ReleaseAsset | undefined> {
+async function getLinuxReleaseAsset(runnerArch = 'x64'): Promise<ReleaseAsset | undefined> {
   const githubClient = new Octokit();
   const assets = await githubClient.repos.getLatestRelease({
     owner: 'actions',
     repo: 'runner',
   });
-  const linuxAssets = assets.data.assets?.filter((a) => a.name?.includes('actions-runner-linux-x64-'));
+  const linuxAssets = assets.data.assets?.filter((a) => a.name?.includes(`actions-runner-linux-${runnerArch}-`));
 
   return linuxAssets?.length === 1
     ? { name: linuxAssets[0].name, downloadUrl: linuxAssets[0].browser_download_url }
@@ -73,6 +73,8 @@ async function uploadToS3(s3: S3, cacheObject: CacheObject, actionRunnerReleaseA
 export const handle = async (): Promise<void> => {
   const s3 = new AWS.S3();
 
+  const runnerArch = process.env.GITHUB_RUNNER_ARCHITECTURE || 'x64'
+
   const cacheObject: CacheObject = {
     bucket: process.env.S3_BUCKET_NAME as string,
     key: process.env.S3_OBJECT_KEY as string,
@@ -81,7 +83,7 @@ export const handle = async (): Promise<void> => {
     throw Error('Please check all mandatory variables are set.');
   }
 
-  const actionRunnerReleaseAsset = await getLinuxReleaseAsset();
+  const actionRunnerReleaseAsset = await getLinuxReleaseAsset(runnerArch);
   if (actionRunnerReleaseAsset === undefined) {
     throw Error('Cannot find GitHub release asset.');
   }

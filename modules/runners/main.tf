@@ -79,6 +79,7 @@ resource "aws_launch_template" "runner" {
     post_install                    = var.userdata_post_install
     s3_location_runner_distribution = var.s3_location_runner_binaries
     service_user                    = var.runner_as_root ? "root" : "ec2-user"
+    runner_architecture             = var.runner_architecture
   }))
 
   tags = local.tags

@@ -2,6 +2,7 @@ import { handle } from './handler';
 import latestReleases from '../../test/resources/github-latest-releases.json';
 import latestReleasesEmpty from '../../test/resources/github-latest-releases-empty.json';
 import latestReleasesNoLinux from '../../test/resources/github-latest-releases-no-linux.json';
+import latestReleasesNoArm64 from '../../test/resources/github-latest-releases-no-arm64.json';
 
 const mockOctokit = {
   repos: {
@@ -150,4 +151,21 @@ describe('Invalid config', () => {
     process.env.S3_BUCKET_NAME = bucketName;
     await expect(handle()).rejects.toThrow(errorMessage);
   });
+});
+
+describe('Synchronize action distribution for arm64.', () => {
+ const errorMessage = 'Cannot find GitHub release asset.';
+ beforeEach(() => {
+   process.env.S3_BUCKET_NAME = bucketName;
+   process.env.S3_OBJECT_KEY = bucketObjectKey;
+   process.env.GITHUB_RUNNER_ARCHITECTURE = 'arm64';
+ });
+
+ it('No linux arm64 asset.', async () => {
+  mockOctokit.repos.getLatestRelease.mockImplementation(() => ({
+    data: latestReleasesNoArm64.data,
+  }));
+
+  await expect(handle()).rejects.toThrow(errorMessage);
+ });
 });
