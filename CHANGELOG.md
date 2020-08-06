@@ -6,7 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Added the ability to pass in pre and post install scripts to the userdata script for the EC2 instances
+
+## [0.3.0] - 2020-08-06
+
+### Added
+
+- feat: Add support for ARM64 runners #102 @bdruth
+- feat: added variables in the root module to allow passing in pre and and post install #45 @jaydenrasmussen
+
+### Updated
+
+- fix: Build script not entering all the module directories (#103) @alonsohki
+- fix: Remove Orphan AWS runners (#79)
+- fix: documentation for downloading lambdas (#78) @@bendavies
+- fix: Rename variable and fix variables descriptions (#75) @bendavies @leoblanc
 
 ## [0.2.0] - 2020-06-15
 
@@ -31,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release.
 
-[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.2.0..HEAD
+[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.3.0..HEAD
+[0.3.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.2.0..v0.3.0
 [0.2.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.1.0..v0.2.0
 [0.1.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.0.1..v0.1.0
 [0.0.1]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.0.1
