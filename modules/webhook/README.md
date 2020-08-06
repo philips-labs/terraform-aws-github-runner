@@ -34,39 +34,29 @@ yarn run dist
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
-
-No requirements.
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| aws | n/a |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| aws\_region | AWS region. | `string` | n/a | yes |
-| encryption | KMS key to encrypted lambda environment secrets. Either provide a key and `ecnrypt` set to `true`. Or set the key to `null` and encrypt to `false`. | <pre>object({<br>    kms_key_id = string<br>    encrypt    = bool<br>  })</pre> | n/a | yes |
-| environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
-| github\_app\_webhook\_secret | n/a | `string` | n/a | yes |
-| lambda\_timeout | Time out of the lambda in seconds. | `number` | `10` | no |
-| lambda\_zip | File location of the lambda zip file. | `string` | `null` | no |
-| role\_path | The path that will be added to the role, if not set the environment name will be used. | `string` | `null` | no |
-| role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | `string` | `null` | no |
-| sqs\_build\_queue | SQS queue to publish accepted build events. | <pre>object({<br>    id  = string<br>    arn = string<br>  })</pre> | n/a | yes |
-| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
+|------|-------------|:----:|:-----:|:-----:|
+| aws\_region | AWS region. | string | n/a | yes |
+| encryption | KMS key to encrypted lambda environment secrets. Either provide a key and `encrypt` set to `true`. Or set the key to `null` and encrypt to `false`. | object | n/a | yes |
+| environment | A name that identifies the environment, used as prefix and for tagging. | string | n/a | yes |
+| github\_app\_webhook\_secret |  | string | n/a | yes |
+| lambda\_timeout | Time out of the lambda in seconds. | number | `"10"` | no |
+| lambda\_zip | File location of the lambda zip file. | string | `"null"` | no |
+| role\_path | The path that will be added to the role, if not set the environment name will be used. | string | `"null"` | no |
+| role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | string | `"null"` | no |
+| sqs\_build\_queue | SQS queue to publish accepted build events. | object | n/a | yes |
+| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | map(string) | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| endpoint\_relative\_path | n/a |
-| gateway | n/a |
-| lambda | n/a |
-| role | n/a |
+| endpoint\_relative\_path |  |
+| gateway |  |
+| lambda |  |
+| role |  |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

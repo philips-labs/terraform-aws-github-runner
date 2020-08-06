@@ -11,20 +11,20 @@
     "dist": "yarn build && cd dist && zip ../runners.zip index.js"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.51",
+    "@types/aws-lambda": "^8.10.59",
     "@types/express": "^4.17.3",
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^26.0.4",
     "@types/node": "^13.13.4",
     "@zeit/ncc": "^0.22.1",
-    "aws-sdk": "^2.671.0",
+    "aws-sdk": "^2.725.0",
     "jest": "^25.4.0",
     "ts-jest": "^25.4.0",
-    "ts-node-dev": "^1.0.0-pre.44",
+    "ts-node-dev": "^1.0.0-pre.51",
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@octokit/auth-app": "^2.4.5",
-    "@octokit/rest": "^17.6.0",
+    "@octokit/auth-app": "^2.4.11",
+    "@octokit/rest": "^18.0.3",
     "moment": "^2.25.3",
     "yn": "^4.0.0"
   }

@@ -14,8 +14,9 @@ resource "aws_lambda_function" "syncer" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME = aws_s3_bucket.action_dist.id
-      S3_OBJECT_KEY  = local.action_runner_distribution_object_key
+      S3_BUCKET_NAME             = aws_s3_bucket.action_dist.id
+      S3_OBJECT_KEY              = local.action_runner_distribution_object_key
+      GITHUB_RUNNER_ARCHITECTURE = var.runner_architecture
     }
   }
 
@@ -43,14 +44,14 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 }
 
 resource "aws_iam_role_policy" "lambda_logging" {
-  name = "${var.environment}-lamda-logging-policy-syncer"
+  name = "${var.environment}-lambda-logging-policy-syncer"
   role = aws_iam_role.syncer_lambda.id
 
   policy = templatefile("${path.module}/policies/lambda-cloudwatch.json", {})
 }
 
 resource "aws_iam_role_policy" "syncer" {
-  name = "${var.environment}-lamda-syncer-s3-policy"
+  name = "${var.environment}-lambda-syncer-s3-policy"
   role = aws_iam_role.syncer_lambda.id
 
   policy = templatefile("${path.module}/policies/lambda-syncer.json", {

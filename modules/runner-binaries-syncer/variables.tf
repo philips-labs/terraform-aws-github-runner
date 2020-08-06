@@ -49,3 +49,8 @@ variable "role_path" {
   default     = null
 }
 
+variable "runner_architecture" {
+  description = "The platform architecture for the runner instance (x64, arm64), defaults to 'x64'"
+  type        = string
+  default     = "x64"
+}
