@@ -58,6 +58,10 @@ Permission are managed on several places. Below the most important ones. For det
 
 Besides these permissions, the lambdas also need permission to CloudWatch (for logging and scheduling), SSM and S3. For more details about the required permissions see the [documentation](./modules/setup-iam-permissions/README.md) of the IAM module which uses permission boundaries.
 
+### ARM64 support via Graviton/Graviton2 instance-types
+
+When using the default example or top-level module, specifying an `instance_type` that matches a Graviton/Graviton 2 (ARM64) architecture (e.g. a1 or any 6th-gen `g` or `gd` type), the sub-modules will be automatically configured to provision with ARM64 AMIs and leverage GitHub's ARM64 action runner. See below for more details.
+
 ## Usages
 
 Examples are provided in [the example directory](examples/). Please ensure you have installed the following tools.
@@ -151,6 +155,8 @@ module "github-runner" {
 }
 ```
 
+**ARM64** support: Specify an `a1` or `*6g*` (6th-gen Graviton2) instance type to stand up an ARM64 runner, otherwise the default is x86_64.
+
 2. Run terraform by using the following commands
 
 ```bash
@@ -223,58 +229,59 @@ The following sub modules are optional and are provided as example or utility:
 - _[download-lambda](./modules/download-lambda/README.md)_ - Utility module to download lambda artifacts from GitHub Release
 - _[setup-iam-permissions](./modules/setup-iam-permissions/README.md)_ - Example module to setup permission boundaries
 
+### ARM64 configuration for submodules
+
+When not using the top-level module and specifying an `a1` or `*6g*` (6th-gen Graviton2) `instance_type`, the `runner-binaries-syncer` and `runners` submodules need to be configured appropriately for pulling the ARM64 GitHub action runner binary and leveraging the arm64 AMI for the runners.
+
+When configuring `runner-binaries-syncer`
+
+- _runner_architecture_ - set to `arm64`, defaults to `x64`
+
+When configuring `runners`
+
+- _ami_filter_ - set to `["amzn2-ami-hvm-2*-arm64-gp2"]`, defaults to `["amzn2-ami-hvm-2.*-x86_64-ebs"]`
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
-## Requirements
-
-No requirements.
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| aws | n/a |
-| random | n/a |
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| aws\_region | AWS region. | `string` | n/a | yes |
-| enable\_organization\_runners | n/a | `bool` | n/a | yes |
-| encrypt\_secrets | Encrypt secret variables for lambda's such as secrets and private keys. | `bool` | `true` | no |
-| environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
-| github\_app | GitHub app parameters, see your github app. Ensure the key is base64 encoded. | <pre>object({<br>    key_base64     = string<br>    id             = string<br>    client_id      = string<br>    client_secret  = string<br>    webhook_secret = string<br>  })</pre> | n/a | yes |
-| instance\_profile\_path | The path that will be added to the instance\_profile, if not set the environment name will be used. | `string` | `null` | no |
-| instance\_type | Instance type for the action runner. | `string` | `"m5.large"` | no |
-| kms\_key\_id | Custom KMS key to encrypted lambda secrets, if not provided and `encrypt_secrets` = `true` a KMS key will be created by the module. Secrets will be encrypted with a context `Environment = var.environment`. | `string` | `null` | no |
-| manage\_kms\_key | Let the module manage the KMS key. | `bool` | `true` | no |
-| minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | `number` | `5` | no |
-| role\_path | The path that will be added to role path for created roles, if not set the environment name will be used. | `string` | `null` | no |
-| role\_permissions\_boundary | Permissions boundary that will be added to the created roles. | `string` | `null` | no |
-| runner\_as\_root | Run the action runner under the root user. | `bool` | `false` | no |
-| runner\_binaries\_syncer\_lambda\_timeout | Time out of the binaries sync lambda in seconds. | `number` | `300` | no |
-| runner\_binaries\_syncer\_lambda\_zip | File location of the binaries sync lambda zip file. | `string` | `null` | no |
-| runner\_extra\_labels | Extra labels for the runners (GitHub). Separate each label by a comma | `string` | `""` | no |
-| runners\_lambda\_zip | File location of the lambda zip file for scaling runners. | `string` | `null` | no |
-| runners\_maximum\_count | The maximum number of runners that will be created. | `number` | `3` | no |
-| runners\_scale\_down\_lambda\_timeout | Time out for the scale up lambda in seconds. | `number` | `60` | no |
-| runners\_scale\_up\_lambda\_timeout | Time out for the scale down lambda in seconds. | `number` | `60` | no |
-| scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | `string` | `"cron(*/5 * * * ? *)"` | no |
-| subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | n/a | yes |
-| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
-| userdata\_post\_install | Script to be ran after the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
-| userdata\_pre\_install | Script to be ran before the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
-| vpc\_id | The VPC for security groups of the action runners. | `string` | n/a | yes |
-| webhook\_lambda\_timeout | Time out of the webhook lambda in seconds. | `number` | `10` | no |
-| webhook\_lambda\_zip | File location of the webhook lambda zip file. | `string` | `null` | no |
+|------|-------------|:----:|:-----:|:-----:|
+| aws\_region | AWS region. | string | n/a | yes |
+| enable\_organization\_runners |  | bool | n/a | yes |
+| encrypt\_secrets | Encrypt secret variables for lambda's such as secrets and private keys. | bool | `"true"` | no |
+| environment | A name that identifies the environment, used as prefix and for tagging. | string | n/a | yes |
+| github\_app | GitHub app parameters, see your github app. Ensure the key is base64 encoded. | object | n/a | yes |
+| instance\_profile\_path | The path that will be added to the instance\_profile, if not set the environment name will be used. | string | `"null"` | no |
+| instance\_type | Instance type for the action runner. | string | `"m5.large"` | no |
+| kms\_key\_id | Custom KMS key to encrypted lambda secrets, if not provided and `encrypt\_secrets` = `true` a KMS key will be created by the module. Secrets will be encrypted with a context `Environment = var.environment`. | string | `"null"` | no |
+| manage\_kms\_key | Let the module manage the KMS key. | bool | `"true"` | no |
+| minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | number | `"5"` | no |
+| role\_path | The path that will be added to role path for created roles, if not set the environment name will be used. | string | `"null"` | no |
+| role\_permissions\_boundary | Permissions boundary that will be added to the created roles. | string | `"null"` | no |
+| runner\_as\_root | Run the action runner under the root user. | bool | `"false"` | no |
+| runner\_binaries\_syncer\_lambda\_timeout | Time out of the binaries sync lambda in seconds. | number | `"300"` | no |
+| runner\_binaries\_syncer\_lambda\_zip | File location of the binaries sync lambda zip file. | string | `"null"` | no |
+| runner\_extra\_labels | Extra labels for the runners \(GitHub\). Separate each label by a comma | string | `""` | no |
+| runners\_lambda\_zip | File location of the lambda zip file for scaling runners. | string | `"null"` | no |
+| runners\_maximum\_count | The maximum number of runners that will be created. | number | `"3"` | no |
+| runners\_scale\_down\_lambda\_timeout | Time out for the scale up lambda in seconds. | number | `"60"` | no |
+| runners\_scale\_up\_lambda\_timeout | Time out for the scale down lambda in seconds. | number | `"60"` | no |
+| scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | string | `"cron(*/5 * * * ? *)"` | no |
+| subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc\_id`. | list(string) | n/a | yes |
+| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | map(string) | `{}` | no |
+| userdata\_post\_install | Script to be ran after the GitHub Actions runner is installed on the EC2 instances | string | `""` | no |
+| userdata\_pre\_install | Script to be ran before the GitHub Actions runner is installed on the EC2 instances | string | `""` | no |
+| vpc\_id | The VPC for security groups of the action runners. | string | n/a | yes |
+| webhook\_lambda\_timeout | Time out of the webhook lambda in seconds. | number | `"10"` | no |
+| webhook\_lambda\_zip | File location of the webhook lambda zip file. | string | `"null"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| binaries\_syncer | n/a |
-| runners | n/a |
-| webhook | n/a |
+| binaries\_syncer |  |
+| runners |  |
+| webhook |  |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

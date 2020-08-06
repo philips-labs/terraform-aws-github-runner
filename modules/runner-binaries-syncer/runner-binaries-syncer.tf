@@ -14,8 +14,9 @@ resource "aws_lambda_function" "syncer" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME = aws_s3_bucket.action_dist.id
-      S3_OBJECT_KEY  = local.action_runner_distribution_object_key
+      S3_BUCKET_NAME             = aws_s3_bucket.action_dist.id
+      S3_OBJECT_KEY              = local.action_runner_distribution_object_key
+      GITHUB_RUNNER_ARCHITECTURE = var.runner_architecture
     }
   }
 
