@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { AppAuth } from '@octokit/auth-app/dist-types/types';
 import { listRunners, terminateRunner, RunnerInfo } from './runners';
 import { createGithubAppAuth, createInstallationClient } from './scale-up';
+import { getIdleRunnerCount, ScalingDownConfig } from './scale-down-config';
 import yn from 'yn';
 import moment from 'moment';
 
@@ -47,13 +48,53 @@ function runnerMinimumTimeExceeded(runner: RunnerInfo, minimumRunningTimeInMinut
   return launchTimePlusMinimum < now;
 }
 
+async function removeRunner(
+  ec2runner: RunnerInfo,
+  ghRunnerId: number,
+  repo: Repo,
+  enableOrgLevel: boolean,
+  githubAppClient: Octokit,
+): Promise<void> {
+  try {
+    const result = enableOrgLevel
+      ? await githubAppClient.actions.deleteSelfHostedRunnerFromOrg({
+          runner_id: ghRunnerId,
+          org: repo.repoOwner,
+        })
+      : await githubAppClient.actions.deleteSelfHostedRunnerFromRepo({
+          runner_id: ghRunnerId,
+          owner: repo.repoOwner,
+          repo: repo.repoName,
+        });
+
+    if (result.status == 204) {
+      await terminateRunner(ec2runner);
+      console.info(`AWS runner instance '${ec2runner.instanceId}' is terminated and GitHub runner is de-registered.`);
+    }
+  } catch (e) {
+    console.debug(`Runner '${ec2runner.instanceId}' cannot be de-registered, most likely the runner is active.`);
+  }
+}
+
 export async function scaleDown(): Promise<void> {
+  const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG as string) as [ScalingDownConfig];
+
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
   const environment = process.env.ENVIRONMENT as string;
   const minimumRunningTimeInMinutes = process.env.MINIMUM_RUNNING_TIME_IN_MINUTES as string;
+  let idleCounter = getIdleRunnerCount(scaleDownConfigs);
 
-  const runners = await listRunners({
-    environment: environment,
+  // list and sort runners, newest first. This ensure we keep the newest runners longer.
+  const runners = (
+    await listRunners({
+      environment: environment,
+    })
+  ).sort((a, b): number => {
+    if (a.launchTime === undefined) return 1;
+    if (b.launchTime === undefined) return 1;
+    if (a.launchTime < b.launchTime) return 1;
+    if (a.launchTime > b.launchTime) return -1;
+    return 0;
   });
 
   if (runners.length === 0) {
@@ -82,26 +123,11 @@ export async function scaleDown(): Promise<void> {
       const runnerName = ghRunner.name as string;
       if (runnerName === ec2runner.instanceId) {
         orphanEc2Runner = false;
-        try {
-          const result = enableOrgLevel
-            ? await githubAppClient.actions.deleteSelfHostedRunnerFromOrg({
-                runner_id: ghRunner.id,
-                org: repo.repoOwner,
-              })
-            : await githubAppClient.actions.deleteSelfHostedRunnerFromRepo({
-                runner_id: ghRunner.id,
-                owner: repo.repoOwner,
-                repo: repo.repoName,
-              });
-
-          if (result.status == 204) {
-            await terminateRunner(ec2runner);
-            console.info(
-              `AWS runner instance '${ec2runner.instanceId}' is terminated and GitHub runner '${runnerName}' is de-registered.`,
-            );
-          }
-        } catch (e) {
-          console.debug(`Runner '${runnerName}' cannot be de-registered, most likely the runner is active.`);
+        if (idleCounter > 0) {
+          idleCounter--;
+          console.debug(`Runner '${ec2runner.instanceId}' will kept idle.`);
+        } else {
+          await removeRunner(ec2runner, ghRunner.id, repo, enableOrgLevel, githubAppClient);
         }
       }
     }
