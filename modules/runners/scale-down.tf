@@ -32,11 +32,13 @@ resource "aws_lambda_function" "scale_down" {
       GITHUB_APP_ID                   = var.github_app.id
       GITHUB_APP_CLIENT_ID            = var.github_app.client_id
       GITHUB_APP_CLIENT_SECRET        = local.github_app_client_secret
+      SCALE_DOWN_CONFIG               = jsonencode(var.idle_config)
     }
   }
 }
 
 resource "aws_cloudwatch_event_rule" "scale_down" {
+  name                = "${var.environment}-scale-down-rule"
   schedule_expression = var.scale_down_schedule_expression
   tags                = var.tags
 }

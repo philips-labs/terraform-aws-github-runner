@@ -48,52 +48,63 @@ yarn run dist
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| aws | n/a |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| ami\_filter | List of maps used to create the AMI filter for the action runner AMI. | map(list(string)) | `{ "name": [ "amzn2-ami-hvm-2.*-x86_64-ebs" ] }` | no |
-| ami\_owners | The list of owners used to select the AMI of action runner instances. | list(string) | `[ "amazon" ]` | no |
-| aws\_region | AWS region. | string | n/a | yes |
-| block\_device\_mappings | The EC2 instance block device configuration. Takes the following keys: `delete\_on\_termination`, `volume\_type`, `volume\_size`, `encrypted`, `iops` | map(string) | `{}` | no |
-| enable\_organization\_runners |  | bool | n/a | yes |
-| encryption | KMS key to encrypted lambda environment secrets. Either provide a key and `encrypt` set to `true`. Or set the key to `null` and encrypt to `false`. | object | n/a | yes |
-| environment | A name that identifies the environment, used as prefix and for tagging. | string | n/a | yes |
-| github\_app | GitHub app parameters, see your github app. Ensure the key is base64 encoded. | object | n/a | yes |
-| instance\_profile\_path | The path that will be added to the instance\_profile, if not set the environment name will be used. | string | `"null"` | no |
-| instance\_type | Default instance type for the action runner. | string | `"m5.large"` | no |
-| lambda\_timeout\_scale\_down | Time out for the scale down lambda in seconds. | number | `"60"` | no |
-| lambda\_timeout\_scale\_up | Time out for the scale up lambda in seconds. | number | `"60"` | no |
-| lambda\_zip | File location of the lambda zip file. | string | `"null"` | no |
-| market\_options | Market options for the action runner instances. | string | `"spot"` | no |
-| minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | number | `"5"` | no |
-| overrides | This maps provides the possibility to override some defaults. The following attributes are supported: `name\_sg` overwrite the `Name` tag for all security groups created by this module. `name\_runner\_agent\_instance` override the `Name` tag for the ec2 instance defined in the auto launch configuration. `name\_docker\_machine\_runners` override the `Name` tag spot instances created by the runner agent. | map(string) | `{ "name_runner": "", "name_sg": "" }` | no |
-| role\_path | The path that will be added to the role, if not set the environment name will be used. | string | `"null"` | no |
-| role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | string | `"null"` | no |
-| runner\_architecture | The platform architecture of the runner instance\_type. | string | `"x64"` | no |
-| runner\_as\_root | Run the action runner under the root user. | bool | `"false"` | no |
-| runner\_extra\_labels | Extra labels for the runners \(GitHub\). Separate each label by a comma | string | `""` | no |
-| runners\_maximum\_count | The maximum number of runners that will be created. | number | `"3"` | no |
-| s3\_bucket\_runner\_binaries |  | object | n/a | yes |
-| s3\_location\_runner\_binaries | S3 location of runner distribution. | string | n/a | yes |
-| scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | string | `"cron(*/5 * * * ? *)"` | no |
-| sqs\_build\_queue | SQS queue to consume accepted build events. | object | n/a | yes |
-| subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc\_id`. | list(string) | n/a | yes |
-| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | map(string) | `{}` | no |
-| userdata\_post\_install | User-data script snippet to insert after GitHub acton runner install | string | `""` | no |
-| userdata\_pre\_install | User-data script snippet to insert before GitHub acton runner install | string | `""` | no |
-| vpc\_id | The VPC for the security groups. | string | n/a | yes |
+|------|-------------|------|---------|:--------:|
+| ami\_filter | List of maps used to create the AMI filter for the action runner AMI. | `map(list(string))` | <pre>{<br>  "name": [<br>    "amzn2-ami-hvm-2.*-x86_64-ebs"<br>  ]<br>}</pre> | no |
+| ami\_owners | The list of owners used to select the AMI of action runner instances. | `list(string)` | <pre>[<br>  "amazon"<br>]</pre> | no |
+| aws\_region | AWS region. | `string` | n/a | yes |
+| block\_device\_mappings | The EC2 instance block device configuration. Takes the following keys: `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops` | `map(string)` | `{}` | no |
+| enable\_organization\_runners | n/a | `bool` | n/a | yes |
+| encryption | KMS key to encrypted lambda environment secrets. Either provide a key and `encrypt` set to `true`. Or set the key to `null` and encrypt to `false`. | <pre>object({<br>    kms_key_id = string<br>    encrypt    = bool<br>  })</pre> | n/a | yes |
+| environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
+| github\_app | GitHub app parameters, see your github app. Ensure the key is base64 encoded. | <pre>object({<br>    key_base64    = string<br>    id            = string<br>    client_id     = string<br>    client_secret = string<br>  })</pre> | n/a | yes |
+| idle\_config | List of time period that can be defined as cron expression to keep a minimum amount of runners active instead of scaling down to 0. By defining this list you can ensure that in time periods that match the cron expression within 5 seconds a runner is kept idle. | <pre>list(object({<br>    cron      = string<br>    timeZone  = string<br>    idleCount = number<br>  }))</pre> | `[]` | no |
+| instance\_profile\_path | The path that will be added to the instance\_profile, if not set the environment name will be used. | `string` | `null` | no |
+| instance\_type | Default instance type for the action runner. | `string` | `"m5.large"` | no |
+| lambda\_timeout\_scale\_down | Time out for the scale down lambda in seconds. | `number` | `60` | no |
+| lambda\_timeout\_scale\_up | Time out for the scale up lambda in seconds. | `number` | `60` | no |
+| lambda\_zip | File location of the lambda zip file. | `string` | `null` | no |
+| market\_options | Market options for the action runner instances. | `string` | `"spot"` | no |
+| minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | `number` | `5` | no |
+| overrides | This maps provides the possibility to override some defaults. The following attributes are supported: `name_sg` overwrite the `Name` tag for all security groups created by this module. `name_runner_agent_instance` override the `Name` tag for the ec2 instance defined in the auto launch configuration. `name_docker_machine_runners` override the `Name` tag spot instances created by the runner agent. | `map(string)` | <pre>{<br>  "name_runner": "",<br>  "name_sg": ""<br>}</pre> | no |
+| role\_path | The path that will be added to the role, if not set the environment name will be used. | `string` | `null` | no |
+| role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | `string` | `null` | no |
+| runner\_architecture | The platform architecture of the runner instance\_type. | `string` | `"x64"` | no |
+| runner\_as\_root | Run the action runner under the root user. | `bool` | `false` | no |
+| runner\_extra\_labels | Extra labels for the runners (GitHub). Separate each label by a comma | `string` | `""` | no |
+| runners\_maximum\_count | The maximum number of runners that will be created. | `number` | `3` | no |
+| s3\_bucket\_runner\_binaries | n/a | <pre>object({<br>    arn = string<br>  })</pre> | n/a | yes |
+| s3\_location\_runner\_binaries | S3 location of runner distribution. | `string` | n/a | yes |
+| scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | `string` | `"cron(*/5 * * * ? *)"` | no |
+| sqs\_build\_queue | SQS queue to consume accepted build events. | <pre>object({<br>    arn = string<br>  })</pre> | n/a | yes |
+| subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | n/a | yes |
+| tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
+| userdata\_post\_install | User-data script snippet to insert after GitHub acton runner install | `string` | `""` | no |
+| userdata\_pre\_install | User-data script snippet to insert before GitHub acton runner install | `string` | `""` | no |
+| vpc\_id | The VPC for the security groups. | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| lambda\_scale\_down |  |
-| lambda\_scale\_up |  |
-| launch\_template |  |
-| role\_runner |  |
-| role\_scale\_down |  |
-| role\_scale\_up |  |
+| lambda\_scale\_down | n/a |
+| lambda\_scale\_up | n/a |
+| launch\_template | n/a |
+| role\_runner | n/a |
+| role\_scale\_down | n/a |
+| role\_scale\_up | n/a |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
