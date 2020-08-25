@@ -60,3 +60,9 @@ variable "logging_retention_in_days" {
   type        = number
   default     = 7
 }
+
+variable "runner_allow_prerelease_binaries" {
+  description = "Allow the runners to update to prerelease binaries."
+  type        = bool
+  default     = false
+}

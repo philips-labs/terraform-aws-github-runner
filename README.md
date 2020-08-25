@@ -301,6 +301,7 @@ No requirements.
 | minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | `number` | `5` | no |
 | role\_path | The path that will be added to role path for created roles, if not set the environment name will be used. | `string` | `null` | no |
 | role\_permissions\_boundary | Permissions boundary that will be added to the created roles. | `string` | `null` | no |
+| runner\_allow\_prerelease\_binaries | Allow the runners to update to prerelease binaries. | `bool` | `false` | no |
 | runner\_as\_root | Run the action runner under the root user. | `bool` | `false` | no |
 | runner\_binaries\_syncer\_lambda\_timeout | Time out of the binaries sync lambda in seconds. | `number` | `300` | no |
 | runner\_binaries\_syncer\_lambda\_zip | File location of the binaries sync lambda zip file. | `string` | `null` | no |
