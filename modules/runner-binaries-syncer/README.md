@@ -57,6 +57,7 @@ No requirements.
 | logging\_retention\_in\_days | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `7` | no |
 | role\_path | The path that will be added to the role, if not set the environment name will be used. | `string` | `null` | no |
 | role\_permissions\_boundary | Permissions boundary that will be added to the created role for the lambda. | `string` | `null` | no |
+| runner\_allow\_prerelease\_binaries | Allow the runners to update to prerelease binaries. | `bool` | `false` | no |
 | runner\_architecture | The platform architecture for the runner instance (x64, arm64), defaults to 'x64' | `string` | `"x64"` | no |
 | tags | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |
 
