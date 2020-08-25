@@ -33,6 +33,9 @@ module "runners" {
   enable_organization_runners = false
   runner_extra_labels         = "default,example"
 
+  # enable access to the runners via SSM
+  enable_ssm_on_runners = true
+
   # Uncommet idle config to have idle runners from 9 to 5 in time zone Amsterdam
   # idle_config = [{
   #   cron      = "* * 9-17 * * *"
