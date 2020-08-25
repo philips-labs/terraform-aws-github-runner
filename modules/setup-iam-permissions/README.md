@@ -37,20 +37,30 @@ output "boundary" {
 Next execute the created Terraform code `terraform init && terraform apply` The module will. You can use the created role in your terraform provider with assume role and the boundary as well the namespace needs to be set to the root module.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| aws | n/a |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| account\_id | The module allows to switch to the created role from the provided account id. | string | n/a | yes |
-| environment | A name that identifies the environment, used as prefix and for tagging. | string | n/a | yes |
-| namespaces | The role will be only allowed to create roles, policies and instance profiles in the given namespace / path. All policies in the boundaries namespace cannot be modified by this role. | object | n/a | yes |
+|------|-------------|------|---------|:--------:|
+| account\_id | The module allows to switch to the created role from the provided account id. | `string` | n/a | yes |
+| environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
+| namespaces | The role will be only allowed to create roles, policies and instance profiles in the given namespace / path. All policies in the boundaries namespace cannot be modified by this role. | <pre>object({<br>    boundary_namespace         = string<br>    role_namespace             = string<br>    policy_namespace           = string<br>    instance_profile_namespace = string<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| boundary |  |
-| role |  |
+| boundary | n/a |
+| role | n/a |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

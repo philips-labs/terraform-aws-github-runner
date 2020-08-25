@@ -200,3 +200,14 @@ variable "idle_config" {
   }))
   default = []
 }
+
+variable "logging_retention_in_days" {
+  description = "Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653."
+  type        = number
+  default     = 7
+}
+
+variable "enable_ssm_on_runners" {
+  description = "Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances."
+  type        = bool
+}

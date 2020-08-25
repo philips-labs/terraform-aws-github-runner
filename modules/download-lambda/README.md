@@ -10,33 +10,42 @@ module "lambdas" {
   lambdas = [
     {
       name = "webhook"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     },
     {
       name = "runners"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     },
     {
       name = "runner-binaries-syncer"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     }
   ]
 }
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+| Name | Version |
+| ---- | ------- |
+| null | n/a     |
 
 ## Inputs
 
-| Name    | Description                           |  Type  | Default | Required |
-| ------- | ------------------------------------- | :----: | :-----: | :------: |
-| lambdas | Name and tag for lambdas to download. | object |   n/a   |   yes    |
+| Name    | Description                           | Type                                                                        | Default | Required |
+| ------- | ------------------------------------- | --------------------------------------------------------------------------- | ------- | :------: |
+| lambdas | Name and tag for lambdas to download. | <pre>list(object({<br>    name = string<br>    tag  = string<br>  }))</pre> | n/a     |   yes    |
 
 ## Outputs
 
 | Name  | Description |
 | ----- | ----------- |
-| files |             |
+| files | n/a         |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

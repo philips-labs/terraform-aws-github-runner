@@ -100,20 +100,20 @@ First you need to download the lambda releases. The lambda code is available as 
 ```terraform
 module "lambdas" {
   source  = "philips-labs/github-runner/aws//modules/download-lambda"
-  version = "0.2.0"
+  version = "0.5.0"
 
   lambdas = [
     {
       name = "webhook"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     },
     {
       name = "runners"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     },
     {
       name = "runner-binaries-syncer"
-      tag  = "v0.3.0"
+      tag  = "v0.5.0"
     }
   ]
 }
@@ -132,7 +132,7 @@ Next create a second terraform workspace and initiate the module, see the exampl
 ```terraform
 module "github-runner" {
   source  = "philips-labs/github-runner/aws"
-  version = "0.2.0"
+  version = "0.5.0"
 
   aws_region = "eu-west-1"
   vpc_id     = "vpc-123"
@@ -297,10 +297,12 @@ No requirements.
 | instance_profile_path                 | The path that will be added to the instance_profile, if not set the environment name will be used.                                                                                                                                                                   | `string`                                                                                                                                         | `null`                  |    no    |
 | instance_type                         | Instance type for the action runner.                                                                                                                                                                                                                                 | `string`                                                                                                                                         | `"m5.large"`            |    no    |
 | kms_key_id                            | Custom KMS key to encrypted lambda secrets, if not provided and `encrypt_secrets` = `true` a KMS key will be created by the module. Secrets will be encrypted with a context `Environment = var.environment`.                                                        | `string`                                                                                                                                         | `null`                  |    no    |
+| logging_retention_in_days             | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653.                                                                          | `number`                                                                                                                                         | `7`                     |    no    |
 | manage_kms_key                        | Let the module manage the KMS key.                                                                                                                                                                                                                                   | `bool`                                                                                                                                           | `true`                  |    no    |
 | minimum_running_time_in_minutes       | The time an ec2 action runner should be running at minimum before terminated if non busy.                                                                                                                                                                            | `number`                                                                                                                                         | `5`                     |    no    |
 | role_path                             | The path that will be added to role path for created roles, if not set the environment name will be used.                                                                                                                                                            | `string`                                                                                                                                         | `null`                  |    no    |
 | role_permissions_boundary             | Permissions boundary that will be added to the created roles.                                                                                                                                                                                                        | `string`                                                                                                                                         | `null`                  |    no    |
+| runner_allow_prerelease_binaries      | Allow the runners to update to prerelease binaries.                                                                                                                                                                                                                  | `bool`                                                                                                                                           | `false`                 |    no    |
 | runner_as_root                        | Run the action runner under the root user.                                                                                                                                                                                                                           | `bool`                                                                                                                                           | `false`                 |    no    |
 | runner_binaries_syncer_lambda_timeout | Time out of the binaries sync lambda in seconds.                                                                                                                                                                                                                     | `number`                                                                                                                                         | `300`                   |    no    |
 | runner_binaries_syncer_lambda_zip     | File location of the binaries sync lambda zip file.                                                                                                                                                                                                                  | `string`                                                                                                                                         | `null`                  |    no    |
@@ -317,6 +319,7 @@ No requirements.
 | vpc_id                                | The VPC for security groups of the action runners.                                                                                                                                                                                                                   | `string`                                                                                                                                         | n/a                     |   yes    |
 | webhook_lambda_timeout                | Time out of the webhook lambda in seconds.                                                                                                                                                                                                                           | `number`                                                                                                                                         | `10`                    |    no    |
 | webhook_lambda_zip                    | File location of the webhook lambda zip file.                                                                                                                                                                                                                        | `string`                                                                                                                                         | `null`                  |    no    |
+| enable_ssm_on_runners                 | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances.                                                                                                                      | `bool`                                                                                                                                           | `false`                 |    no    |
 
 ## Outputs
 

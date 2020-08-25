@@ -38,8 +38,9 @@ module "webhook" {
   sqs_build_queue           = aws_sqs_queue.queued_builds
   github_app_webhook_secret = var.github_app.webhook_secret
 
-  lambda_zip     = var.webhook_lambda_zip
-  lambda_timeout = var.webhook_lambda_timeout
+  lambda_zip                = var.webhook_lambda_zip
+  lambda_timeout            = var.webhook_lambda_timeout
+  logging_retention_in_days = var.logging_retention_in_days
 
   role_path                 = var.role_path
   role_permissions_boundary = var.role_permissions_boundary
@@ -75,10 +76,12 @@ module "runners" {
   runner_as_root                  = var.runner_as_root
   runners_maximum_count           = var.runners_maximum_count
   idle_config                     = var.idle_config
+  enable_ssm_on_runners           = var.enable_ssm_on_runners
 
   lambda_zip                = var.runners_lambda_zip
   lambda_timeout_scale_up   = var.runners_scale_up_lambda_timeout
   lambda_timeout_scale_down = var.runners_scale_down_lambda_timeout
+  logging_retention_in_days = var.logging_retention_in_days
 
   instance_profile_path     = var.instance_profile_path
   role_path                 = var.role_path
@@ -97,10 +100,12 @@ module "runner_binaries" {
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
 
-  runner_architecture = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
+  runner_architecture              = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
+  runner_allow_prerelease_binaries = var.runner_allow_prerelease_binaries
 
-  lambda_zip     = var.runner_binaries_syncer_lambda_zip
-  lambda_timeout = var.runner_binaries_syncer_lambda_timeout
+  lambda_zip                = var.runner_binaries_syncer_lambda_zip
+  lambda_timeout            = var.runner_binaries_syncer_lambda_timeout
+  logging_retention_in_days = var.logging_retention_in_days
 
   role_path                 = var.role_path
   role_permissions_boundary = var.role_permissions_boundary
