@@ -608,14 +608,14 @@
   dependencies:
     "@types/node" ">= 8"
 
-"@octokit/webhooks@^7.11.0":
-  version "7.11.0"
-  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-7.11.0.tgz#167531c9adf6f10b62b04215c756f017bf78b830"
-  integrity sha512-ADKEcFYgPs1blBaW1MDvn+rJ/5qu8gpjrADf909Ew5prOgvsVFbuCfhLWZKJv21u4qWodJsy5K1zTufjnaAUNw==
+"@octokit/webhooks@^7.11.2":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@octokit/webhooks/-/webhooks-7.11.2.tgz#dac23cc371201c92f27ab7d7a08f05be61b68264"
+  integrity sha512-5sYNoh7E40UDK2wrma0LiwBPtOg8Rq0g3G58cUYyZmwV2EdwSeZoIrJF/sanWrRsNPIxwEKkRvb7VruXkmeCWg==
   dependencies:
     "@octokit/request-error" "^2.0.2"
     "@pika/plugin-ts-standard-pkg" "^0.9.2"
-    aggregate-error "^3.0.1"
+    aggregate-error "^3.1.0"
     debug "^4.0.0"
 
 "@pika/babel-plugin-esm-import-rewrite@^0.6.1":
@@ -871,10 +871,10 @@ acorn@^7.1.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.3.1.tgz#85010754db53c3fbaf3b9ea3e083aa5c5d147ffd"
   integrity sha512-tLc0wSnatxAQHVHUapaHdz72pi9KUyHjq5KyHjGg9Y8Ifdc79pTh2XvI6I1/chZbnM7QtNKzh66ooDogPZSleA==
 
-aggregate-error@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/aggregate-error/-/aggregate-error-3.0.1.tgz#db2fe7246e536f40d9b5442a39e117d7dd6a24e0"
-  integrity sha512-quoaXsZ9/BLNae5yiNoUz+Nhkwz83GhWwtYFglcjEQB2NDHCIpApbqXxIFnm4Pq/Nvhrsq5sYJFyohrrxnTGAA==
+aggregate-error@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/aggregate-error/-/aggregate-error-3.1.0.tgz#92670ff50f5359bdb7a3e0d40d0ec30c5737687a"
+  integrity sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==
   dependencies:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
