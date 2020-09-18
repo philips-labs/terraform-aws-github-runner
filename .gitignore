@@ -17,3 +17,5 @@ example/*.secrets*.tfvars
 *.gz
 *.tgz
 *.env
+
+/node_modules

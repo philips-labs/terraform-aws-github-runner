@@ -1,3 +1,17 @@
+## [0.2.2](https://github.com/nielswijers/terraform-aws-github-runner/compare/v0.2.1...v0.2.2) (2020-06-22)
+
+
+### Bug Fixes
+
+* bump version ([cba117a](https://github.com/nielswijers/terraform-aws-github-runner/commit/cba117a080a77d93e50fc72a53473bd104bb72f9))
+
+## [0.2.1](https://github.com/nielswijers/terraform-aws-github-runner/compare/v0.2.0...v0.2.1) (2020-06-16)
+
+
+### Bug Fixes
+
+* trigger a new release ([5003d75](https://github.com/nielswijers/terraform-aws-github-runner/commit/5003d75fbb326f78591c3a3cc232ec0a44cce90d))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

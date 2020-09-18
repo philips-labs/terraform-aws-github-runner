@@ -1,0 +1,15 @@
+{
+  "name": "terraform-aws-github-runner",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:nielswijers/terraform-aws-github-runner.git",
+  "author": "Niels Wijers <nielswijers@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@semantic-release/changelog": "5.0.1",
+    "@semantic-release/git": "9.0.0"
+  },
+  "devDependencies": {
+    "@semantic-release/exec": "^5.0.0"
+  }
+}
