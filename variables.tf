@@ -153,6 +153,12 @@ variable "kms_key_id" {
   default     = null
 }
 
+variable "userdata_template" {
+  description = "Alternative user-data template, replacing the default template. By providing your own user_data you have to take care of installing all required software, including the action runner. Variables userdata_pre/post_install are ignored."
+  type        = string
+  default     = null
+}
+
 variable "userdata_pre_install" {
   type        = string
   default     = ""
@@ -191,4 +197,22 @@ variable "runner_allow_prerelease_binaries" {
   description = "Allow the runners to update to prerelease binaries."
   type        = bool
   default     = false
+}
+
+variable "block_device_mappings" {
+  description = "The EC2 instance block device configuration. Takes the following keys: `device_name`, `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops`"
+  type        = map(string)
+  default     = {}
+}
+
+variable "ami_filter" {
+  description = "List of maps used to create the AMI filter for the action runner AMI. By default amazon linux 2 is used."
+  type        = map(list(string))
+
+  default = {}
+}
+variable "ami_owners" {
+  description = "The list of owners used to select the AMI of action runner instances."
+  type        = list(string)
+  default     = ["amazon"]
 }
