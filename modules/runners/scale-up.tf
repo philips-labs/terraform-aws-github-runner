@@ -90,6 +90,7 @@ resource "aws_iam_role_policy" "scale_up_logging" {
 }
 
 resource "aws_iam_role_policy" "service_linked_role" {
+  count  = var.create_service_linked_role_spot ? 1 : 0
   name   = "${var.environment}-service_linked_role"
   role   = aws_iam_role.scale_up.name
   policy = templatefile("${path.module}/policies/service-linked-role-create-policy.json", {})

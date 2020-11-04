@@ -45,4 +45,7 @@ module "runners" {
 
   # disable KMS and encryption
   # encrypt_secrets = false
+
+  # Let the module manage the service linked role
+  # create_service_linked_role_spot = true
 }

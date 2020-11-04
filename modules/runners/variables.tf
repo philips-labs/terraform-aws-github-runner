@@ -233,3 +233,8 @@ variable "runners_lambda_s3_object_version" {
   default     = null
 }
 
+variable "create_service_linked_role_spot" {
+  description = "(optional) create the serviced linked role for spot instances that is required by the scale-up lambda."
+  type        = bool
+  default     = false
+}
