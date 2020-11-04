@@ -100,6 +100,8 @@ module "runners" {
   userdata_template     = var.userdata_template
   userdata_pre_install  = var.userdata_pre_install
   userdata_post_install = var.userdata_post_install
+
+  create_service_linked_role_spot = var.create_service_linked_role_spot
 }
 
 module "runner_binaries" {
