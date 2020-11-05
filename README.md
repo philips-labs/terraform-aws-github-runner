@@ -20,6 +20,7 @@ This [Terraform](https://www.terraform.io/) modules create the required infra st
 - [Providers](#providers)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
+- [Contribution](#contribution)
 - [Philips Forest](#philips-forest)
 
 ## Motivation
@@ -94,6 +95,8 @@ Go to GitHub and create a new app. Beware you can create apps your organization 
 10. Make a note of the following app parameters: app id , client ID, and client secret
 
 ### Setup terraform module
+
+By default it assumed you have the lambda's locally available. Which could be either download via the GitHub release or build locally. Alternatively you can upload the lambda functions to a S3 bucket, in that case you have to set the variables `lambda_s3_bucket` and the specific object key for each lambda. Below the setup for having local zip available.
 
 First you need to download the lambda releases. The lambda code is available as a GitHub release asset. Downloading can be done with the provided terraform module for example. Note that this requires `curl` to be installed on your machine. Create an empty workspace with the following terraform code:
 
@@ -349,6 +352,10 @@ No requirements.
 | webhook | n/a |
 
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Contribution
+
+We welcome contribution, please checkout the [contribution guide](CONTRIBUTING.md). Be-aware we use [pre commit hooks](https://pre-commit.com/) to update the docs.
 
 ## Philips Forest
 
