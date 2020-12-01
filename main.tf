@@ -102,6 +102,8 @@ module "runners" {
   userdata_post_install = var.userdata_post_install
 
   create_service_linked_role_spot = var.create_service_linked_role_spot
+
+  runner_iam_role_managed_policy_arns = var.runner_iam_role_managed_policy_arns
 }
 
 module "runner_binaries" {

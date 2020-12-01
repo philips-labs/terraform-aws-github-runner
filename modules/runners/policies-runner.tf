@@ -39,3 +39,9 @@ resource "aws_iam_role_policy" "dist_bucket" {
     }
   )
 }
+
+resource "aws_iam_role_policy_attachment" "managed_policies" {
+  count      = length(var.runner_iam_role_managed_policy_arns)
+  role       = aws_iam_role.runner.name
+  policy_arn = element(var.runner_iam_role_managed_policy_arns, count.index)
+}
