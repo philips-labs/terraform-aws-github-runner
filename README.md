@@ -2,7 +2,7 @@
 
 # Terraform module for scalable self hosted GitHub action runners <!-- omit in toc -->
 
-This [Terraform](https://www.terraform.io/) modules create the required infra structure needed to host [GitHub Actions](https://github.com/features/actions) self hosted auto scaling runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). By default the GitHub action runner, runs on a single host and does provide scaling. This module also provide the required logic to handle the life cycle for scaling up and down by a set of AWS Lambda functions. The module scaled the runners back to zero to avoid any costs when no workflows are active.
+This [Terraform](https://www.terraform.io/) module creates the required infrastructure needed to host [GitHub Actions](https://github.com/features/actions) self hosted, auto scaling runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). It provides the required logic to handle the life cycle for scaling up and down using a set of AWS Lambda functions. Runners are scaled down to zero to avoid costs when no workflows are active.
 
 - [Motivation](#motivation)
 - [Overview](#overview)
@@ -25,29 +25,29 @@ This [Terraform](https://www.terraform.io/) modules create the required infra st
 
 ## Motivation
 
-GitHub Actions `self hosted` runners provides you with a flexible option to run your CI workloads on compute of your choice. Currently there is no option provided to automate the creation and scaling of action runners. This module takes care of creating the AWS infra structure to host action runners on spot instances. And provides lambda modules to orchestrate the life cycle of the action runners.
+GitHub Actions `self hosted` runners provide a flexible option to run CI workloads on infrastructure of your choice. Currently there is no option provided to automate the creation and scaling of action runners. This module takes care of creating the AWS infrastructure to host action runners on spot instances. It provides lambda modules to orchestrate the life cycle of the action runners.
 
-Lambda is chosen as runtime for two major reasons. First it allows to create small components with minimal access to AWS and GitHub. Secondly it provides a scalable setup for minimal costs that works on repo level and scales to organization level. The lambdas will create Linux based EC2 instances with Docker to serve CI workloads that can run on Linux and/or Docker. The main goal is here to support Docker based workloads.
+Lambda is chosen as runtime for two major reasons. First it allows to create small components with minimal access to AWS and GitHub. Secondly it provides a scalable setup with minimal costs that works on repo level and scales to organization level. The lambdas will create Linux based EC2 instances with Docker to serve CI workloads that can run on Linux and/or Docker. The main goal is to support Docker based workloads.
 
 A logical question would be why not Kubernetes? In the current approach we stay close to the way the GitHub action runners are available today. The approach is to install the runner on a host where the required software is available. With this setup we stay quite close to the current GitHub approach. Another logical choice would be AWS Auto Scaling groups. This choice would typically require much more permissions on instance level to GitHub. And besides that, scaling up and down is not trivial.
 
 ## Overview
 
-The moment a GitHub action workflow requiring a `self-hosted` runner is triggered, GitHub will try to find a runner which can execute the workload. This is the moment this module hooks in. GitHub created a [check run event](https://developer.github.com/v3/activity/events/types/#checkrunevent) for the triggered workflow. This is the event that is used to decide if the creation of a new runner is necessary.
+The moment a GitHub action workflow requiring a `self-hosted` runner is triggered, GitHub will try to find a runner which can execute the workload. This module reacts to GitHub's [`check_run` event](https://docs.github.com/en/free-pro-team@latest/developers/webhooks-and-events/webhook-events-and-payloads#check_run) for the triggered workflow and creates a new runner if necessary.
 
-For receiving the `check run` event a GItHub App needs to be created with a webhook to which the event will be published. Installing the GitHub App to a specific repository or all repositories ensures the `check run` event will be sent to the webhook.
+For receiving the `check_run` event, a GitHub App needs to be created with a webhook to which the event will be published. Installing the GitHub App in a specific repository or all repositories ensures the `check_run` event will be sent to the webhook.
 
-In AWS a [API gateway](https://docs.aws.amazon.com/apigateway/index.html) endpoint is created that is able to receive the GitHub webhook events via HTTP post. The gateway triggers the webhook lambda which will verify the signature of the event, this check guarantees the event is sent by the GitHub App. The lambda only handles `check run` events with status `created`. The accepted events are posted on a SQS queue. Messages on this queue will be delayed for a configurable amount of seconds (default 30 seconds) to give the available runners time to pick up this build.
+In AWS a [API gateway](https://docs.aws.amazon.com/apigateway/index.html) endpoint is created that is able to receive the GitHub webhook events via HTTP post. The gateway triggers the webhook lambda which will verify the signature of the event. This check guarantees the event is sent by the GitHub App. The lambda only handles `check_run` events with status `created`. The accepted events are posted on a SQS queue. Messages on this queue will be delayed for a configurable amount of seconds (default 30 seconds) to give the available runners time to pick up this build.
 
-The scale up runner is listening to the SQS queue and picks up events. The lambda runs checks like, is the build not started? Is the maximum number of runners not reached? In case one of checks fails, the event is dropped and it is assumed an available runner already has finished the build or will do this once a previous workload is finished. In case the build is not picked up and the maximum amount of runners is not reached, the lambda will create an EC2 spot instance to host the action runner for executing the workflow.
+The "scale up runner" lambda is listening to the SQS queue and picks up events. The lambda runs various checks to decide whether a new EC2 spot instance needs to be created. For example, the instance is not created if the build is already started by an existing runner, or the maximum number of runners is reached.
 
-The Lambda first requests a registration token from GitHub, the token is needed later by the runner to register itself. This also avoids that the EC2 instance, that later in the process will install the agent, needs administration permissions to register the runner. Next the EC2 spot instance is created via the launch template. The launch template defines the specifications of the required instance and contains a [`user_data`](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) script. This script will install the required software and configure it. The registration token for the action runner is stored in the parameter store (SSM) from which the user data script will fetch it and delete it once it has been retrieved. Once the user data script is finished the action runner should be online and the workflow will start in seconds.
+The Lambda first requests a registration token from GitHub which is needed later by the runner to register itself. This avoids that the EC2 instance, which later in the process will install the agent, needs administration permissions to register the runner. Next the EC2 spot instance is created via the launch template. The launch template defines the specifications of the required instance and contains a [`user_data`](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) script. This script will install the required software and configure it. The registration token for the action runner is stored in the parameter store (SSM) from which the user data script will fetch it and delete it once it has been retrieved. Once the user data script is finished the action runner should be online and the workflow will start in seconds.
 
 Scaling down the runners is at the moment brute-forced, every configurable amount of minutes a lambda will check every runner (instance) if it is busy. In case the runner is not busy it will be removed from GitHub and the instance terminated in AWS. At the moment there seems no other option to scale down more smoothly.
 
 Downloading the GitHub Action Runner distribution can be occasionally slow (more than 10 minutes). Therefore a lambda is introduced that synchronizes the action runner binary from GitHub to an S3 bucket. The EC2 instance will fetch the distribution from the S3 bucket instead of the internet.
 
-Secrets and private keys which are passed the Lambda's as environment variables are encrypted by default by a KMS key managed by the module. Alternatively you can pass your own KMS key. Encryption via KMS can be complete disabled by setting `encrypt_secrets` to `false`.
+Secrets and private keys which are passed to the lambdas as environment variables are encrypted by default by a KMS key managed by the module. Alternatively you can pass your own KMS key. Encryption via KMS can be complete disabled by setting `encrypt_secrets` to `false`.
 
 ![Architecture](docs/component-overview.svg)
 
@@ -73,15 +73,15 @@ Examples are provided in [the example directory](examples/). Please ensure you h
 - AWS cli (optional)
 - Node and yarn (for lambda development).
 
-The module support two main scenarios for creating runners. On repository level a runner will be dedicated to only one repository, no other repository can use the runner. On organization level you can use the runner(s) for all the repositories within the organization. See https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners for more information. Before starting the deployment you have to choose one option.
+The module supports two main scenarios for creating runners. On repository level a runner will be dedicated to only one repository, no other repository can use the runner. On organization level you can use the runner(s) for all the repositories within the organization. See https://help.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners for more information. Before starting the deployment you have to choose one option.
 
-GitHub workflows will fail immediately if there is no action runner available for your builds. Since this module supports to scale from 0 and up, your builds will fail in case there is no active runner available. So we recommend to create an offline runner with matching labels to the configuration. Create this runner by following the GitHub instruction on your local machine. You can stop the process after the step of running the `config.sh`. This offline runner will ensure your builds will not fail immediately and stay queued until there is a runner to pick it up.
+GitHub workflows fail immediately if there is no action runner available for your builds. Since this module supports scaling down to zero, builds will fail in case there is no active runner available. We recommend to create an offline runner with matching labels to the configuration. Create this runner manually by following the GitHub instructions for adding a new runner on your local machine. If you stop the process after the step of running the `config.sh` script the runner will remain offline. This offline runner ensures that builds will not fail immediately and stay queued until there is an EC2 runner to pick it up.
 
-The setup consists of running Terraform to create all AWS resources and configure the GitHub App. The Terraform module requires configuration from the GitHub App and the GitHub app requires output from Terraform. Therefore you should first create the GitHub App, configure the basics. Then run Terraform and finalize the configuration of the GitHub App afterwards.
+The setup consists of running Terraform to create all AWS resources and manually configuring the GitHub App. The Terraform module requires configuration from the GitHub App and the GitHub app requires output from Terraform. Therefore you first create the GitHub App and configure the basics, then run Terraform, and afterwards finalize the configuration of the GitHub App.
 
 ### Setup GitHub App (part 1)
 
-Go to GitHub and create a new app. Beware you can create apps your organization or for a user. For now we handle only the organization level app.
+Go to GitHub and create a new app. Beware you can create apps your organization or for a user. For now we support only organization level apps.
 
 1. Create app in Github
 2. Choose a name
@@ -91,46 +91,25 @@ Go to GitHub and create a new app. Beware you can create apps your organization 
 6. _Only for repo level runners!_ - Repository permissions, `Administration` - Read and Write (to register runner)
 7. _Only for organization level runners!_ - Organization permissions, `Administration` - Read and Write (to register runner)
 8. Save the new app.
-9. Next generate a private key on the General page.
-10. Make a note of the following app parameters: app id , client ID, and client secret
+9. On the General page, make a note of the "App ID" and "Client ID" parameters.
+10. Create a new client secret and also write it down.
+11. Generate a new private key and save the `app.private-key.pem` file.
 
 ### Setup terraform module
 
-By default it assumed you have the lambda's locally available. Which could be either download via the GitHub release or build locally. Alternatively you can upload the lambda functions to a S3 bucket, in that case you have to set the variables `lambda_s3_bucket` and the specific object key for each lambda. Below the setup for having local zip available.
+#### Download lambdas <!-- omit in toc -->
 
-First you need to download the lambda releases. The lambda code is available as a GitHub release asset. Downloading can be done with the provided terraform module for example. Note that this requires `curl` to be installed on your machine. Create an empty workspace with the following terraform code:
+To apply the terraform module, the compiled lambdas (.zip files) need to be available either locally or in an S3 bucket. They can be either downloaded from the GitHub release page or build locally.
 
-```terraform
-module "lambdas" {
-  source  = "philips-labs/github-runner/aws//modules/download-lambda"
-  version = "0.6.0"
+To read the files from S3, set the `lambda_s3_bucket` variable and the specific object key for each lambda.
 
-  lambdas = [
-    {
-      name = "webhook"
-      tag  = "v0.6.0"
-    },
-    {
-      name = "runners"
-      tag  = "v0.6.0"
-    },
-    {
-      name = "runner-binaries-syncer"
-      tag  = "v0.6.0"
-    }
-  ]
-}
+The lambdas can be downloaded maually from the [release page](https://github.com/philips-labs/terraform-aws-github-runner/releases) or using the [download-lambda](./modules/download-lambda) terraform module (requires `curl` to be installed on your machine). In the `download-lambda` directory, run `terraform init && terraform apply`. The lambdas will be saved to the same directory.
 
-output "files" {
-  value = module.lambdas.files
-}
-```
+For local development you can build all the lambdas at once using `.ci/build.sh` or individually using `yarn dist`.
 
-Next run `terraform init && terraform apply` as result the lambdas will be download to the same directory. Alternatively you can download the zip artifacts with any other tool of you favour.
+#### Service-linked role <!-- omit in toc -->
 
-For local development you can build all the lambda's at once using `.ci/build.sh` or per lambda using `yarn dist`.
-
-In case you don't have the service linked role for spot instances in your account you have a few options. Follow the [AWS docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-requests.html#service-linked-roles-spot-instance-requests) and create the role. Create the role via terraform. Just add the following resource, or let the module manage the the service linked role by setting `create_service_linked_role` to `true`. Be-aware this is an account global role so maybe you don't want to mange this via specific deployment.
+To create spot instances the `AWSServiceRoleForEC2Spot` role needs to be added to your account. You can do that manually by following the [AWS docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-requests.html#service-linked-roles-spot-instance-requests). To use terraform for creating the role, either add the following resource or let the module manage the the service linked role by setting `create_service_linked_role` to `true`. Be aware this is an account global role, so maybe you don't want to mange it via a specific deployment.
 
 ```hcl
 resource "aws_iam_service_linked_role" "spot" {
@@ -138,7 +117,11 @@ resource "aws_iam_service_linked_role" "spot" {
 }
 ```
 
-Next create a second terraform workspace and initiate the module, see the examples for more details.
+#### Terraform module <!-- omit in toc -->
+
+Next create a second terraform workspace and initiate the module, or adapt one of the [examples](./examples).
+
+Note that `github_app.key_base64` needs to be the base64-encoded `.pem` file, i.e., the output of `base64 app.private-key.pem` (not directly the content of `app.private-key.pem`).
 
 ```terraform
 module "github-runner" {
@@ -168,14 +151,16 @@ module "github-runner" {
 
 **ARM64** support: Specify an `a1` or `*6g*` (6th-gen Graviton2) instance type to stand up an ARM64 runner, otherwise the default is x86_64.
 
-2. Run terraform by using the following commands
+Run terraform by using the following commands
 
 ```bash
 terraform init
 terraform apply
 ```
 
-Check the terraform output for the API gateway url (endpoint), which you need in the next step. The lambda for syncing the GitHub distribution will be executed by a trigger via CloudWatch. After deployment the function is triggered via S3 to ensure the distribution is cached.
+The terraform output displays the API gateway url (endpoint) and secret, which you need in the next step.
+
+The lambda for syncing the GitHub distribution to S3 is triggered via CloudWatch (by default once per hour). After deployment the function is triggered via S3 to ensure the distribution is cached.
 
 ### Setup GitHub App (part 2)
 
@@ -184,9 +169,10 @@ Go back to the GitHub App and update the following settings.
 1. Enable the webhook.
 2. Provide the webhook url, should be part of the output of terraform.
 3. Provide the webhook secret.
-4. Enable the `Check run` event for the webhook.
+4. Enable the `check_run` event for the webhook.
+5. In the "Install App" section, install the App in your organization, either in all or in selected repositories.
 
-You are now ready to run action workloads on self hosted runner, remember builds will fail if there is no (offline) runner available with matching labels.
+You are now ready to run action workloads on self hosted runner. Remember that builds will fail if there is no (offline) runner available with matching labels.
 
 ### Encryption
 
@@ -220,7 +206,7 @@ Not advised but you can disable the encryption as by setting the variable `encry
 
 ### Idle runners
 
-The module will scale down to zero runners be default, by specifying a `idle_config` config idle runners can be kept active. The scale down lambda checks if any of the cron expressions matches the current time with a marge of 5 seconds. When there is a match the number of runners specified in the idle config will be kept active. In case multiple cron expressions matches only the first one is taken in to account. Below a idle configuration for keeping runners active from 9 to 5 on working days.
+The module will scale down to zero runners be default, by specifying a `idle_config` config idle runners can be kept active. The scale down lambda checks if any of the cron expressions matches the current time with a marge of 5 seconds. When there is a match the number of runners specified in the idle config will be kept active. In case multiple cron expressions matches only the first one is taken in to account. Below an idle configuration for keeping runners active from 9 to 5 on working days.
 
 ```hcl
 idle_config = [{
@@ -282,6 +268,16 @@ When configuring `runners`
 
 - _ami_filter_ - set to `["amzn2-ami-hvm-2*-arm64-gp2"]`, defaults to `["amzn2-ami-hvm-2.*-x86_64-ebs"]`
 
+## Debugging
+
+In case the setup does not work as intended follow the trace of events:
+
+- In the GitHub App configuration, the Advanced page displays all webhook events that were sent.
+- In AWS CloudWatch, every lambda has a log group. Look at the logs of the `webhook` and `scale-up` lambdas.
+- In AWS SQS you can see messages available or in flight.
+- Once an EC2 instance is running, you can connect to it in the EC2 user interface using Session Manager. Check the user data script using `cat /var/log/user-data.log`.
+- Registered instances should show up in the Settings - Actions page of the repository or organization (depending on the installation mode).
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -307,7 +303,7 @@ No requirements.
 | enable\_ssm\_on\_runners | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances. | `bool` | `false` | no |
 | encrypt\_secrets | Encrypt secret variables for lambda's such as secrets and private keys. | `bool` | `true` | no |
 | environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
-| github\_app | GitHub app parameters, see your github app. Ensure the key is base64 encoded. | <pre>object({<br>    key_base64     = string<br>    id             = string<br>    client_id      = string<br>    client_secret  = string<br>    webhook_secret = string<br>  })</pre> | n/a | yes |
+| github\_app | GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`). | <pre>object({<br>    key_base64     = string<br>    id             = string<br>    client_id      = string<br>    client_secret  = string<br>    webhook_secret = string<br>  })</pre> | n/a | yes |
 | idle\_config | List of time period that can be defined as cron expression to keep a minimum amount of runners active instead of scaling down to 0. By defining this list you can ensure that in time periods that match the cron expression within 5 seconds a runner is kept idle. | <pre>list(object({<br>    cron      = string<br>    timeZone  = string<br>    idleCount = number<br>  }))</pre> | `[]` | no |
 | instance\_profile\_path | The path that will be added to the instance\_profile, if not set the environment name will be used. | `string` | `null` | no |
 | instance\_type | Instance type for the action runner. | `string` | `"m5.large"` | no |
