@@ -72,7 +72,7 @@ async function uploadToS3(s3: S3, cacheObject: CacheObject, actionRunnerReleaseA
     Body: writeStream,
   }).promise();
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     console.debug('Start downloading %s and uploading to S3.', actionRunnerReleaseAsset.name);
     request
       .get(actionRunnerReleaseAsset.downloadUrl)

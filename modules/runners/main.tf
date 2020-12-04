@@ -14,6 +14,7 @@ locals {
   role_path             = var.role_path == null ? "/${var.environment}/" : var.role_path
   instance_profile_path = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
   lambda_zip            = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
+  userdata_template     = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
 }
 
 data "aws_ami" "runner" {
@@ -36,7 +37,7 @@ resource "aws_launch_template" "runner" {
   dynamic "block_device_mappings" {
     for_each = [var.block_device_mappings]
     content {
-      device_name = "/dev/xvda"
+      device_name = lookup(block_device_mappings.value, "device_name", "/dev/xvda")
 
       ebs {
         delete_on_termination = lookup(block_device_mappings.value, "delete_on_termination", true)
@@ -73,7 +74,7 @@ resource "aws_launch_template" "runner" {
     )
   }
 
-  user_data = base64encode(templatefile("${path.module}/templates/user-data.sh", {
+  user_data = base64encode(templatefile(local.userdata_template, {
     environment                     = var.environment
     pre_install                     = var.userdata_pre_install
     post_install                    = var.userdata_post_install

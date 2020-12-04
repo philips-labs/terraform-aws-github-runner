@@ -10,15 +10,15 @@ module "lambdas" {
   lambdas = [
     {
       name = "webhook"
-      tag  = "v0.6.0"
+      tag  = "v0.7.0"
     },
     {
       name = "runners"
-      tag  = "v0.6.0"
+      tag  = "v0.7.0"
     },
     {
       name = "runner-binaries-syncer"
-      tag  = "v0.6.0"
+      tag  = "v0.7.0"
     }
   ]
 }

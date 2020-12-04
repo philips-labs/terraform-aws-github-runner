@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.7.0] - 2020-12-04
+### Changed
+- Small clarifications in the README #368 @lrytz
+
+### Added
+- Allow operator to pass in a list of managed IAM policy ARNs for the runner role #361 @jpalomaki
+- expand options for sourcing lambda to include S3 #292 @eky5006 
+
 ## [0.6.0] - 2020-10-10
 
 ### Added
@@ -30,6 +39,7 @@ terraform import module.runners.module.runners.aws_cloudwatch_log_group.scale_up
 terraform import module.runners.module.runners.aws_cloudwatch_log_group.scale_down "/aws/lambda/default-scale-down"
 terraform import module.runners.module.webhook.aws_cloudwatch_log_group.webhook "/aws/lambda/default-webhook"
 ```
+- feat: Expose ami-filters and user-data template file location to users to allow use of custom AMIs
 
 - feat: Added option to binaries syncer to upgrade to pre-releases, preventing any auto-updating on startup. Option `runner_allow_prerelease_binaries` is disabled by default. (#141, #165) @sjagoe
 
@@ -80,7 +90,8 @@ terraform import module.runners.module.webhook.aws_cloudwatch_log_group.webhook 
 
 - First release.
 
-[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.6.0..HEAD
+[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.7.0..HEAD
+[0.7.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.6.0..v0.7.0
 [0.6.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.5.0..v0.6.0
 [0.5.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.4.0..v0.5.0
 [0.4.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.3.0..v0.4.0

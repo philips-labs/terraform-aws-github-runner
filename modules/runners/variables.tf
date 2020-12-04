@@ -46,7 +46,7 @@ variable "s3_location_runner_binaries" {
 }
 
 variable "block_device_mappings" {
-  description = "The EC2 instance block device configuration. Takes the following keys: `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops`"
+  description = "The EC2 instance block device configuration. Takes the following keys: `device_name`, `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops`"
   type        = map(string)
   default     = {}
 }
@@ -78,6 +78,12 @@ variable "ami_owners" {
   default     = ["amazon"]
 }
 
+variable "userdata_template" {
+  description = "Alternative user-data template, replacing the default template. By providing your own user_data you have to take care of installing all required software, including the action runner. Variables userdata_pre/post_install are ignored."
+  type        = string
+  default     = null
+}
+
 variable "userdata_pre_install" {
   description = "User-data script snippet to insert before GitHub acton runner install"
   type        = string
@@ -102,7 +108,7 @@ variable "enable_organization_runners" {
 }
 
 variable "github_app" {
-  description = "GitHub app parameters, see your github app. Ensure the key is base64 encoded."
+  description = "GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`)."
   type = object({
     key_base64    = string
     id            = string
@@ -210,4 +216,31 @@ variable "logging_retention_in_days" {
 variable "enable_ssm_on_runners" {
   description = "Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances."
   type        = bool
+}
+
+variable "lambda_s3_bucket" {
+  description = "S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly."
+  default     = null
+}
+
+variable "runners_lambda_s3_key" {
+  description = "S3 key for runners lambda function. Required if using S3 bucket to specify lambdas."
+  default     = null
+}
+
+variable "runners_lambda_s3_object_version" {
+  description = "S3 object version for runners lambda function. Useful if S3 versioning is enabled on source bucket."
+  default     = null
+}
+
+variable "create_service_linked_role_spot" {
+  description = "(optional) create the serviced linked role for spot instances that is required by the scale-up lambda."
+  type        = bool
+  default     = false
+}
+
+variable "runner_iam_role_managed_policy_arns" {
+  description = "Attach AWS or customer-managed IAM policies (by ARN) to the runner IAM role"
+  type        = list(string)
+  default     = []
 }

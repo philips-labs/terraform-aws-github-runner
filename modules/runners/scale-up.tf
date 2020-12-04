@@ -13,8 +13,11 @@ resource "aws_kms_grant" "scale_up" {
 }
 
 resource "aws_lambda_function" "scale_up" {
-  filename                       = local.lambda_zip
-  source_code_hash               = filebase64sha256(local.lambda_zip)
+  s3_bucket                      = var.lambda_s3_bucket != null ? var.lambda_s3_bucket : null
+  s3_key                         = var.runners_lambda_s3_key != null ? var.runners_lambda_s3_key : null
+  s3_object_version              = var.runners_lambda_s3_object_version != null ? var.runners_lambda_s3_object_version : null
+  filename                       = var.lambda_s3_bucket == null ? local.lambda_zip : null
+  source_code_hash               = var.lambda_s3_bucket == null ? filebase64sha256(local.lambda_zip) : null
   function_name                  = "${var.environment}-scale-up"
   role                           = aws_iam_role.scale_up.arn
   handler                        = "index.scaleUp"
@@ -84,4 +87,11 @@ resource "aws_iam_role_policy" "scale_up_logging" {
   policy = templatefile("${path.module}/policies/lambda-cloudwatch.json", {
     log_group_arn = aws_cloudwatch_log_group.scale_up.arn
   })
+}
+
+resource "aws_iam_role_policy" "service_linked_role" {
+  count  = var.create_service_linked_role_spot ? 1 : 0
+  name   = "${var.environment}-service_linked_role"
+  role   = aws_iam_role.scale_up.name
+  policy = templatefile("${path.module}/policies/service-linked-role-create-policy.json", {})
 }
