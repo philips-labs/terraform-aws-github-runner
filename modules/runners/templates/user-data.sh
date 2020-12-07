@@ -5,6 +5,11 @@ ${pre_install}
 
 yum update -y
 
+%{ if enable_cloudwatch_agent ~}
+yum install amazon-cloudwatch-agent -y
+amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c ssm:${ssm_key_cloudwatch_agent_config}
+%{ endif ~}
+
 # Install docker
 amazon-linux-extras install docker
 service docker start
@@ -77,8 +82,8 @@ REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq 
 
 echo wait for configuration
 while [[ $(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION | jq -r ".Parameters | .[0] | .Value") == null ]]; do
-    echo Waiting for configuration ...
-    sleep 1
+  echo Waiting for configuration ...
+  sleep 1
 done
 CONFIG=$(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decryption --region $REGION | jq -r ".Parameters | .[0] | .Value")
 aws ssm delete-parameter --name ${environment}-$INSTANCE_ID --region $REGION

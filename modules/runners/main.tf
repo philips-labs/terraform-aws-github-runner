@@ -81,6 +81,8 @@ resource "aws_launch_template" "runner" {
     s3_location_runner_distribution = var.s3_location_runner_binaries
     service_user                    = var.runner_as_root ? "root" : "ec2-user"
     runner_architecture             = var.runner_architecture
+    enable_cloudwatch_agent         = var.enable_cloudwatch_agent
+    ssm_key_cloudwatch_agent_config = var.enable_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config_runner[0].name : ""
   }))
 
   tags = local.tags

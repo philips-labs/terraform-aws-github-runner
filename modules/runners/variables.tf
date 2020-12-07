@@ -244,3 +244,37 @@ variable "runner_iam_role_managed_policy_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "enable_cloudwatch_agent" {
+  description = "Enabling the cloudwatch agent on the ec2 runner instances, the runner contains default config. Configuration can be overridden via `cloudwatch_config`."
+  type        = bool
+  default     = true
+}
+
+variable "cloudwatch_config" {
+  description = "(optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details."
+  type        = string
+  default     = null
+}
+
+variable "runner_log_files" {
+  description = "(optional) List of logfiles to send to cloudwatch."
+  type = list(object({
+    file_path       = string
+    log_stream_name = string
+  }))
+  default = [
+    {
+      "file_path" : "/var/log/messages",
+      "log_stream_name" : "{instance_id}/messages"
+    },
+    {
+      "file_path" : "/var/log/user-data.log",
+      "log_stream_name" : "{instance_id}/user_data"
+    },
+    {
+      "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
+      "log_stream_name" : "{instance_id}/runner"
+    }
+  ]
+}
