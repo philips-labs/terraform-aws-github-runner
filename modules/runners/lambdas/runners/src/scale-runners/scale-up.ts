@@ -56,17 +56,13 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
   const environment = process.env.ENVIRONMENT as string;
   const githubAppAuth = await createGithubAppAuth(payload.installationId);
   const githubInstallationClient = await createInstallationClient(githubAppAuth);
-  const queuedWorkflows = await githubInstallationClient.actions.listWorkflowRunsForRepo({
+  const checkRun = await githubInstallationClient.checks.get({
+    check_run_id: payload.id,
     owner: payload.repositoryOwner,
     repo: payload.repositoryName,
-    // @ts-ignore (typing of the 'status' field is incorrect)
-    status: 'queued',
   });
-  console.info(
-    `Repo ${payload.repositoryOwner}/${payload.repositoryName} has ${queuedWorkflows.data.total_count} queued workflow runs`,
-  );
 
-  if (queuedWorkflows.data.total_count > 0) {
+  if (checkRun.data.status === 'queued') {
     const currentRunners = await listRunners({
       environment: environment,
       repoName: enableOrgLevel ? undefined : `${payload.repositoryOwner}/${payload.repositoryName}`,
