@@ -43,7 +43,7 @@ resource "aws_launch_template" "runner" {
 
       ebs {
         delete_on_termination = lookup(block_device_mappings.value, "delete_on_termination", true)
-        volume_type           = lookup(block_device_mappings.value, "volume_type", "gp2")
+        volume_type           = lookup(block_device_mappings.value, "volume_type", "gp3")
         volume_size           = lookup(block_device_mappings.value, "volume_size", 30)
         encrypted             = lookup(block_device_mappings.value, "encrypted", true)
         iops                  = lookup(block_device_mappings.value, "iops", null)
@@ -63,6 +63,7 @@ resource "aws_launch_template" "runner" {
 
   image_id      = data.aws_ami.runner.id
   instance_type = var.instance_type
+  key_name      = var.key_name
 
   vpc_security_group_ids = compact(concat(
     [aws_security_group.runner_sg.id],
@@ -85,6 +86,7 @@ resource "aws_launch_template" "runner" {
     post_install                    = var.userdata_post_install
     enable_cloudwatch_agent         = var.enable_cloudwatch_agent
     ssm_key_cloudwatch_agent_config = var.enable_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config_runner[0].name : ""
+    ghes_url                        = var.ghes_url
     install_config_runner           = local.install_config_runner
   }))
 

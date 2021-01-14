@@ -28,18 +28,29 @@ resource "aws_lambda_function" "scale_up" {
 
   environment {
     variables = {
-      ENVIRONMENT                 = var.environment
-      KMS_KEY_ID                  = var.encryption.kms_key_id
       ENABLE_ORGANIZATION_RUNNERS = var.enable_organization_runners
-      RUNNER_EXTRA_LABELS         = var.runner_extra_labels
-      RUNNERS_MAXIMUM_COUNT       = var.runners_maximum_count
-      GITHUB_APP_KEY_BASE64       = local.github_app_key_base64
-      GITHUB_APP_ID               = var.github_app.id
+      ENVIRONMENT                 = var.environment
+      GHES_URL                    = var.ghes_url
       GITHUB_APP_CLIENT_ID        = var.github_app.client_id
       GITHUB_APP_CLIENT_SECRET    = local.github_app_client_secret
-      SUBNET_IDS                  = join(",", var.subnet_ids)
+      GITHUB_APP_ID               = var.github_app.id
+      GITHUB_APP_KEY_BASE64       = local.github_app_key_base64
+      KMS_KEY_ID                  = var.encryption.kms_key_id
+      RUNNER_EXTRA_LABELS         = var.runner_extra_labels
+      RUNNERS_MAXIMUM_COUNT       = var.runners_maximum_count
       LAUNCH_TEMPLATE_NAME        = aws_launch_template.runner.name
       LAUNCH_TEMPLATE_VERSION     = aws_launch_template.runner.latest_version
+      SUBNET_IDS                  = join(",", var.subnet_ids)
+    }
+  }
+
+
+
+  dynamic "vpc_config" {
+    for_each = var.lambda_subnet_ids != null && var.lambda_security_group_ids != null ? [true] : []
+    content {
+      security_group_ids = var.lambda_security_group_ids
+      subnet_ids         = var.lambda_subnet_ids
     }
   }
 }
@@ -94,4 +105,10 @@ resource "aws_iam_role_policy" "service_linked_role" {
   name   = "${var.environment}-service_linked_role"
   role   = aws_iam_role.scale_up.name
   policy = templatefile("${path.module}/policies/service-linked-role-create-policy.json", {})
+}
+
+resource "aws_iam_role_policy_attachment" "scale_up_vpc_execution_role" {
+  count      = length(var.lambda_subnet_ids) > 0 ? 1 : 0
+  role       = aws_iam_role.scale_up.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

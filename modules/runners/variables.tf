@@ -279,6 +279,30 @@ variable "runner_log_files" {
   ]
 }
 
+variable "ghes_url" {
+  description = "GitHub Enterprise Server URL. DO NOT SET IF USING PUBLIC GITHUB"
+  type        = string
+  default     = null
+}
+
+variable "lambda_subnet_ids" {
+  description = "List of subnets in which the lambda will be launched, the subnets needs to be subnets in the `vpc_id`."
+  type        = list(string)
+  default     = []
+}
+
+variable "lambda_security_group_ids" {
+  description = "List of subnets in which the lambda will be launched, the subnets needs to be subnets in the `vpc_id`."
+  type        = list(string)
+  default     = []
+}
+
+variable "key_name" {
+  description = "Key pair name"
+  type        = string
+  default     = null
+}
+
 variable "runner_additional_security_group_ids" {
   description = "(optional) List of additional security groups IDs to apply to the runner"
   type        = list(string)
