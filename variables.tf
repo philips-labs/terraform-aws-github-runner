@@ -76,13 +76,13 @@ variable "runners_lambda_zip" {
 }
 
 variable "runners_scale_up_lambda_timeout" {
-  description = "Time out for the scale down lambda in seconds."
+  description = "Time out for the scale up lambda in seconds."
   type        = number
   default     = 180
 }
 
 variable "runners_scale_down_lambda_timeout" {
-  description = "Time out for the scale up lambda in seconds."
+  description = "Time out for the scale down lambda in seconds."
   type        = number
   default     = 60
 }
