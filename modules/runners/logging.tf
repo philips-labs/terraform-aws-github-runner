@@ -1,6 +1,14 @@
 locals {
-  logfiles = var.enable_cloudwatch_agent ? [for l in var.runner_log_files : merge(l, { "log_group_name" : aws_cloudwatch_log_group.runners[0].name })] : []
+  logfiles = var.enable_cloudwatch_agent ? [for l in var.runner_log_files : {
+    "log_group_name" : l.prefix_log_group ? "/github-self-hosted-runners/${var.environment}/${l.log_group_name}" : "/${l.log_group_name}"
+    "log_stream_name" : l.log_stream_name
+    "file_path" : l.file_path
+  }] : []
+
+  loggroups_names = distinct([for l in local.logfiles : l.log_group_name])
+
 }
+
 
 resource "aws_ssm_parameter" "cloudwatch_agent_config_runner" {
   count = var.enable_cloudwatch_agent ? 1 : 0
@@ -12,9 +20,9 @@ resource "aws_ssm_parameter" "cloudwatch_agent_config_runner" {
   tags = local.tags
 }
 
-resource "aws_cloudwatch_log_group" "runners" {
-  count             = var.enable_cloudwatch_agent ? 1 : 0
-  name              = "${var.environment}/runners"
+resource "aws_cloudwatch_log_group" "gh_runners" {
+  count             = length(local.loggroups_names)
+  name              = local.loggroups_names[count.index]
   retention_in_days = var.logging_retention_in_days
   tags              = local.tags
 }

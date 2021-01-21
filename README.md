@@ -325,7 +325,7 @@ No requirements.
 | lambda\_s3\_bucket | S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly. | `any` | `null` | no |
 | lambda\_security\_group\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | `[]` | no |
 | lambda\_subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | `[]` | no |
-| logging\_retention\_in\_days | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `7` | no |
+| logging\_retention\_in\_days | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `180` | no |
 | manage\_kms\_key | Let the module manage the KMS key. | `bool` | `true` | no |
 | minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | `number` | `5` | no |
 | role\_path | The path that will be added to role path for created roles, if not set the environment name will be used. | `string` | `null` | no |
@@ -337,13 +337,13 @@ No requirements.
 | runner\_binaries\_syncer\_lambda\_zip | File location of the binaries sync lambda zip file. | `string` | `null` | no |
 | runner\_extra\_labels | Extra labels for the runners (GitHub). Separate each label by a comma | `string` | `""` | no |
 | runner\_iam\_role\_managed\_policy\_arns | Attach AWS or customer-managed IAM policies (by ARN) to the runner IAM role | `list(string)` | `[]` | no |
-| runner\_log\_files | (optional) List of logfiles to send to cloudwatch. | <pre>list(object({<br>    file_path       = string<br>    log_stream_name = string<br>  }))</pre> | <pre>[<br>  {<br>    "file_path": "/var/log/messages",<br>    "log_stream_name": "{instance_id}/messages"<br>  },<br>  {<br>    "file_path": "/var/log/user-data.log",<br>    "log_stream_name": "{instance_id}/user_data"<br>  },<br>  {<br>    "file_path": "/home/ec2-user/actions-runner/_diag/Runner_**.log",<br>    "log_stream_name": "{instance_id}/runner"<br>  }<br>]</pre> | no |
+| runner\_log\_files | (optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details. | <pre>list(object({<br>    log_group_name   = string<br>    prefix_log_group = bool<br>    file_path        = string<br>    log_stream_name  = string<br>  }))</pre> | <pre>[<br>  {<br>    "file_path": "/var/log/messages",<br>    "log_group_name": "messages",<br>    "log_stream_name": "{instance_id}",<br>    "prefix_log_group": true<br>  },<br>  {<br>    "file_path": "/var/log/user-data.log",<br>    "log_group_name": "user_data",<br>    "log_stream_name": "{instance_id}",<br>    "prefix_log_group": true<br>  },<br>  {<br>    "file_path": "/home/ec2-user/actions-runner/_diag/Runner_**.log",<br>    "log_group_name": "runner",<br>    "log_stream_name": "{instance_id}",<br>    "prefix_log_group": true<br>  }<br>]</pre> | no |
 | runners\_lambda\_s3\_key | S3 key for runners lambda function. Required if using S3 bucket to specify lambdas. | `any` | `null` | no |
 | runners\_lambda\_s3\_object\_version | S3 object version for runners lambda function. Useful if S3 versioning is enabled on source bucket. | `any` | `null` | no |
 | runners\_lambda\_zip | File location of the lambda zip file for scaling runners. | `string` | `null` | no |
 | runners\_maximum\_count | The maximum number of runners that will be created. | `number` | `3` | no |
-| runners\_scale\_down\_lambda\_timeout | Time out for the scale up lambda in seconds. | `number` | `60` | no |
-| runners\_scale\_up\_lambda\_timeout | Time out for the scale down lambda in seconds. | `number` | `180` | no |
+| runners\_scale\_down\_lambda\_timeout | Time out for the scale down lambda in seconds. | `number` | `60` | no |
+| runners\_scale\_up\_lambda\_timeout | Time out for the scale up lambda in seconds. | `number` | `180` | no |
 | scale\_down\_schedule\_expression | Scheduler expression to check every x for scale down. | `string` | `"cron(*/5 * * * ? *)"` | no |
 | subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | n/a | yes |
 | syncer\_lambda\_s3\_key | S3 key for syncer lambda function. Required if using S3 bucket to specify lambdas. | `any` | `null` | no |

@@ -210,7 +210,7 @@ variable "idle_config" {
 variable "logging_retention_in_days" {
   description = "Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653."
   type        = number
-  default     = 7
+  default     = 180
 }
 
 variable "enable_ssm_on_runners" {
@@ -258,23 +258,31 @@ variable "cloudwatch_config" {
 }
 
 variable "runner_log_files" {
-  description = "(optional) List of logfiles to send to cloudwatch."
+  description = "(optional) List of logfiles to send to cloudwatch, will only be used if `enable_cloudwatch_agent` is set to true. Object description: `log_group_name`: Name of the log group, `prefix_log_group`: If true, the log group name will be prefixed with `/github-self-hosted-runners/<var.environment>`, `file_path`: path to the log file, `log_stream_name`: name of the log stream."
   type = list(object({
-    file_path       = string
-    log_stream_name = string
+    log_group_name   = string
+    prefix_log_group = bool
+    file_path        = string
+    log_stream_name  = string
   }))
   default = [
     {
+      "log_group_name" : "messages",
+      "prefix_log_group" : true,
       "file_path" : "/var/log/messages",
-      "log_stream_name" : "{instance_id}/messages"
+      "log_stream_name" : "{instance_id}"
     },
     {
+      "log_group_name" : "user_data",
+      "prefix_log_group" : true,
       "file_path" : "/var/log/user-data.log",
-      "log_stream_name" : "{instance_id}/user_data"
+      "log_stream_name" : "{instance_id}"
     },
     {
+      "log_group_name" : "runner",
+      "prefix_log_group" : true,
       "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
-      "log_stream_name" : "{instance_id}/runner"
+      "log_stream_name" : "{instance_id}"
     }
   ]
 }
