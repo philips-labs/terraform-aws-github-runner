@@ -7,8 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.1] - 2020-12-08
+## [0.9.0] - 2020-12-08
+
+### Added
+
+- Add support for GitHub Enterprise Server (GHES) #412, #481, #467 @mcaulifn @jonico
+- Allow configuring additional security groups #392 @surminus
+
 ### Changed
+
+- Log groups per type of logging #476
+- Copy directory *after* installing zip #444 @masterful
+- Update ubuntu example with rootless docker and non privileged user #433
+- Changed strategy in scaling. Previous the module scaled by checking for any queued workflow for the repo initiation the check_run event. Now the module scales only if the correlated check_run is still in queued state. #423
+
+### Fixed
+
+- Fix missing permissions for CloudWatch Agent #445 @bennettp123
+- Swap scale up/scale down timeout description #468 @jonico
+- Fix for invalid configuration #466 @jonico
+- Add ssm:GetParameter to runner-ssm-parameters #446 @bennettp123  
+- Replace crypto #429
+- Scale up lambda deprecated attribute #410
+
+### Mirgrations
+
+Changes related to logging groups introduced via #476 will destroy existing logging group in AWS cloudwatch for runners log. In case you would like to keep the logging ensure you remove the log group from the state before running an apply
+
+```bash
+export RESOURCE=$(terraform state list | grep "aws_cloudwatch_log_group.runner")
+terraform state rm $RESOURCE
+```
+
+## [0.8.1] - 2020-12-08
+
+### Changed
+
 - Policy is missing for streaming logs to cloudwatch #388
 
 ## [0.8.0] - 2020-12-08
@@ -105,7 +139,8 @@ terraform import module.runners.module.webhook.aws_cloudwatch_log_group.webhook 
 
 - First release.
 
-[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.8.1..HEAD
+[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.9.0..HEAD
+[0.9.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.8.1..v0.9.0
 [0.8.1]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.8.0..v0.8.1
 [0.8.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.7.0..v0.8.0
 [0.7.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.6.0..v0.7.0

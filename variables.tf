@@ -76,13 +76,13 @@ variable "runners_lambda_zip" {
 }
 
 variable "runners_scale_up_lambda_timeout" {
-  description = "Time out for the scale down lambda in seconds."
+  description = "Time out for the scale up lambda in seconds."
   type        = number
-  default     = 60
+  default     = 180
 }
 
 variable "runners_scale_down_lambda_timeout" {
-  description = "Time out for the scale up lambda in seconds."
+  description = "Time out for the scale down lambda in seconds."
   type        = number
   default     = 60
 }
@@ -190,7 +190,7 @@ variable "enable_ssm_on_runners" {
 variable "logging_retention_in_days" {
   description = "Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653."
   type        = number
-  default     = 7
+  default     = 180
 }
 
 variable "runner_allow_prerelease_binaries" {
@@ -276,23 +276,61 @@ variable "cloudwatch_config" {
 }
 
 variable "runner_log_files" {
-  description = "(optional) List of logfiles to send to cloudwatch."
+  description = "(optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details."
   type = list(object({
-    file_path       = string
-    log_stream_name = string
+    log_group_name   = string
+    prefix_log_group = bool
+    file_path        = string
+    log_stream_name  = string
   }))
   default = [
     {
+      "log_group_name" : "messages",
+      "prefix_log_group" : true,
       "file_path" : "/var/log/messages",
-      "log_stream_name" : "{instance_id}/messages"
+      "log_stream_name" : "{instance_id}"
     },
     {
+      "log_group_name" : "user_data",
+      "prefix_log_group" : true,
       "file_path" : "/var/log/user-data.log",
-      "log_stream_name" : "{instance_id}/user_data"
+      "log_stream_name" : "{instance_id}"
     },
     {
+      "log_group_name" : "runner",
+      "prefix_log_group" : true,
       "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
-      "log_stream_name" : "{instance_id}/runner"
+      "log_stream_name" : "{instance_id}"
     }
   ]
+}
+
+variable "ghes_url" {
+  description = "GitHub Enterprise Server URL. Example: https://github.internal.co - DO NOT SET IF USING PUBLIC GITHUB"
+  type        = string
+  default     = null
+}
+
+variable "lambda_subnet_ids" {
+  description = "List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`."
+  type        = list(string)
+  default     = []
+}
+
+variable "lambda_security_group_ids" {
+  description = "List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`."
+  type        = list(string)
+  default     = []
+}
+
+variable "key_name" {
+  description = "Key pair name"
+  type        = string
+  default     = null
+}
+
+variable "runner_additional_security_group_ids" {
+  description = "(optional) List of additional security groups IDs to apply to the runner"
+  type        = list(string)
+  default     = []
 }

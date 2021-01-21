@@ -10,22 +10,24 @@
     "lint": "yarn eslint --ext ts,tsx src",
     "watch": "ts-node-dev --respawn --exit-child src/local.ts",
     "build": "ncc build src/lambda.ts -o dist",
-    "dist": "yarn build && cd dist && zip ../runner-binaries-syncer.zip index.js"
+    "dist": "yarn build && cd dist && zip ../runner-binaries-syncer.zip index.js",
+    "format": "prettier --write \"**/*.ts\"",
+    "format-check": "prettier --check \"**/*.ts\""
   },
   "devDependencies": {
     "@octokit/rest": "^18.0.12",
-    "@types/jest": "^26.0.16",
-    "@types/node": "^14.14.10",
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.21",
     "@types/request": "^2.48.4",
     "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^3.10.1",
     "@zeit/ncc": "^0.22.1",
-    "aws-sdk": "^2.804.0",
-    "eslint": "^7.15.0",
+    "aws-sdk": "^2.828.0",
+    "eslint": "^7.18.0",
     "jest": "^26.6.3",
     "ts-jest": "^26.4.4",
-    "ts-node-dev": "^1.0.0",
-    "typescript": "^4.1.2"
+    "ts-node-dev": "^1.1.1",
+    "typescript": "^4.1.3"
   },
   "dependencies": {
     "yn": "^4.0.0"
