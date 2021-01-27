@@ -15,14 +15,14 @@
     "format-check": "prettier --check \"**/*.ts\""
   },
   "devDependencies": {
-    "@octokit/rest": "^18.0.12",
+    "@octokit/rest": "^18.0.14",
     "@types/jest": "^26.0.20",
-    "@types/node": "^14.14.21",
+    "@types/node": "^14.14.22",
     "@types/request": "^2.48.4",
     "@typescript-eslint/eslint-plugin": "^4.0.0",
     "@typescript-eslint/parser": "^3.10.1",
     "@zeit/ncc": "^0.22.1",
-    "aws-sdk": "^2.828.0",
+    "aws-sdk": "^2.831.0",
     "eslint": "^7.18.0",
     "jest": "^26.6.3",
     "ts-jest": "^26.4.4",

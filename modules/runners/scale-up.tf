@@ -37,14 +37,13 @@ resource "aws_lambda_function" "scale_up" {
       GITHUB_APP_KEY_BASE64       = local.github_app_key_base64
       KMS_KEY_ID                  = var.encryption.kms_key_id
       RUNNER_EXTRA_LABELS         = var.runner_extra_labels
+      RUNNER_GROUP_NAME           = var.runner_group_name
       RUNNERS_MAXIMUM_COUNT       = var.runners_maximum_count
       LAUNCH_TEMPLATE_NAME        = aws_launch_template.runner.name
       LAUNCH_TEMPLATE_VERSION     = aws_launch_template.runner.latest_version
       SUBNET_IDS                  = join(",", var.subnet_ids)
     }
   }
-
-
 
   dynamic "vpc_config" {
     for_each = var.lambda_subnet_ids != null && var.lambda_security_group_ids != null ? [true] : []

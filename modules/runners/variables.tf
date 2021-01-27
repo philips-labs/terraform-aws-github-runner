@@ -135,6 +135,12 @@ variable "runner_extra_labels" {
   default     = ""
 }
 
+variable "runner_group_name" {
+  description = "Name of the runner group."
+  type        = string
+  default     = "Default"
+}
+
 variable "lambda_zip" {
   description = "File location of the lambda zip file."
   type        = string

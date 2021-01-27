@@ -15,6 +15,7 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
   const maximumRunners = parseInt(process.env.RUNNERS_MAXIMUM_COUNT || '3');
   const runnerExtraLabels = process.env.RUNNER_EXTRA_LABELS;
+  const runnerGroup = process.env.RUNNER_GROUP_NAME;
   const environment = process.env.ENVIRONMENT as string;
   const ghesBaseUrl = process.env.GHES_URL as string;
 
@@ -58,11 +59,12 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
       const token = registrationToken.data.token;
 
       const labelsArgument = runnerExtraLabels !== undefined ? `--labels ${runnerExtraLabels}` : '';
+      const runnerGroupArgument = runnerGroup !== undefined ? ` --runnergroup ${runnerGroup}` : '';
       const configBaseUrl = ghesBaseUrl ? ghesBaseUrl : 'https://github.com';
       await createRunner({
         environment: environment,
         runnerConfig: enableOrgLevel
-          ? `--url ${configBaseUrl}/${payload.repositoryOwner} --token ${token} ${labelsArgument}`
+          ? `--url ${configBaseUrl}/${payload.repositoryOwner} --token ${token} ${labelsArgument}${runnerGroupArgument}`
           : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} --token ${token} ${labelsArgument}`,
         orgName: orgName,
         repoName: repoName,

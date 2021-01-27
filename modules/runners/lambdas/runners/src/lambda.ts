@@ -1,6 +1,6 @@
 import { scaleUp } from './scale-runners/scale-up';
 import { scaleDown } from './scale-runners/scale-down';
-import { SQSEvent } from 'aws-lambda';
+import { SQSEvent, ScheduledEvent } from 'aws-lambda';
 
 module.exports.scaleUp = async (event: SQSEvent, context: any, callback: any) => {
   console.dir(event, { depth: 5 });
@@ -15,7 +15,7 @@ module.exports.scaleUp = async (event: SQSEvent, context: any, callback: any) =>
   }
 };
 
-module.exports.scaleDown = async (event: any, context: any, callback: any) => {
+module.exports.scaleDown = async (event: ScheduledEvent, context: any, callback: any) => {
   try {
     scaleDown();
     return callback(null);
