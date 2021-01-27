@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2021-01-27
+
+### Added
+
+- Support runner groups (#496)
+
 ## [0.9.1] - 2021-01-22
 
 ### Fixed
@@ -145,7 +151,8 @@ terraform import module.runners.module.webhook.aws_cloudwatch_log_group.webhook 
 
 - First release.
 
-[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.9.1..HEAD
+[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.10.0..HEAD
+[0.10.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.9.1..v00.10.0
 [0.9.1]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.9.0..v0.9.1
 [0.9.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.8.1..v0.9.0
 [0.8.1]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.9.0..v0.8.1
