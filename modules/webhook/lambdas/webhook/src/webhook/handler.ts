@@ -1,8 +1,7 @@
 import { IncomingHttpHeaders } from 'http';
 import { Webhooks } from '@octokit/webhooks';
 import { sendActionRequest } from '../sqs';
-import { EventPayloads } from '@octokit/webhooks';
-import { KMS } from 'aws-sdk';
+import { CheckRunEvent } from '@octokit/webhooks-definitions/schema';
 import { decrypt } from '../kms';
 
 export const handle = async (headers: IncomingHttpHeaders, payload: any): Promise<number> => {
@@ -40,14 +39,18 @@ export const handle = async (headers: IncomingHttpHeaders, payload: any): Promis
   console.debug(`Received Github event: "${githubEvent}"`);
 
   if (githubEvent === 'check_run') {
-    const body = JSON.parse(payload) as EventPayloads.WebhookPayloadCheckRun;
+    const body = JSON.parse(payload) as CheckRunEvent;
+    let installationId = body.installation?.id;
+    if (installationId == null) {
+      installationId = 0;
+    }
     if (body.action === 'created' && body.check_run.status === 'queued') {
       await sendActionRequest({
         id: body.check_run.id,
         repositoryName: body.repository.name,
         repositoryOwner: body.repository.owner.login,
         eventType: githubEvent,
-        installationId: body.installation!.id,
+        installationId: installationId,
       });
     }
   } else {

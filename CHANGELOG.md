@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2021-03-01
+
+### Added
+
+- feat: Tag Volume Resources (#570)
+- feat: Retrieve installation id automatically if not present (triggered by ordinary webhook) (#515)
+
+### Fixed
+
+- fix(bucket): Adds bucket policy #536
+- fix: Upgrade vpc to 2.2.0 and pre-commit terraform hooks (#538)
+- fix(lint): Clean up lint (#534)
+
 ## [0.10.0] - 2021-01-27
 
 ### Added

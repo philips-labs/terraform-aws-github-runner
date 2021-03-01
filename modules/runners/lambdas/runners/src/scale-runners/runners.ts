@@ -15,7 +15,7 @@ export interface ListRunnerFilters {
 
 export async function listRunners(filters: ListRunnerFilters | undefined = undefined): Promise<RunnerInfo[]> {
   const ec2 = new EC2();
-  let ec2Filters = [
+  const ec2Filters = [
     { Name: 'tag:Application', Values: ['github-action-runner'] },
     { Name: 'instance-state-name', Values: ['running', 'pending'] },
   ];
@@ -58,7 +58,7 @@ export interface RunnerInputParameters {
 
 export async function terminateRunner(runner: RunnerInfo): Promise<void> {
   const ec2 = new EC2();
-  const result = await ec2
+  await ec2
     .terminateInstances({
       InstanceIds: [runner.instanceId],
     })

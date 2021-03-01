@@ -80,6 +80,17 @@ resource "aws_launch_template" "runner" {
     )
   }
 
+  tag_specifications {
+    resource_type = "volume"
+    tags = merge(
+      local.tags,
+      {
+        "Name" = format("%s", local.name_runner)
+      },
+    )
+  }
+
+
   user_data = base64encode(templatefile(local.userdata_template, {
     environment                     = var.environment
     pre_install                     = var.userdata_pre_install

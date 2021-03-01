@@ -19,12 +19,31 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
   const environment = process.env.ENVIRONMENT as string;
   const ghesBaseUrl = process.env.GHES_URL as string;
 
-  let ghesApiUrl: string = '';
+  let ghesApiUrl = '';
   if (ghesBaseUrl) {
     ghesApiUrl = `${ghesBaseUrl}/api/v3`;
   }
 
-  const ghAuth = await createGithubAuth(payload.installationId, 'installation', ghesApiUrl);
+  let installationId = payload.installationId;
+  if (installationId == 0) {
+    const ghAuth = await createGithubAuth(undefined, 'app', ghesApiUrl);
+    const githubClient = await createOctoClient(ghAuth.token, ghesApiUrl);
+    installationId = enableOrgLevel
+      ? (
+          await githubClient.apps.getOrgInstallation({
+            org: payload.repositoryOwner,
+          })
+        ).data.id
+      : (
+          await githubClient.apps.getRepoInstallation({
+            owner: payload.repositoryOwner,
+            repo: payload.repositoryName,
+          })
+        ).data.id;
+  }
+
+
+  const ghAuth = await createGithubAuth(installationId, 'installation', ghesApiUrl);
   const githubInstallationClient = await createOctoClient(ghAuth.token, ghesApiUrl);
   const checkRun = await githubInstallationClient.checks.get({
     check_run_id: payload.id,
@@ -41,10 +60,9 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
       repoName: repoName,
     });
     console.info(
-      `${
-        enableOrgLevel
-          ? `Organization ${payload.repositoryOwner}`
-          : `Repo ${payload.repositoryOwner}/${payload.repositoryName}`
+      `${enableOrgLevel
+        ? `Organization ${payload.repositoryOwner}`
+        : `Repo ${payload.repositoryOwner}/${payload.repositoryName}`
       } has ${currentRunners.length}/${maximumRunners} runners`,
     );
 
@@ -53,9 +71,9 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
       const registrationToken = enableOrgLevel
         ? await githubInstallationClient.actions.createRegistrationTokenForOrg({ org: payload.repositoryOwner })
         : await githubInstallationClient.actions.createRegistrationTokenForRepo({
-            owner: payload.repositoryOwner,
-            repo: payload.repositoryName,
-          });
+          owner: payload.repositoryOwner,
+          repo: payload.repositoryName,
+        });
       const token = registrationToken.data.token;
 
       const labelsArgument = runnerExtraLabels !== undefined ? `--labels ${runnerExtraLabels}` : '';
@@ -65,7 +83,8 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
         environment: environment,
         runnerConfig: enableOrgLevel
           ? `--url ${configBaseUrl}/${payload.repositoryOwner} --token ${token} ${labelsArgument}${runnerGroupArgument}`
-          : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} --token ${token} ${labelsArgument}`,
+          : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} ` +
+          `--token ${token} ${labelsArgument}`,
         orgName: orgName,
         repoName: repoName,
       });
