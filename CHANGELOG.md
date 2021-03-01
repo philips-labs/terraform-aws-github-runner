@@ -164,7 +164,8 @@ terraform import module.runners.module.webhook.aws_cloudwatch_log_group.webhook 
 
 - First release.
 
-[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.10.0..HEAD
+[unreleased]: https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.11.0..HEAD
+[0.11.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.10.0..v00.11.0
 [0.10.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.9.1..v00.10.0
 [0.9.1]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.9.0..v0.9.1
 [0.9.0]: https://github.com/philips-labs/terraform-aws-github-runner/releases/tag/v0.8.1..v0.9.0
