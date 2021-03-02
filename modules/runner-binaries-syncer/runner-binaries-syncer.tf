@@ -123,10 +123,13 @@ resource "aws_s3_bucket_notification" "on_deploy" {
   depends_on = [aws_lambda_permission.on_deploy]
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_lambda_permission" "on_deploy" {
-  statement_id  = "AllowExecutionFromS3Bucket"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.syncer.arn
-  principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.action_dist.arn
+  statement_id   = "AllowExecutionFromS3Bucket"
+  action         = "lambda:InvokeFunction"
+  function_name  = aws_lambda_function.syncer.arn
+  principal      = "s3.amazonaws.com"
+  source_account = data.aws_caller_identity.current.account_id
+  source_arn     = aws_s3_bucket.action_dist.arn
 }
