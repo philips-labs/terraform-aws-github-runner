@@ -90,17 +90,17 @@ Go to GitHub and [create a new app](https://docs.github.com/en/developers/apps/c
 3. Choose a website (mandatory, not required for the module).
 4. Disable the webhook for now (we will configure this later).
 5. Permissions for all runners:
-  - Repository:
-    - `Actions`: Read-only (check for queued jobs)
-    - `Checks`: Read-only (receive events for new builds)
-    - `Metadata`: Read-only (default/required)
+    - Repository:
+      - `Actions`: Read-only (check for queued jobs)
+      - `Checks`: Read-only (receive events for new builds)
+      - `Metadata`: Read-only (default/required)
 6. _Permissions for repo level runners only_:
-  - Repository:
-    - `Administration`: Read & write (to register runner)
+   - Repository:
+     - `Administration`: Read & write (to register runner)
 7. _Permissions for organization level runners only_:
-  - Organization
-    - `Administration`: Read & write (to register runner)
-    - `Self-hosted runners`: Read & write (to register runner)
+   - Organization
+     - `Administration`: Read & write (to register runner)
+     - `Self-hosted runners`: Read & write (to register runner)
 8. Save the new app.
 9. On the General page, make a note of the "App ID" and "Client ID" parameters.
 10. Create a new client secret and also write it down.
