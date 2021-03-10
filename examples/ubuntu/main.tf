@@ -51,10 +51,20 @@ module "runners" {
 
   runner_log_files = [
     {
+      "log_group_name" : "messages",
+      "prefix_log_group" : true,
+      "file_path" : "/var/log/messages",
+      "log_stream_name" : "{instance_id}"
+    },
+    {
+      "log_group_name" : "user_data",
+      "prefix_log_group" : true,
       "file_path" : "/var/log/user-data.log",
       "log_stream_name" : "{instance_id}/user_data"
     },
     {
+      "log_group_name" : "runner",
+      "prefix_log_group" : true,
       "file_path" : "/home/runners/actions-runner/_diag/Runner_**.log",
       "log_stream_name" : "{instance_id}/runner"
     }
