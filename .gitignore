@@ -11,7 +11,7 @@
 .idea
 .DS_Store
 *.out
-example/*.secrets*.tfvars
+secrets.auto.tfvars
 .envrc
 *.zip
 *.gz
