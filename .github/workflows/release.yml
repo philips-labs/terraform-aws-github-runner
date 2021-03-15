@@ -79,4 +79,3 @@ jobs:
           cp .release/* .
           yarn
           yarn release --repositoryUrl https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
-
