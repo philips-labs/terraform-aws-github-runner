@@ -80,14 +80,19 @@ GitHub workflows fail immediately if there is no action runner available for you
 
 Another convenient way of deploying this temporary required runner is using following approach. This automates all the manual labor.
 
-```bash
-docker run -it --name my-runner \
-    -e RUNNER_LABELS=selfhosted,Linux,Ubuntu -e RUNNER_NAME=my-repo-docker-runner \
-    -e GITHUB_ACCESS_TOKEN=$GH_PERSONAL_ACCESS_TOKEN \
-    -e RUNNER_REPOSITORY_URL=https://github.com/my-org/my-repo \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    tcardonne/github-runner:ubuntu-20.04
-```
+<details>
+  <summary>Temporary runner using Docker</summary>
+
+  ```bash
+  docker run -it --name my-runner \
+      -e RUNNER_LABELS=selfhosted,Linux,Ubuntu -e RUNNER_NAME=my-repo-docker-runner \
+      -e GITHUB_ACCESS_TOKEN=$GH_PERSONAL_ACCESS_TOKEN \
+      -e RUNNER_REPOSITORY_URL=https://github.com/my-org/my-repo \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      tcardonne/github-runner:ubuntu-20.04
+  ```
+
+</details>
 
 You should stop and remove the container once the runner is registered as the builds would otherwise go to your local Docker container.
 
