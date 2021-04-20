@@ -12,11 +12,7 @@ output "runners" {
 }
 
 output "binaries_syncer" {
-  value = {
-    lambda      = module.runner_binaries.lambda
-    lambda_role = module.runner_binaries.lambda_role
-    location    = local.s3_action_runner_url
-  }
+  value = var.sync_runner_binary ? module.runner_binaries : null
 }
 
 output "webhook" {

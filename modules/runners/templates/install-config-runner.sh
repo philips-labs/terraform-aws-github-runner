@@ -1,11 +1,4 @@
-cd /home/$USER_NAME
-mkdir actions-runner && cd actions-runner
-
-aws s3 cp ${s3_location_runner_distribution} actions-runner.tar.gz
-tar xzf ./actions-runner.tar.gz
-rm -rf actions-runner.tar.gz
-
-${arm_patch}
+${download_runner}
 
 INSTANCE_ID=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
 REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)
@@ -19,10 +12,6 @@ CONFIG=$(aws ssm get-parameters --names ${environment}-$INSTANCE_ID --with-decry
 aws ssm delete-parameter --name ${environment}-$INSTANCE_ID --region $REGION
 
 export RUNNER_ALLOW_RUNASROOT=1
-os_id=$(awk -F= '/^ID/{print $2}' /etc/os-release)
-if [[ "$os_id" =~ ^ubuntu.* ]]; then
-    ./bin/installdependencies.sh
-fi
 
 ./config.sh --unattended --name $INSTANCE_ID --work "_work" $CONFIG
 

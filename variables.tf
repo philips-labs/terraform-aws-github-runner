@@ -341,6 +341,12 @@ variable "runner_additional_security_group_ids" {
   default     = []
 }
 
+variable "sync_runner_binary" {
+  description = "(optional) Boolean to disable runner-binaries-syncer."
+  type        = bool
+  default     = true
+}
+  
 variable "market_options" {
   description = "Market options for the action runner instances. Setting the value to `null` let the scaler create on-demand instances instead of spot instances."
   type        = string

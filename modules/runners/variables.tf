@@ -34,10 +34,9 @@ variable "environment" {
   type        = string
 }
 
-variable "s3_bucket_runner_binaries" {
-  type = object({
-    arn = string
-  })
+variable "s3_bucket_runner_binaries_arn" {
+  description = "Runner binary S3 bucket ARN."
+  type = string
 }
 
 variable "s3_location_runner_binaries" {
@@ -321,4 +320,10 @@ variable "runner_additional_security_group_ids" {
   description = "(optional) List of additional security groups IDs to apply to the runner"
   type        = list(string)
   default     = []
+}
+
+variable "sync_runner_binary" {
+  description = "(optional) Boolean to disable runner-binaries-syncer."
+  type        = bool
+  default     = true
 }

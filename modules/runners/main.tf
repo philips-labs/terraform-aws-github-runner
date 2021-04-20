@@ -17,6 +17,7 @@ locals {
   userdata_template              = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
   userdata_arm_patch             = "${path.module}/templates/arm-runner-patch.tpl"
   userdata_install_config_runner = "${path.module}/templates/install-config-runner.sh"
+  userdata_download_runner       = "${path.module}/templates/download-runner.sh"
 }
 
 data "aws_ami" "runner" {
@@ -107,10 +108,13 @@ resource "aws_launch_template" "runner" {
 locals {
   arm_patch = var.runner_architecture == "arm64" ? templatefile(local.userdata_arm_patch, {}) : ""
   install_config_runner = templatefile(local.userdata_install_config_runner, {
-    environment                     = var.environment
-    s3_location_runner_distribution = var.s3_location_runner_binaries
-    run_as_root_user                = var.runner_as_root ? "root" : ""
-    arm_patch                       = local.arm_patch
+    environment      = var.environment
+    run_as_root_user = var.runner_as_root ? "root" : ""
+    download_runner = var.sync_runner_binary ? templatefile(local.userdata_download_runner, {
+      s3_location_runner_distribution = var.s3_location_runner_binaries
+      arm_patch                       = local.arm_patch
+      }
+    ) : ""
   })
 }
 

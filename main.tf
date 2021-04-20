@@ -3,8 +3,9 @@ locals {
     Environment = var.environment
   })
 
-  s3_action_runner_url = "s3://${module.runner_binaries.bucket.id}/${module.runner_binaries.runner_distribution_object_key}"
-  runner_architecture  = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
+  s3_action_runner_url          = var.sync_runner_binary ? "s3://${module.runner_binaries[0].bucket.id}/${module.runner_binaries[0].runner_distribution_object_key}" : ""
+  s3_bucket_runner_binaries_arn = var.sync_runner_binary ? module.runner_binaries[0].bucket.arn : ""
+  runner_architecture           = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
 
   ami_filter = length(var.ami_filter) > 0 ? var.ami_filter : local.runner_architecture == "arm64" ? { name = ["amzn2-ami-hvm-2*-arm64-gp2"] } : { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
 }
@@ -64,8 +65,8 @@ module "runners" {
     encrypt    = var.encrypt_secrets
   }
 
-  s3_bucket_runner_binaries   = module.runner_binaries.bucket
-  s3_location_runner_binaries = local.s3_action_runner_url
+  s3_bucket_runner_binaries_arn = local.s3_bucket_runner_binaries_arn
+  s3_location_runner_binaries   = local.s3_action_runner_url
 
   instance_type         = var.instance_type
   market_options        = var.market_options
@@ -115,9 +116,13 @@ module "runners" {
   runner_iam_role_managed_policy_arns = var.runner_iam_role_managed_policy_arns
 
   ghes_url = var.ghes_url
+
+  sync_runner_binary = var.sync_runner_binary
 }
 
 module "runner_binaries" {
+  count = var.sync_runner_binary ? 1 : 0
+
   source = "./modules/runner-binaries-syncer"
 
   aws_region  = var.aws_region
