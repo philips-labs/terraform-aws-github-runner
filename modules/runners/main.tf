@@ -44,7 +44,7 @@ resource "aws_launch_template" "runner" {
       ebs {
         delete_on_termination = lookup(block_device_mappings.value, "delete_on_termination", true)
         volume_type           = lookup(block_device_mappings.value, "volume_type", "gp3")
-        volume_size           = lookup(block_device_mappings.value, "volume_size", 30)
+        volume_size           = lookup(block_device_mappings.value, "volume_size", var.volume_size)
         encrypted             = lookup(block_device_mappings.value, "encrypted", true)
         iops                  = lookup(block_device_mappings.value, "iops", null)
       }

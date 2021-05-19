@@ -322,3 +322,9 @@ variable "runner_additional_security_group_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "volume_size" {
+  description = "Size of runner volume"
+  type = number
+  default = 30
+}
