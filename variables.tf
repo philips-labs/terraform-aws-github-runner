@@ -26,8 +26,8 @@ variable "environment" {
 
 variable "enable_organization_runners" {
   description = "Register runners to organization, instead of repo level"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "github_app" {
@@ -351,6 +351,6 @@ variable "market_options" {
 
 variable "volume_size" {
   description = "Size of runner volume"
-  type = number
-  default = 30
+  type        = number
+  default     = 30
 }

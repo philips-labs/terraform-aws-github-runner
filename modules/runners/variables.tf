@@ -325,6 +325,6 @@ variable "runner_additional_security_group_ids" {
 
 variable "volume_size" {
   description = "Size of runner volume"
-  type = number
-  default = 30
+  type        = number
+  default     = 30
 }
