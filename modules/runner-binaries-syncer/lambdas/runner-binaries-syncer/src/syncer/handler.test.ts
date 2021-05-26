@@ -240,3 +240,23 @@ describe('Synchronize action distribution for arm64.', () => {
     await expect(handle()).rejects.toThrow(errorMessage);
   });
 });
+
+describe('Synchronize action distribution for windows.', () => {
+  const errorMessage = 'Cannot find GitHub release asset.';
+  beforeEach(() => {
+    process.env.S3_BUCKET_NAME = bucketName;
+    process.env.S3_OBJECT_KEY = bucketObjectKey;
+    process.env.GITHUB_RUNNER_OS = 'win';
+  });
+
+  it('No win asset.', async () => {
+    mockOctokit.repos.listReleases.mockImplementation(() => ({
+      data: listReleases.map(release => ({
+        ...release,
+        assets: release.assets.filter(asset => !asset.name.includes('win'))
+      })),
+    }));
+
+    await expect(handle()).rejects.toThrow(errorMessage);
+  });
+});

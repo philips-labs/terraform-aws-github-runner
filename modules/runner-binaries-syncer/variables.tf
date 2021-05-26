@@ -49,6 +49,12 @@ variable "role_path" {
   default     = null
 }
 
+variable "runner_os" {
+  description = "The operating system for the runner instance (linux, win), defaults to 'linux'"
+  type        = string
+  default     = "linux"
+}
+
 variable "runner_architecture" {
   description = "The platform architecture for the runner instance (x64, arm64), defaults to 'x64'"
   type        = string
