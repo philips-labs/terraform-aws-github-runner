@@ -58,9 +58,15 @@ variable "market_options" {
 }
 
 variable "instance_type" {
-  description = "Default instance type for the action runner."
+  description = "[DEPRECATED] See instance_types."
   type        = string
   default     = "m5.large"
+}
+
+variable "instance_types" {
+  description = "List of instance types for the action runner."
+  type        = set(string)
+  default     = null
 }
 
 variable "ami_filter" {

@@ -126,7 +126,7 @@ variable "instance_profile_path" {
 }
 
 variable "instance_type" {
-  description = "Instance type for the action runner."
+  description = "[DEPRECATED] See instance_types."
   type        = string
   default     = "m5.large"
 }
@@ -353,4 +353,10 @@ variable "volume_size" {
   description = "Size of runner volume"
   type        = number
   default     = 30
+}
+
+variable "instance_types" {
+  description = "List of instance types for the action runner."
+  type        = set(string)
+  default     = null
 }
