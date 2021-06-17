@@ -46,13 +46,14 @@ export async function createGithubAuth(
   const appId: number = parseInt(process.env.GITHUB_APP_ID as string);
   const clientId = process.env.GITHUB_APP_CLIENT_ID as string;
 
-  const authOptions: StrategyOptions = {
+  let authOptions: StrategyOptions = {
     appId,
     privateKey,
-    installationId,
     clientId,
     clientSecret,
   };
+  if (installationId) authOptions = { ...authOptions, installationId };
+
   console.debug(ghesApiUrl);
   if (ghesApiUrl) {
     authOptions.request = request.defaults({
@@ -61,9 +62,4 @@ export async function createGithubAuth(
   }
   const result = (await createAppAuth(authOptions)({ type: authType })) as AppAuthentication;
   return result;
-  // if (result.type == 'oauth-app') {
-  //   return result;
-  // } else {
-  //   throw Error(`Authentication type ${authType} is not`);
-  // }
 }
