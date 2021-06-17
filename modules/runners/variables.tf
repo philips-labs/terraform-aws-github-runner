@@ -312,7 +312,7 @@ variable "lambda_subnet_ids" {
 }
 
 variable "lambda_security_group_ids" {
-  description = "List of subnets in which the lambda will be launched, the subnets needs to be subnets in the `vpc_id`."
+  description = "List of security group IDs associated with the Lambda function."
   type        = list(string)
   default     = []
 }
