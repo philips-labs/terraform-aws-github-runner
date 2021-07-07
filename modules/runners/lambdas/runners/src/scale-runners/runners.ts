@@ -84,7 +84,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters, laun
 
 function getInstanceParams(
   launchTemplateName: string,
-  runnerParameters: RunnerInputParameters
+  runnerParameters: RunnerInputParameters,
 ): EC2.RunInstancesRequest {
   return {
     MaxCount: 1,
@@ -101,7 +101,7 @@ function getInstanceParams(
           { Key: 'Application', Value: 'github-action-runner' },
           {
             Key: runnerParameters.runnerType,
-            Value: runnerParameters.runnerOwner
+            Value: runnerParameters.runnerOwner,
           },
         ],
       },

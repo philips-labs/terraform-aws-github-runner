@@ -12,7 +12,8 @@
     "build": "ncc build src/lambda.ts -o dist",
     "dist": "yarn build && cd dist && zip ../runners.zip index.js",
     "format": "prettier --write \"**/*.ts\"",
-    "format-check": "prettier --check \"**/*.ts\""
+    "format-check": "prettier --check \"**/*.ts\"",
+    "all": "yarn build && yarn format && yarn lint && yarn test"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.75",
@@ -22,14 +23,17 @@
     "@typescript-eslint/parser": "^4.22.0",
     "@vercel/ncc": "^0.28.6",
     "eslint": "^7.22.0",
+    "eslint-plugin-prettier": "3.4.0",
     "jest": "^26.6.3",
     "jest-mock-extended": "^1.0.13",
     "moment-timezone": "^0.5.33",
     "nock": "^13.0.11",
+    "prettier": "2.3.1",
     "ts-jest": "^26.5.5",
     "ts-node-dev": "^1.1.6"
   },
   "dependencies": {
+    "@aws-sdk/client-ssm": "^3.18.0",
     "@octokit/auth-app": "3.4.0",
     "@octokit/rest": "^18.3.5",
     "@octokit/types": "^6.13.0",

@@ -76,8 +76,6 @@ No Modules.
 | [aws_iam_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) |
 | [aws_iam_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) |
 | [aws_iam_role_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) |
-| [aws_kms_ciphertext](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_ciphertext) |
-| [aws_kms_grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_grant) |
 | [aws_lambda_event_source_mapping](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping) |
 | [aws_lambda_function](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) |
 | [aws_lambda_permission](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) |
@@ -98,7 +96,6 @@ No Modules.
 | enable\_cloudwatch\_agent | Enabling the cloudwatch agent on the ec2 runner instances, the runner contains default config. Configuration can be overridden via `cloudwatch_config`. | `bool` | `true` | no |
 | enable\_organization\_runners | n/a | `bool` | n/a | yes |
 | enable\_ssm\_on\_runners | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances. | `bool` | n/a | yes |
-| encryption | KMS key to encrypted lambda environment secrets. Either provide a key and `encrypt` set to `true`. Or set the key to `null` and encrypt to `false`. | <pre>object({<br>    kms_key_id = string<br>    encrypt    = bool<br>  })</pre> | n/a | yes |
 | environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
 | ghes\_url | GitHub Enterprise Server URL. DO NOT SET IF USING PUBLIC GITHUB | `string` | `null` | no |
 | github\_app | GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`). | <pre>object({<br>    key_base64    = string<br>    id            = string<br>    client_id     = string<br>    client_secret = string<br>  })</pre> | n/a | yes |
@@ -107,6 +104,7 @@ No Modules.
 | instance\_type | [DEPRECATED] See instance\_types. | `string` | `"m5.large"` | no |
 | instance\_types | List of instance types for the action runner. | `set(string)` | `null` | no |
 | key\_name | Key pair name | `string` | `null` | no |
+| kms\_key\_id | Optional CMK Key ID to be used for Parameter Store. | `string` | `null` | no |
 | lambda\_s3\_bucket | S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly. | `any` | `null` | no |
 | lambda\_security\_group\_ids | List of security group IDs associated with the Lambda function. | `list(string)` | `[]` | no |
 | lambda\_subnet\_ids | List of subnets in which the lambda will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | `[]` | no |
@@ -148,6 +146,7 @@ No Modules.
 | lambda\_scale\_down | n/a |
 | lambda\_scale\_up | n/a |
 | launch\_template | n/a |
+| policy | n/a |
 | role\_runner | n/a |
 | role\_scale\_down | n/a |
 | role\_scale\_up | n/a |

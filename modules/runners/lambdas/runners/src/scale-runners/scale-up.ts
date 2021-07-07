@@ -58,11 +58,9 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
     const currentRunners = await listRunners({
       environment,
       runnerType,
-      runnerOwner
+      runnerOwner,
     });
-    console.info(
-      `${runnerType} ${runnerOwner} has ${currentRunners.length}/${maximumRunners} runners`,
-    );
+    console.info(`${runnerType} ${runnerOwner} has ${currentRunners.length}/${maximumRunners} runners`);
 
     if (currentRunners.length < maximumRunners) {
       // create token
@@ -83,10 +81,9 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
         runnerServiceConfig: enableOrgLevel
           ? `--url ${configBaseUrl}/${payload.repositoryOwner} --token ${token} ${labelsArgument}${runnerGroupArgument}`
           : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} ` +
-          `--token ${token} ${labelsArgument}`,
+            `--token ${token} ${labelsArgument}`,
         runnerOwner,
-        runnerType
-
+        runnerType,
       });
     } else {
       console.info('No runner will be created, maximum number of runners reached.');

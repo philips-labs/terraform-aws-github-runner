@@ -1,17 +1,3 @@
-resource "aws_kms_grant" "scale_up" {
-  count             = var.encryption.encrypt ? 1 : 0
-  name              = "${var.environment}-scale-up"
-  key_id            = var.encryption.kms_key_id
-  grantee_principal = aws_iam_role.scale_up.arn
-  operations        = ["Decrypt"]
-
-  constraints {
-    encryption_context_equals = {
-      Environment = var.environment
-    }
-  }
-}
-
 resource "aws_lambda_function" "scale_up" {
   s3_bucket                      = var.lambda_s3_bucket != null ? var.lambda_s3_bucket : null
   s3_key                         = var.runners_lambda_s3_key != null ? var.runners_lambda_s3_key : null
@@ -31,11 +17,6 @@ resource "aws_lambda_function" "scale_up" {
       ENABLE_ORGANIZATION_RUNNERS = var.enable_organization_runners
       ENVIRONMENT                 = var.environment
       GHES_URL                    = var.ghes_url
-      GITHUB_APP_CLIENT_ID        = var.github_app.client_id
-      GITHUB_APP_CLIENT_SECRET    = local.github_app_client_secret
-      GITHUB_APP_ID               = var.github_app.id
-      GITHUB_APP_KEY_BASE64       = local.github_app_key_base64
-      KMS_KEY_ID                  = var.encryption.kms_key_id
       RUNNER_EXTRA_LABELS         = var.runner_extra_labels
       RUNNER_GROUP_NAME           = var.runner_group_name
       RUNNERS_MAXIMUM_COUNT       = var.runners_maximum_count
@@ -80,14 +61,79 @@ resource "aws_iam_role" "scale_up" {
   tags                 = local.tags
 }
 
-resource "aws_iam_role_policy" "scale_up" {
-  name = "${var.environment}-lambda-scale-up-policy"
-  role = aws_iam_role.scale_up.name
+data "aws_iam_policy_document" "scale_up" {
+  statement {
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags",
+      "ec2:RunInstances"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  statement {
+    actions = [
+      "ec2:CreateTags"
+    ]
+    resources = [
+      "*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:CreateAction"
 
-  policy = templatefile("${path.module}/policies/lambda-scale-up.json", {
-    arn_runner_instance_role = aws_iam_role.runner.arn
-    sqs_arn                  = var.sqs_build_queue.arn
-  })
+      values = [
+        "RunInstances"
+      ]
+    }
+  }
+  statement {
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = [
+      aws_iam_role.runner.arn
+    ]
+  }
+  statement {
+    actions = [
+      "ssm:PutParameter"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  statement {
+    actions = [
+      "ssm:GetParameter"
+    ]
+    resources = [
+      aws_ssm_parameter.github_app_client_id.arn,
+      aws_ssm_parameter.github_app_client_secret.arn,
+      aws_ssm_parameter.github_app_id.arn,
+      aws_ssm_parameter.github_app_key_base64.arn
+    ]
+  }
+  statement {
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:DeleteMessage"
+    ]
+    resources = [
+      var.sqs_build_queue.arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "scale_up" {
+  name   = "${var.environment}-lambda-scale-up-policy"
+  role   = aws_iam_role.scale_up.name
+  policy = data.aws_iam_policy_document.scale_up.json
+}
+output "policy" {
+  value = data.aws_iam_policy_document.scale_up.json
 }
 
 resource "aws_iam_role_policy" "scale_up_logging" {
