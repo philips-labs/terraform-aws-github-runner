@@ -118,7 +118,6 @@ Go to GitHub and [create a new app](https://docs.github.com/en/developers/apps/c
      - `Administration`: Read & write (to register runner)
 7. _Permissions for organization level runners only_:
    - Organization
-     - `Administration`: Read & write (to register runner)
      - `Self-hosted runners`: Read & write (to register runner)
 8. Save the new app.
 9. On the General page, make a note of the "App ID" and "Client ID" parameters.
