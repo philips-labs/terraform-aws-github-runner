@@ -16,8 +16,8 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
   const maximumRunners = parseInt(process.env.RUNNERS_MAXIMUM_COUNT || '3');
   const runnerExtraLabels = process.env.RUNNER_EXTRA_LABELS;
   const runnerGroup = process.env.RUNNER_GROUP_NAME;
-  const environment = process.env.ENVIRONMENT as string;
-  const ghesBaseUrl = process.env.GHES_URL as string;
+  const environment = process.env.ENVIRONMENT;
+  const ghesBaseUrl = process.env.GHES_URL;
 
   let ghesApiUrl = '';
   if (ghesBaseUrl) {
@@ -58,11 +58,9 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
     const currentRunners = await listRunners({
       environment,
       runnerType,
-      runnerOwner
+      runnerOwner,
     });
-    console.info(
-      `${runnerType} ${runnerOwner} has ${currentRunners.length}/${maximumRunners} runners`,
-    );
+    console.info(`${runnerType} ${runnerOwner} has ${currentRunners.length}/${maximumRunners} runners`);
 
     if (currentRunners.length < maximumRunners) {
       // create token
@@ -85,8 +83,7 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
           : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} ` +
           `--token ${token} ${labelsArgument}`,
         runnerOwner,
-        runnerType
-
+        runnerType,
       });
     } else {
       console.info('No runner will be created, maximum number of runners reached.');

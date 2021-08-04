@@ -50,7 +50,7 @@ Scaling down the runners is at the moment brute-forced, every configurable amoun
 
 Downloading the GitHub Action Runner distribution can be occasionally slow (more than 10 minutes). Therefore a lambda is introduced that synchronizes the action runner binary from GitHub to an S3 bucket. The EC2 instance will fetch the distribution from the S3 bucket instead of the internet.
 
-Secrets and private keys which are passed to the lambdas as environment variables are encrypted by default by a KMS key managed by the module. Alternatively you can pass your own KMS key. Encryption via KMS can be complete disabled by setting `encrypt_secrets` to `false`.
+Secrets and private keys are stored in SSM Parameter Store. These values are encrypted using the default KMS key for SSM or passing in a custom KMS key.
 
 ![Architecture](docs/component-overview.svg)
 
@@ -325,14 +325,13 @@ No requirements.
 |------|--------|---------|
 | runner_binaries | ./modules/runner-binaries-syncer |  |
 | runners | ./modules/runners |  |
+| ssm | ./modules/ssm |  |
 | webhook | ./modules/webhook |  |
 
 ## Resources
 
 | Name |
 |------|
-| [aws_kms_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) |
-| [aws_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) |
 | [aws_resourcegroups_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/resourcegroups_group) |
 | [aws_sqs_queue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) |
 | [random_string](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) |
@@ -351,7 +350,6 @@ No requirements.
 | enable\_cloudwatch\_agent | Enabling the cloudwatch agent on the ec2 runner instances, the runner contains default config. Configuration can be overridden via `cloudwatch_config`. | `bool` | `true` | no |
 | enable\_organization\_runners | Register runners to organization, instead of repo level | `bool` | `false` | no |
 | enable\_ssm\_on\_runners | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances. | `bool` | `false` | no |
-| encrypt\_secrets | Encrypt secret variables for lambda's such as secrets and private keys. | `bool` | `true` | no |
 | environment | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
 | ghes\_url | GitHub Enterprise Server URL. Example: https://github.internal.co - DO NOT SET IF USING PUBLIC GITHUB | `string` | `null` | no |
 | github\_app | GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`). | <pre>object({<br>    key_base64     = string<br>    id             = string<br>    client_id      = string<br>    client_secret  = string<br>    webhook_secret = string<br>  })</pre> | n/a | yes |
@@ -360,12 +358,11 @@ No requirements.
 | instance\_type | [DEPRECATED] See instance\_types. | `string` | `"m5.large"` | no |
 | instance\_types | List of instance types for the action runner. | `set(string)` | `null` | no |
 | key\_name | Key pair name | `string` | `null` | no |
-| kms\_key\_id | Custom KMS key to encrypted lambda secrets, if not provided and `encrypt_secrets` = `true` a KMS key will be created by the module. Secrets will be encrypted with a context `Environment = var.environment`. | `string` | `null` | no |
+| kms\_key\_arn | Optional CMK Key ARN to be used for Parameter Store. This key must be in the current account. | `string` | `null` | no |
 | lambda\_s3\_bucket | S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly. | `any` | `null` | no |
 | lambda\_security\_group\_ids | List of security group IDs associated with the Lambda function. | `list(string)` | `[]` | no |
 | lambda\_subnet\_ids | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | `[]` | no |
 | logging\_retention\_in\_days | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `180` | no |
-| manage\_kms\_key | Let the module manage the KMS key. | `bool` | `true` | no |
 | market\_options | Market options for the action runner instances. Setting the value to `null` let the scaler create on-demand instances instead of spot instances. | `string` | `"spot"` | no |
 | minimum\_running\_time\_in\_minutes | The time an ec2 action runner should be running at minimum before terminated if non busy. | `number` | `5` | no |
 | repository\_white\_list | List of repositories allowed to use the github app | `list(string)` | `[]` | no |
@@ -407,6 +404,7 @@ No requirements.
 |------|-------------|
 | binaries\_syncer | n/a |
 | runners | n/a |
+| ssm\_parameters | n/a |
 | webhook | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 

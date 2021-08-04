@@ -1,24 +1,27 @@
 import { handle } from './handler';
 import check_run_event from '../../test/resources/github_check_run_event.json';
-
+import { getParameterValue } from '../ssm';
 import { sendActionRequest } from '../sqs';
+import { mocked } from 'ts-jest/utils';
+import nock from 'nock';
 
 jest.mock('../sqs');
-jest.mock('../kms', () => ({
-  decrypt: jest.fn().mockImplementation((value) => {
-    return Promise.resolve(value);
-  }),
-}));
+jest.mock('../ssm');
+
+const GITHUB_APP_WEBHOOK_SECRET = 'TEST_SECRET';
 
 describe('handler', () => {
   let originalError: Console['error'];
 
   beforeEach(() => {
+    nock.disableNetConnect();
     process.env.REPOSITORY_WHITE_LIST = '[]';
-    process.env.GITHUB_APP_WEBHOOK_SECRET = 'TEST_SECRET';
     originalError = console.error;
     console.error = jest.fn();
     jest.clearAllMocks();
+
+    const mockedGet = mocked(getParameterValue);
+    mockedGet.mockResolvedValueOnce(GITHUB_APP_WEBHOOK_SECRET);
   });
 
   afterEach(() => {

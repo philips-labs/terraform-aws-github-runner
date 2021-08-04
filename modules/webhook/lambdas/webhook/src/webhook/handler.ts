@@ -2,9 +2,9 @@ import { IncomingHttpHeaders } from 'http';
 import { Webhooks } from '@octokit/webhooks';
 import { sendActionRequest } from '../sqs';
 import { CheckRunEvent } from '@octokit/webhooks-types';
-import { decrypt } from '../kms';
+import { getParameterValue } from '../ssm';
 
-export const handle = async (headers: IncomingHttpHeaders, payload: any): Promise<number> => {
+export const handle = async (headers: IncomingHttpHeaders, payload: string | null): Promise<number> => {
   // ensure header keys lower case since github headers can contain capitals.
   for (const key in headers) {
     headers[key.toLowerCase()] = headers[key];
@@ -16,20 +16,12 @@ export const handle = async (headers: IncomingHttpHeaders, payload: any): Promis
     return 500;
   }
 
-  const secret = await decrypt(
-    process.env.GITHUB_APP_WEBHOOK_SECRET as string,
-    process.env.KMS_KEY_ID as string,
-    process.env.ENVIRONMENT as string,
-  );
-  if (secret === undefined) {
-    console.error('Cannot decrypt secret.');
-    return 500;
-  }
+  const secret = await getParameterValue(process.env.ENVIRONMENT as string, 'github_app_webhook_secret');
 
   const webhooks = new Webhooks({
     secret: secret,
   });
-  if (!(await webhooks.verify(payload, signature))) {
+  if (!(await webhooks.verify(payload as string, signature))) {
     console.error('Unable to verify signature!');
     return 401;
   }
@@ -39,18 +31,19 @@ export const handle = async (headers: IncomingHttpHeaders, payload: any): Promis
   console.debug(`Received Github event: "${githubEvent}"`);
 
   if (githubEvent === 'check_run') {
-    const body = JSON.parse(payload) as CheckRunEvent;
+    const body = JSON.parse(payload as string) as CheckRunEvent;
 
     const repositoryWhiteListEnv = (process.env.REPOSITORY_WHITE_LIST as string) || '[]';
     const repositoryWhiteList = JSON.parse(repositoryWhiteListEnv) as Array<string>;
+    const repositoryFullName = body.repository.full_name;
 
     if (repositoryWhiteList.length > 0) {
-      const repositoryFullName = body.repository.full_name;
       if (!repositoryWhiteList.includes(repositoryFullName)) {
         console.error(`Received event from unauthorized repository ${repositoryFullName}`);
         return 500;
       }
     }
+    console.log(`Received event from repository ${repositoryFullName}`);
 
     let installationId = body.installation?.id;
     if (installationId == null) {

@@ -20,7 +20,7 @@ function createGitHubClientForRunnerFactory(): (runner: RunnerInfo, orgLevel: bo
   const cache: Map<string, Octokit> = new Map();
 
   return async (runner: RunnerInfo, orgLevel: boolean) => {
-    const ghesBaseUrl = process.env.GHES_URL as string;
+    const ghesBaseUrl = process.env.GHES_URL;
     let ghesApiUrl = '';
     if (ghesBaseUrl) {
       ghesApiUrl = `${ghesBaseUrl}/api/v3`;
@@ -129,17 +129,16 @@ async function removeRunner(
 }
 
 export async function scaleDown(): Promise<void> {
-  const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG as string) as [ScalingDownConfig];
-
+  const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG) as [ScalingDownConfig];
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
-  const environment = process.env.ENVIRONMENT as string;
-  const minimumRunningTimeInMinutes = process.env.MINIMUM_RUNNING_TIME_IN_MINUTES as string;
+  const environment = process.env.ENVIRONMENT;
+  const minimumRunningTimeInMinutes = process.env.MINIMUM_RUNNING_TIME_IN_MINUTES;
   let idleCounter = getIdleRunnerCount(scaleDownConfigs);
 
   // list and sort runners, newest first. This ensure we keep the newest runners longer.
   const runners = (
     await listRunners({
-      environment
+      environment,
     })
   ).sort((a, b): number => {
     if (a.launchTime === undefined) return 1;
