@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.16.0...v0.17.0) (2021-08-06)
+
+
+### Features
+
+* Adding support for new workflow_job event. ([#1019](https://github.com/philips-labs/terraform-aws-github-runner/issues/1019)) ([a74e10b](https://github.com/philips-labs/terraform-aws-github-runner/commit/a74e10b625413e948703f5d3a6f61b9a98c31b66))
+
 ## [0.16.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.15.1...v0.16.0) (2021-08-05)
 
 
