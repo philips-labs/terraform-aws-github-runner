@@ -2,15 +2,15 @@ import { EC2, SSM } from 'aws-sdk';
 
 export interface RunnerInfo {
   instanceId: string;
-  launchTime: Date | undefined;
-  repo: string | undefined;
-  org: string | undefined;
+  launchTime?: Date;
+  repo?: string;
+  org?: string;
 }
 
 export interface ListRunnerFilters {
   runnerType?: 'Org' | 'Repo';
   runnerOwner?: string;
-  environment: string | undefined;
+  environment?: string;
 }
 
 export interface RunnerInputParameters {

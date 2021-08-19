@@ -3,7 +3,7 @@ import moment from 'moment';
 import yn from 'yn';
 import { listRunners, RunnerInfo, terminateRunner } from './runners';
 import { getIdleRunnerCount, ScalingDownConfig } from './scale-down-config';
-import { createOctoClient, createGithubAuth } from './gh-auth';
+import { createOctoClient, createGithubAppAuth, createGithubInstallationAuth } from './gh-auth';
 
 interface Repo {
   repoName: string;
@@ -20,13 +20,6 @@ function createGitHubClientForRunnerFactory(): (runner: RunnerInfo, orgLevel: bo
   const cache: Map<string, Octokit> = new Map();
 
   return async (runner: RunnerInfo, orgLevel: boolean) => {
-    const ghesBaseUrl = process.env.GHES_URL;
-    let ghesApiUrl = '';
-    if (ghesBaseUrl) {
-      ghesApiUrl = `${ghesBaseUrl}/api/v3`;
-    }
-    const ghAuth = await createGithubAuth(undefined, 'app', ghesApiUrl);
-    const githubClient = await createOctoClient(ghAuth.token, ghesApiUrl);
     const repo = getRepo(runner, orgLevel);
     const key = orgLevel ? repo.repoOwner : repo.repoOwner + repo.repoName;
     const cachedOctokit = cache.get(key);
@@ -37,6 +30,13 @@ function createGitHubClientForRunnerFactory(): (runner: RunnerInfo, orgLevel: bo
     }
 
     console.debug(`[createGitHubClientForRunner] Cache miss for ${key}`);
+    const ghesBaseUrl = process.env.GHES_URL as string;
+    let ghesApiUrl = '';
+    if (ghesBaseUrl) {
+      ghesApiUrl = `${ghesBaseUrl}/api/v3`;
+    }
+    const ghAuth = await createGithubAppAuth(undefined, ghesApiUrl);
+    const githubClient = await createOctoClient(ghAuth.token, ghesApiUrl);
     const installationId = orgLevel
       ? (
           await githubClient.apps.getOrgInstallation({
@@ -49,7 +49,7 @@ function createGitHubClientForRunnerFactory(): (runner: RunnerInfo, orgLevel: bo
             repo: repo.repoName,
           })
         ).data.id;
-    const ghAuth2 = await createGithubAuth(installationId, 'installation', ghesApiUrl);
+    const ghAuth2 = await createGithubInstallationAuth(installationId, ghesApiUrl);
     const octokit = await createOctoClient(ghAuth2.token, ghesApiUrl);
     cache.set(key, octokit);
 
@@ -130,7 +130,7 @@ async function removeRunner(
 
 export async function scaleDown(): Promise<void> {
   const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG) as [ScalingDownConfig];
-  const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
+  const enableOrgLevel = JSON.parse(process.env.ENABLE_ORGANIZATION_RUNNERS || 'true') as boolean;
   const environment = process.env.ENVIRONMENT;
   const minimumRunningTimeInMinutes = process.env.MINIMUM_RUNNING_TIME_IN_MINUTES;
   let idleCounter = getIdleRunnerCount(scaleDownConfigs);
@@ -163,7 +163,6 @@ export async function scaleDown(): Promise<void> {
 
     const githubAppClient = await createGitHubClientForRunner(ec2runner, enableOrgLevel);
 
-    const repo = getRepo(ec2runner, enableOrgLevel);
     const ghRunners = await listGithubRunners(githubAppClient, ec2runner, enableOrgLevel);
     let orphanEc2Runner = true;
     for (const ghRunner of ghRunners) {
@@ -174,6 +173,7 @@ export async function scaleDown(): Promise<void> {
           idleCounter--;
           console.debug(`Runner '${ec2runner.instanceId}' will kept idle.`);
         } else {
+          const repo = getRepo(ec2runner, enableOrgLevel);
           await removeRunner(ec2runner, ghRunner.id, repo, enableOrgLevel, githubAppClient);
         }
       }
