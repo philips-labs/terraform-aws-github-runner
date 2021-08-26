@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.18.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.18.0...v0.18.1) (2021-08-26)
+
+
+### Bug Fixes
+
+* webhook labels for `workflow_job` ([#1133](https://github.com/philips-labs/terraform-aws-github-runner/issues/1133)) ([4b39fb9](https://github.com/philips-labs/terraform-aws-github-runner/commit/4b39fb9db523ad7b7ec47adf6c698323d17faed3))
+
 ## [0.18.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.17.0...v0.18.0) (2021-08-19)
 
 
