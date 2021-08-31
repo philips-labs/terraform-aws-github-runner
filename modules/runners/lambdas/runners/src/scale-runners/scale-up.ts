@@ -1,4 +1,4 @@
-import { listRunners, createRunner, RunnerInputParameters } from './runners';
+import { listEC2Runners, createRunner, RunnerInputParameters } from './runners';
 import { createOctoClient, createGithubAppAuth, createGithubInstallationAuth } from './gh-auth';
 import yn from 'yn';
 import { Octokit } from '@octokit/rest';
@@ -50,7 +50,7 @@ export const scaleUp = async (eventSource: string, payload: ActionRequestMessage
 
   const isQueued = await getJobStatus(githubInstallationClient, payload);
   if (isQueued) {
-    const currentRunners = await listRunners({
+    const currentRunners = await listEC2Runners({
       environment,
       runnerType,
       runnerOwner,
