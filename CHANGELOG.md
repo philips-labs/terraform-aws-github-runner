@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.19.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.18.1...v0.19.0) (2021-09-30)
+
+
+### Features
+
+* **scale-down:** Update Owner Logic ([#1065](https://github.com/philips-labs/terraform-aws-github-runner/issues/1065)) ([ba2536b](https://github.com/philips-labs/terraform-aws-github-runner/commit/ba2536bbf7bc7a98180b25d8703ef6edc25bc2b7)), closes [#2](https://github.com/philips-labs/terraform-aws-github-runner/issues/2)
+
+
+### Bug Fixes
+
+* explicit set region for downloading runner distribution from S3 ([#1204](https://github.com/philips-labs/terraform-aws-github-runner/issues/1204)) ([439fb1b](https://github.com/philips-labs/terraform-aws-github-runner/commit/439fb1bb5b0b7b024476b41ac57436af1aa30dae))
+* upgrade jest  ([#1219](https://github.com/philips-labs/terraform-aws-github-runner/issues/1219)) ([c8b8139](https://github.com/philips-labs/terraform-aws-github-runner/commit/c8b813948c973fd9157ae19f7ed3a04781d2211a))
+* use dynamic block to ignore null market opts ([#1202](https://github.com/philips-labs/terraform-aws-github-runner/issues/1202)) ([df9bd78](https://github.com/philips-labs/terraform-aws-github-runner/commit/df9bd785619c9ce8ca2eef1d9b9631271eaa9763))
+* use dynamic block to ignore null market opts ([#1202](https://github.com/philips-labs/terraform-aws-github-runner/issues/1202)) ([06a5598](https://github.com/philips-labs/terraform-aws-github-runner/commit/06a5598210e98f036593f97f74488aae1cf179da))
+* **logging:** Additional Logging ([#1135](https://github.com/philips-labs/terraform-aws-github-runner/issues/1135)) ([f7f194d](https://github.com/philips-labs/terraform-aws-github-runner/commit/f7f194d00090013ec28215f1939ddff5823be7ff))
+* **scale-down:** Clearing cache between runs ([#1164](https://github.com/philips-labs/terraform-aws-github-runner/issues/1164)) ([e72227b](https://github.com/philips-labs/terraform-aws-github-runner/commit/e72227bd8c5d76f14c42119e17eae5762c247f85))
+
 ### [0.18.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.18.0...v0.18.1) (2021-08-26)
 
 
