@@ -18,7 +18,7 @@ locals {
   userdata_arm_patch             = "${path.module}/templates/arm-runner-patch.tpl"
   userdata_install_config_runner = "${path.module}/templates/install-config-runner.sh"
 
-  instance_types = var.instance_types == null ? [var.instance_type] : var.instance_types
+  instance_types = distinct(var.instance_types == null ? [var.instance_type] : var.instance_types)
 
   kms_key_arn = var.kms_key_arn != null ? var.kms_key_arn : ""
 }
@@ -38,9 +38,9 @@ data "aws_ami" "runner" {
 }
 
 resource "aws_launch_template" "runner" {
-  for_each = local.instance_types
+  count = length(local.instance_types)
 
-  name = "${var.environment}-action-runner-${each.value}"
+  name = "${var.environment}-action-runner-${local.instance_types[count.index]}"
 
   dynamic "block_device_mappings" {
     for_each = [var.block_device_mappings]
@@ -72,7 +72,7 @@ resource "aws_launch_template" "runner" {
   }
 
   image_id      = data.aws_ami.runner.id
-  instance_type = each.value
+  instance_type = local.instance_types[count.index]
   key_name      = var.key_name
 
   vpc_security_group_ids = compact(concat(
