@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.19.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.19.0...v0.19.1) (2021-09-30)
+
+
+### Bug Fixes
+
+* `instance_types` from a Set to a List, so instance order preference is preserved ([#1154](https://github.com/philips-labs/terraform-aws-github-runner/issues/1154)) ([150d227](https://github.com/philips-labs/terraform-aws-github-runner/commit/150d227c99d517366b9304663a6fdc55b0bb8475))
+
 ## [0.19.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.18.1...v0.19.0) (2021-09-30)
 
 
