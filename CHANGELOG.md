@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.19.1...v0.20.0) (2021-10-01)
+
+
+### Features
+
+* Add option to disable SSL verification support for GitHub Enterprise Server ([#1216](https://github.com/philips-labs/terraform-aws-github-runner/issues/1216)) ([3c3ef19](https://github.com/philips-labs/terraform-aws-github-runner/commit/3c3ef19b176811d96f3fa821aadb10576847fb72)), closes [#1207](https://github.com/philips-labs/terraform-aws-github-runner/issues/1207)
+
 ### [0.19.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.19.0...v0.19.1) (2021-09-30)
 
 
