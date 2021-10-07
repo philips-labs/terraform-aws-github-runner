@@ -1,5 +1,15 @@
 # Changelog
 
+### [0.20.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.20.0...v0.20.1) (2021-10-07)
+
+
+### Bug Fixes
+
+* Upgrade lambda runtime to node 14.x ([#1203](https://github.com/philips-labs/terraform-aws-github-runner/issues/1203)) ([570949a](https://github.com/philips-labs/terraform-aws-github-runner/commit/570949a55a1b2f702e1d58c74533ddc86174ef8d))
+* **webhook:** remove node fetch ([ca14ac5](https://github.com/philips-labs/terraform-aws-github-runner/commit/ca14ac51b4f824b76fa50ac4608e935702fde628))
+* **webhook:** replace node-fetch by axios [#1247](https://github.com/philips-labs/terraform-aws-github-runner/issues/1247) ([80fff4b](https://github.com/philips-labs/terraform-aws-github-runner/commit/80fff4b8e2902d0347acc53d56843da507c60330))
+* added more detailed logging for scaling up and down ([#1222](https://github.com/philips-labs/terraform-aws-github-runner/issues/1222)) ([9aa7456](https://github.com/philips-labs/terraform-aws-github-runner/commit/9aa7456bb16bc3e75e71eb67cd098cd49b305094))
+
 ## [0.20.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.19.1...v0.20.0) (2021-10-01)
 
 
