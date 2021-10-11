@@ -35,8 +35,6 @@ variable "github_app" {
   type = object({
     key_base64     = string
     id             = string
-    client_id      = string
-    client_secret  = string
     webhook_secret = string
   })
 }
@@ -397,4 +395,10 @@ variable "runner_egress_rules" {
     to_port          = 0
     description      = null
   }]
+}
+
+variable "disable_check_wokflow_job_labels" {
+  description = "Disable the the check of workflow labels for received workflow job events."
+  type        = bool
+  default     = false
 }
