@@ -1,5 +1,14 @@
 # Changelog
 
+### [0.21.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.21.0...v0.21.1) (2021-10-21)
+
+
+### Bug Fixes
+
+* **logging:** Adjusting scale logging messages and levels ([#1286](https://github.com/philips-labs/terraform-aws-github-runner/issues/1286)) ([665e1a6](https://github.com/philips-labs/terraform-aws-github-runner/commit/665e1a6aa30610584b863c99bb5dc4509c0f11df))
+* **logging:** Adjusting webhook logs and levels ([#1287](https://github.com/philips-labs/terraform-aws-github-runner/issues/1287)) ([9df5fb8](https://github.com/philips-labs/terraform-aws-github-runner/commit/9df5fb88fee5b8a9428afe90ce13a0680d50471f))
+* Update launch template to use metadata service v2 ([#1278](https://github.com/philips-labs/terraform-aws-github-runner/issues/1278)) ([ef16287](https://github.com/philips-labs/terraform-aws-github-runner/commit/ef1628747ec0305311a32f623dc7de64692eec40))
+
 ## [0.21.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.20.1...v0.21.0) (2021-10-11)
 
 
