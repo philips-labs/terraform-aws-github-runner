@@ -370,7 +370,11 @@ variable "delay_webhook_event" {
   type        = number
   default     = 30
 }
-
+variable "job_queue_retention_in_seconds" {
+  description = "The number of seconds the job is held in the queue before it is purged"
+  type        = number
+  default     = 86400
+}
 variable "runner_egress_rules" {
   description = "List of egress rules for the GitHub runner instances."
   type = list(object({
