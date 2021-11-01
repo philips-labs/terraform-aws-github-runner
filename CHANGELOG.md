@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.22.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.21.1...v0.22.0) (2021-11-01)
+
+
+### Features
+
+* adding message retention seconds ([#1354](https://github.com/philips-labs/terraform-aws-github-runner/issues/1354)) ([a19929f](https://github.com/philips-labs/terraform-aws-github-runner/commit/a19929f8467c448dfb893b5aa4565c6e53a5ef2f))
+* adding var for tags for ec2s ([#1357](https://github.com/philips-labs/terraform-aws-github-runner/issues/1357)) ([31cf02d](https://github.com/philips-labs/terraform-aws-github-runner/commit/31cf02d831114e687ff3f614c768b9374f49045c))
+
+
+### Bug Fixes
+
+* add validation to distribution_bucket_name variable ([#1356](https://github.com/philips-labs/terraform-aws-github-runner/issues/1356)) ([6522317](https://github.com/philips-labs/terraform-aws-github-runner/commit/6522317c5097ee49aee3c1c8926f72c6bd054e51))
+
 ### [0.21.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.21.0...v0.21.1) (2021-10-21)
 
 
