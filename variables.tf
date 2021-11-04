@@ -111,6 +111,12 @@ variable "runner_binaries_syncer_lambda_timeout" {
   default     = 300
 }
 
+variable "runner_binaries_s3_sse_configuration" {
+  description = "Map containing server-side encryption configuration for runner-binaries S3 bucket."
+  type        = any
+  default     = {}
+}
+
 variable "role_permissions_boundary" {
   description = "Permissions boundary that will be added to the created roles."
   type        = string
@@ -399,6 +405,38 @@ variable "runner_egress_rules" {
     to_port          = 0
     description      = null
   }]
+}
+
+variable "log_type" {
+  description = "Logging format for lambda logging. Valid values are 'json', 'pretty', 'hidden'. "
+  type        = string
+  default     = "pretty"
+  validation {
+    condition = anytrue([
+      var.log_type == "json",
+      var.log_type == "pretty",
+      var.log_type == "hidden",
+    ])
+    error_message = "`log_type` value not valid. Valid values are 'json', 'pretty', 'hidden'."
+  }
+}
+
+variable "log_level" {
+  description = "Logging level for lambda logging. Valid values are  'silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'."
+  type        = string
+  default     = "info"
+  validation {
+    condition = anytrue([
+      var.log_level == "silly",
+      var.log_level == "trace",
+      var.log_level == "debug",
+      var.log_level == "info",
+      var.log_level == "warn",
+      var.log_level == "error",
+      var.log_level == "fatal",
+    ])
+    error_message = "`log_level` value not valid. Valid values are 'silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'."
+  }
 }
 
 variable "disable_check_wokflow_job_labels" {
