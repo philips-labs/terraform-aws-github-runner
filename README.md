@@ -24,8 +24,6 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
 - [Providers](#providers)
 - [Modules](#modules)
 - [Resources](#resources)
-- [Modules](#modules-1)
-- [Resources](#resources-1)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
 - [Contribution](#contribution)
@@ -159,7 +157,7 @@ resource "aws_iam_service_linked_role" "spot" {
 
 Next create a second terraform workspace and initiate the module, or adapt one of the [examples](./examples).
 
-Note that `github_app.key_base64` needs to be the base64-encoded `.pem` file, i.e., the output of `base64 app.private-key.pem` (not directly the content of `app.private-key.pem`).
+Note that `github_app.key_base64` needs to be a base64-encoded string of the `.pem` file i.e. the output of `base64 app.private-key.pem`. The decoded string can either be a multiline value or a single line value with new lines represented with literal `\n` characters.
 
 ```terraform
 module "github-runner" {
