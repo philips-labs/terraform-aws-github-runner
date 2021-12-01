@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.25.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.25.1...v0.25.2) (2021-12-01)
+
+
+### Bug Fixes
+
+* add logging context to runner lambda ([#1399](https://github.com/philips-labs/terraform-aws-github-runner/issues/1399)) ([0ba0930](https://github.com/philips-labs/terraform-aws-github-runner/commit/0ba09303072e58f12abd93ddd1599573d7ffafb0))
+* **logging:** Add context to webhook logs ([#1401](https://github.com/philips-labs/terraform-aws-github-runner/issues/1401)) ([8094576](https://github.com/philips-labs/terraform-aws-github-runner/commit/80945761f997498d5f6ff2755db4eb506e7d5890))
+
 ### [0.25.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.25.0...v0.25.1) (2021-11-18)
 
 
