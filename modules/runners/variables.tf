@@ -84,6 +84,12 @@ variable "ami_owners" {
   default     = ["amazon"]
 }
 
+variable "enabled_userdata" {
+  description = "Should the userdata script be enabled for the runner. Set this to false if you are using your own prebuilt AMI"
+  type        = bool
+  default     = true
+}
+
 variable "userdata_template" {
   description = "Alternative user-data template, replacing the default template. By providing your own user_data you have to take care of installing all required software, including the action runner. Variables userdata_pre/post_install are ignored."
   type        = string
@@ -297,7 +303,13 @@ variable "runner_log_files" {
       "prefix_log_group" : true,
       "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
       "log_stream_name" : "{instance_id}"
-    }
+    },
+    {
+      "log_group_name" : "runner-startup",
+      "prefix_log_group" : true,
+      "file_path" : "/var/log/runner-startup.log",
+      "log_stream_name" : "{instance_id}"
+    },
   ]
 }
 
