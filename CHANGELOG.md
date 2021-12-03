@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.26.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.25.2...v0.26.0) (2021-12-03)
+
+
+### Features
+
+* Add hooks for prebuilt images (AMI), including amazon linux packer example ([#1444](https://github.com/philips-labs/terraform-aws-github-runner/issues/1444)) ([060daac](https://github.com/philips-labs/terraform-aws-github-runner/commit/060daac3568cd36f8b203d3f77f736df7aefb223))
+
+
+### Bug Fixes
+
+* add runners binaries bucket as terraform output ([5809fee](https://github.com/philips-labs/terraform-aws-github-runner/commit/5809fee194bcf7a8a1291efbb63df441b31779bb))
+
 ### [0.25.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.25.1...v0.25.2) (2021-12-01)
 
 
