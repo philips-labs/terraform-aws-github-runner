@@ -3,20 +3,18 @@ locals {
     {
       "Name" = format("%s-action-runner", var.environment)
     },
-    {
-      "Environment" = format("%s", var.environment)
-    },
     var.tags,
   )
 
-  name_sg                        = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
-  name_runner                    = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
-  role_path                      = var.role_path == null ? "/${var.environment}/" : var.role_path
-  instance_profile_path          = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
-  lambda_zip                     = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
-  userdata_template              = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
-  userdata_arm_patch             = "${path.module}/templates/arm-runner-patch.tpl"
-  userdata_install_config_runner = "${path.module}/templates/install-config-runner.sh"
+  name_sg                 = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
+  name_runner             = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
+  role_path               = var.role_path == null ? "/${var.environment}/" : var.role_path
+  instance_profile_path   = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
+  lambda_zip              = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
+  userdata_template       = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
+  userdata_arm_patch      = "${path.module}/templates/arm-runner-patch.tpl"
+  userdata_install_runner = "${path.module}/templates/install-runner.sh"
+  userdata_start_runner   = "${path.module}/templates/start-runner.sh"
 
   instance_types = distinct(var.instance_types == null ? [var.instance_type] : var.instance_types)
 
@@ -112,30 +110,25 @@ resource "aws_launch_template" "runner" {
   }
 
 
-  user_data = base64encode(templatefile(local.userdata_template, {
+  user_data = var.enabled_userdata ? base64encode(templatefile(local.userdata_template, {
+    pre_install = var.userdata_pre_install
+    install_runner = templatefile(local.userdata_install_runner, {
+      S3_LOCATION_RUNNER_DISTRIBUTION = var.s3_location_runner_binaries
+      ARM_PATCH                       = var.runner_architecture == "arm64" ? templatefile(local.userdata_arm_patch, {}) : ""
+    })
+    post_install    = var.userdata_post_install
+    start_runner    = templatefile(local.userdata_start_runner, {})
+    ghes_url        = var.ghes_url
+    ghes_ssl_verify = var.ghes_ssl_verify
+    ## retain these for backwards compatibility
     environment                     = var.environment
-    pre_install                     = var.userdata_pre_install
-    post_install                    = var.userdata_post_install
     enable_cloudwatch_agent         = var.enable_cloudwatch_agent
     ssm_key_cloudwatch_agent_config = var.enable_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config_runner[0].name : ""
-    ghes_url                        = var.ghes_url
-    ghes_ssl_verify                 = var.ghes_ssl_verify
-    install_config_runner           = local.install_config_runner
-  }))
+  })) : ""
 
   tags = local.tags
 
   update_default_version = true
-}
-
-locals {
-  arm_patch = var.runner_architecture == "arm64" ? templatefile(local.userdata_arm_patch, {}) : ""
-  install_config_runner = templatefile(local.userdata_install_config_runner, {
-    environment                     = var.environment
-    s3_location_runner_distribution = var.s3_location_runner_binaries
-    run_as_root_user                = var.runner_as_root ? "root" : ""
-    arm_patch                       = local.arm_patch
-  })
 }
 
 resource "aws_security_group" "runner_sg" {
