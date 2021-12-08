@@ -1,5 +1,14 @@
 # Changelog
 
+### [0.26.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.26.0...v0.26.1) (2021-12-08)
+
+
+### Bug Fixes
+
+* Download lambda ([#1480](https://github.com/philips-labs/terraform-aws-github-runner/issues/1480)) ([f1b99d9](https://github.com/philips-labs/terraform-aws-github-runner/commit/f1b99d98ba86a4dd35e23e04a90dc11fb233beb7))
+* **syncer:** Add tests, coverage report, and refactor lambda / naming ([#1478](https://github.com/philips-labs/terraform-aws-github-runner/issues/1478)) ([8266442](https://github.com/philips-labs/terraform-aws-github-runner/commit/8266442176025095a8eec8c4c042d4783301575e))
+* install_config_runner -> install_runner ([#1479](https://github.com/philips-labs/terraform-aws-github-runner/issues/1479)) ([de5b93f](https://github.com/philips-labs/terraform-aws-github-runner/commit/de5b93fe96d08595490f78ca84b354c9d6532ffa))
+
 ## [0.26.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.25.2...v0.26.0) (2021-12-03)
 
 
