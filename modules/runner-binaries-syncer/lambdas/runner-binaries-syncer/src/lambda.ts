@@ -1,14 +1,14 @@
-import { handle } from './syncer/handler';
+import { sync } from './syncer/syncer';
 import { logger } from './syncer/logger';
 
 // eslint-disable-next-line
-export const handler = async (event: any, context: any, callback: any): Promise<void> => {
+export async function handler(event: any, context: any): Promise<void> {
   logger.setSettings({ requestId: context.awsRequestId });
   logger.debug(JSON.stringify(event));
+
   try {
-    await handle();
-    callback(null);
+    await sync();
   } catch (e) {
-    callback(e);
+    logger.warn('Ignoring error:', e);
   }
-};
+}

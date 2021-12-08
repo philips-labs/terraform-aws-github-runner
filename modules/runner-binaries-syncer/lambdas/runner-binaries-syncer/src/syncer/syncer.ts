@@ -103,7 +103,7 @@ async function uploadToS3(s3: S3, cacheObject: CacheObject, actionRunnerReleaseA
     });
 }
 
-export const handle = async (): Promise<void> => {
+export async function sync(): Promise<void> {
   const s3 = new AWS.S3();
 
   const runnerArch = process.env.GITHUB_RUNNER_ARCHITECTURE || 'x64';
@@ -125,8 +125,8 @@ export const handle = async (): Promise<void> => {
   const currentVersion = await getCachedVersion(s3, cacheObject);
   logger.debug('latest: ' + currentVersion);
   if (currentVersion === undefined || currentVersion != actionRunnerReleaseAsset.name) {
-    uploadToS3(s3, cacheObject, actionRunnerReleaseAsset);
+    await uploadToS3(s3, cacheObject, actionRunnerReleaseAsset);
   } else {
     logger.debug('Distribution is up-to-date, no action.');
   }
-};
+}
