@@ -6,9 +6,6 @@ locals {
 
   s3_action_runner_url = "s3://${module.runner_binaries.bucket.id}/${module.runner_binaries.runner_distribution_object_key}"
   runner_architecture  = substr(var.instance_type, 0, 2) == "a1" || substr(var.instance_type, 1, 2) == "6g" ? "arm64" : "x64"
-
-  ami_filter = length(var.ami_filter) > 0 ? var.ami_filter : local.runner_architecture == "arm64" ? { name = ["amzn2-ami-hvm-2*-arm64-gp2"] } : { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
-
   github_app_parameters = {
     id         = module.ssm.parameters.github_app_id
     key_base64 = module.ssm.parameters.github_app_key_base64
@@ -82,13 +79,14 @@ module "runners" {
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
   s3_location_runner_binaries = local.s3_action_runner_url
 
+  runner_os             = var.runner_os
   instance_type         = var.instance_type
   instance_types        = var.instance_types
   market_options        = var.market_options
   block_device_mappings = var.block_device_mappings
 
   runner_architecture = local.runner_architecture
-  ami_filter          = local.ami_filter
+  ami_filter          = var.ami_filter
   ami_owners          = var.ami_owners
 
   sqs_build_queue                      = aws_sqs_queue.queued_builds
@@ -96,6 +94,7 @@ module "runners" {
   enable_organization_runners          = var.enable_organization_runners
   scale_down_schedule_expression       = var.scale_down_schedule_expression
   minimum_running_time_in_minutes      = var.minimum_running_time_in_minutes
+  runner_boot_time_in_minutes          = var.runner_boot_time_in_minutes
   runner_extra_labels                  = var.runner_extra_labels
   runner_as_root                       = var.runner_as_root
   runners_maximum_count                = var.runners_maximum_count
@@ -155,6 +154,7 @@ module "runner_binaries" {
 
   distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
 
+  runner_os                        = var.runner_os
   runner_architecture              = local.runner_architecture
   runner_allow_prerelease_binaries = var.runner_allow_prerelease_binaries
 

@@ -1,3 +1,10 @@
+locals {
+  # Windows Runners can take their sweet time to do anything
+  min_runtime_defaults = {
+    "win"   = 15
+    "linux" = 5
+  }
+}
 resource "aws_lambda_function" "scale_down" {
   s3_bucket         = var.lambda_s3_bucket != null ? var.lambda_s3_bucket : null
   s3_key            = var.runners_lambda_s3_key != null ? var.runners_lambda_s3_key : null
@@ -18,7 +25,7 @@ resource "aws_lambda_function" "scale_down" {
       GHES_URL                             = var.ghes_url
       LOG_LEVEL                            = var.log_level
       LOG_TYPE                             = var.log_type
-      MINIMUM_RUNNING_TIME_IN_MINUTES      = var.minimum_running_time_in_minutes
+      MINIMUM_RUNNING_TIME_IN_MINUTES      = coalesce(var.minimum_running_time_in_minutes, local.min_runtime_defaults[var.runner_os])
       NODE_TLS_REJECT_UNAUTHORIZED         = var.ghes_url != null && !var.ghes_ssl_verify ? 0 : 1
       PARAMETER_GITHUB_APP_ID_NAME         = var.github_app_parameters.id.name
       PARAMETER_GITHUB_APP_KEY_BASE64_NAME = var.github_app_parameters.key_base64.name

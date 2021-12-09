@@ -48,7 +48,7 @@ variable "scale_down_schedule_expression" {
 variable "minimum_running_time_in_minutes" {
   description = "The time an ec2 action runner should be running at minimum before terminated if not busy."
   type        = number
-  default     = 5
+  default     = null
 }
 
 variable "runner_boot_time_in_minutes" {
@@ -226,8 +226,7 @@ variable "block_device_mappings" {
 variable "ami_filter" {
   description = "List of maps used to create the AMI filter for the action runner AMI. By default amazon linux 2 is used."
   type        = map(list(string))
-
-  default = {}
+  default     = null
 }
 variable "ami_owners" {
   description = "The list of owners used to select the AMI of action runner instances."
@@ -301,32 +300,7 @@ variable "runner_log_files" {
     file_path        = string
     log_stream_name  = string
   }))
-  default = [
-    {
-      "log_group_name" : "messages",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/messages",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "user_data",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/user-data.log",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "runner",
-      "prefix_log_group" : true,
-      "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "runner-startup",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/runner-startup.log",
-      "log_stream_name" : "{instance_id}"
-    },
-  ]
+  default = null
 }
 
 variable "ghes_url" {
@@ -378,7 +352,7 @@ variable "volume_size" {
 }
 
 variable "instance_types" {
-  description = "List of instance types for the action runner."
+  description = "List of instance types for the action runner. Defaults are based on runner_os (amzn2 for linux and Windows Server Core for win)."
   type        = list(string)
   default     = null
 }
@@ -478,4 +452,15 @@ variable "runner_metadata_options" {
     http_put_response_hop_limit = 1
   }
 
+}
+
+variable "runner_os" {
+  description = "The Operating System to use for GitHub Actions Runners (linux,win)"
+  type        = string
+  default     = "linux"
+
+  validation {
+    condition     = contains(["linux", "win"], var.runner_os)
+    error_message = "Valid values for runner_os are (linux, win)."
+  }
 }

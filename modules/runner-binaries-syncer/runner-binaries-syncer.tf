@@ -18,8 +18,9 @@ resource "aws_lambda_function" "syncer" {
 
   environment {
     variables = {
-      GITHUB_RUNNER_ARCHITECTURE              = var.runner_architecture
       GITHUB_RUNNER_ALLOW_PRERELEASE_BINARIES = var.runner_allow_prerelease_binaries
+      GITHUB_RUNNER_ARCHITECTURE              = var.runner_architecture
+      GITHUB_RUNNER_OS                        = var.runner_os
       LOG_LEVEL                               = var.log_level
       LOG_TYPE                                = var.log_type
       S3_BUCKET_NAME                          = aws_s3_bucket.action_dist.id

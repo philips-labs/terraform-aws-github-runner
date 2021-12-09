@@ -6,26 +6,44 @@ locals {
     var.tags,
   )
 
-  name_sg                 = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
-  name_runner             = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
-  role_path               = var.role_path == null ? "/${var.environment}/" : var.role_path
-  instance_profile_path   = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
-  lambda_zip              = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
-  userdata_template       = var.userdata_template == null ? "${path.module}/templates/user-data.sh" : var.userdata_template
-  userdata_arm_patch      = "${path.module}/templates/arm-runner-patch.tpl"
-  userdata_install_runner = "${path.module}/templates/install-runner.sh"
-  userdata_start_runner   = "${path.module}/templates/start-runner.sh"
+  name_sg               = var.overrides["name_sg"] == "" ? local.tags["Name"] : var.overrides["name_sg"]
+  name_runner           = var.overrides["name_runner"] == "" ? local.tags["Name"] : var.overrides["name_runner"]
+  role_path             = var.role_path == null ? "/${var.environment}/" : var.role_path
+  instance_profile_path = var.instance_profile_path == null ? "/${var.environment}/" : var.instance_profile_path
+  lambda_zip            = var.lambda_zip == null ? "${path.module}/lambdas/runners/runners.zip" : var.lambda_zip
+  userdata_template     = var.userdata_template == null ? local.default_userdata_template[var.runner_os] : var.userdata_template
+  userdata_arm_patch    = "${path.module}/templates/arm-runner-patch.tpl"
+  instance_types        = distinct(var.instance_types == null ? [var.instance_type] : var.instance_types)
+  kms_key_arn           = var.kms_key_arn != null ? var.kms_key_arn : ""
 
-  instance_types = distinct(var.instance_types == null ? [var.instance_type] : var.instance_types)
+  default_ami = {
+    "win"   = { name = ["Windows_Server-20H2-English-Core-ContainersLatest-*"] }
+    "linux" = var.runner_architecture == "arm64" ? { name = ["amzn2-ami-hvm-2*-arm64-gp2"] } : { name = ["amzn2-ami-hvm-2.*-x86_64-ebs"] }
+  }
 
-  kms_key_arn = var.kms_key_arn != null ? var.kms_key_arn : ""
+  default_userdata_template = {
+    "win"   = "${path.module}/templates/user-data.ps1"
+    "linux" = "${path.module}/templates/user-data.sh"
+  }
+
+  userdata_install_runner = {
+    "win"   = "${path.module}/templates/install-runner.ps1"
+    "linux" = "${path.module}/templates/install-runner.sh"
+  }
+
+  userdata_start_runner = {
+    "win"   = "${path.module}/templates/start-runner.ps1"
+    "linux" = "${path.module}/templates/start-runner.sh"
+  }
+
+  ami_filter = coalesce(var.ami_filter, local.default_ami[var.runner_os])
 }
 
 data "aws_ami" "runner" {
   most_recent = "true"
 
   dynamic "filter" {
-    for_each = var.ami_filter
+    for_each = local.ami_filter
     content {
       name   = filter.key
       values = filter.value
@@ -112,12 +130,12 @@ resource "aws_launch_template" "runner" {
 
   user_data = var.enabled_userdata ? base64encode(templatefile(local.userdata_template, {
     pre_install = var.userdata_pre_install
-    install_runner = templatefile(local.userdata_install_runner, {
+    install_runner = templatefile(local.userdata_install_runner[var.runner_os], {
       S3_LOCATION_RUNNER_DISTRIBUTION = var.s3_location_runner_binaries
       ARM_PATCH                       = var.runner_architecture == "arm64" ? templatefile(local.userdata_arm_patch, {}) : ""
     })
     post_install    = var.userdata_post_install
-    start_runner    = templatefile(local.userdata_start_runner, {})
+    start_runner    = templatefile(local.userdata_start_runner[var.runner_os], {})
     ghes_url        = var.ghes_url
     ghes_ssl_verify = var.ghes_ssl_verify
     ## retain these for backwards compatibility
