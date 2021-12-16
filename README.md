@@ -266,6 +266,8 @@ idle_config = [{
 }]
 ```
 
+_**Note**_: When using Windows runners it's recommended to keep a few runners warmed up due to the minutes-long cold start time.
+
 ### Prebuilt Images
 
 This module also allows you to run agents from a prebuilt AMI to gain faster startup times. You can find more information in [the image README.md](/images/README.md)
@@ -294,7 +296,9 @@ Examples are located in the [examples](./examples) directory. The following exam
 
 - _[Default](examples/default/README.md)_: The default example of the module
 - _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
+- _[Ubuntu](examples/ubuntu/README.md)_: Example usage of creating a runner using Ubuntu AMIs.
 - _[Prebuilt Images](examples/prebuilt/README.md)_: Example usages of deploying runners with a custom prebuilt image.
+- _[Windows](examples/windows/README.md)_: Example usage of creating a runner using Windows as the OS.
 
 ## Sub modules
 

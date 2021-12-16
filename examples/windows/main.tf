@@ -1,5 +1,5 @@
 locals {
-  environment = "prebuilt"
+  environment = "windows"
   aws_region  = "eu-west-1"
 }
 
@@ -7,15 +7,12 @@ resource "random_id" "random" {
   byte_length = 20
 }
 
-data "aws_caller_identity" "current" {}
-
 module "runners" {
-  source                          = "../../"
-  create_service_linked_role_spot = true
-  aws_region                      = local.aws_region
-  vpc_id                          = module.vpc.vpc_id
-  subnet_ids                      = module.vpc.private_subnets
+  source = "../../"
 
+  aws_region  = local.aws_region
+  vpc_id      = module.vpc.vpc_id
+  subnet_ids  = module.vpc.private_subnets
   environment = local.environment
 
   github_app = {
@@ -24,23 +21,28 @@ module "runners" {
     webhook_secret = random_id.random.hex
   }
 
+  # Grab the lambda packages from local directory. Must run /.ci/build.sh first
   webhook_lambda_zip                = "../../lambda_output/webhook.zip"
   runner_binaries_syncer_lambda_zip = "../../lambda_output/runner-binaries-syncer.zip"
   runners_lambda_zip                = "../../lambda_output/runners.zip"
 
+  enable_organization_runners = false
+  # no need to add extra windows tag here as it is automatically added by GitHub
   runner_extra_labels = "default,example"
 
-  # configure your pre-built AMI
-  enabled_userdata = false
-  ami_filter       = { name = ["github-runner-amzn2-x86_64-2021*"] }
-  ami_owners       = [data.aws_caller_identity.current.account_id]
+  # Set the OS to Windows
+  runner_os = "win"
+  # we need to give the runner time to start because this is windows.
+  runner_boot_time_in_minutes = 20
 
   # enable access to the runners via SSM
   enable_ssm_on_runners = true
 
-  # override delay of events in seconds
+  instance_types = ["m5.large", "c5.large"]
+
+  # override delay of events in seconds for testing
   delay_webhook_event = 5
 
-  # override scaling down
+  # override scaling down for testing
   scale_down_schedule_expression = "cron(* * * * ? *)"
 }

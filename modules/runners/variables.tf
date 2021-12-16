@@ -57,6 +57,17 @@ variable "market_options" {
   default     = "spot"
 }
 
+variable "runner_os" {
+  description = "The EC2 Operating System type to use for action runner instances (linux,win)."
+  type        = string
+  default     = "linux"
+
+  validation {
+    condition     = contains(["linux", "win"], var.runner_os)
+    error_message = "Valid values for runner_os are (linux, win)."
+  }
+}
+
 variable "instance_type" {
   description = "[DEPRECATED] See instance_types."
   type        = string
@@ -64,7 +75,7 @@ variable "instance_type" {
 }
 
 variable "instance_types" {
-  description = "List of instance types for the action runner."
+  description = "List of instance types for the action runner. Defaults are based on runner_os (amzn2 for linux and Windows Server Core for win)."
   type        = list(string)
   default     = null
 }
@@ -72,10 +83,7 @@ variable "instance_types" {
 variable "ami_filter" {
   description = "Map of lists used to create the AMI filter for the action runner AMI."
   type        = map(list(string))
-
-  default = {
-    name = ["amzn2-ami-hvm-2.*-x86_64-ebs"]
-  }
+  default     = null
 }
 
 variable "ami_owners" {
@@ -134,9 +142,9 @@ variable "scale_down_schedule_expression" {
 }
 
 variable "minimum_running_time_in_minutes" {
-  description = "The time an ec2 action runner should be running at minimum before terminated if non busy."
+  description = "The time an ec2 action runner should be running at minimum before terminated if non busy. If not set the default is calculated based on the OS."
   type        = number
-  default     = 5
+  default     = null
 }
 
 variable "runner_boot_time_in_minutes" {
@@ -285,32 +293,7 @@ variable "runner_log_files" {
     file_path        = string
     log_stream_name  = string
   }))
-  default = [
-    {
-      "log_group_name" : "messages",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/messages",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "user_data",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/user-data.log",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "runner",
-      "prefix_log_group" : true,
-      "file_path" : "/home/ec2-user/actions-runner/_diag/Runner_**.log",
-      "log_stream_name" : "{instance_id}"
-    },
-    {
-      "log_group_name" : "runner-startup",
-      "prefix_log_group" : true,
-      "file_path" : "/var/log/runner-startup.log",
-      "log_stream_name" : "{instance_id}"
-    },
-  ]
+  default = null
 }
 
 variable "ghes_url" {
