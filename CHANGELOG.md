@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.27.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.26.1...v0.27.0) (2021-12-16)
+
+
+### Features
+
+* add windows support ([#1476](https://github.com/philips-labs/terraform-aws-github-runner/issues/1476)) ([dbba705](https://github.com/philips-labs/terraform-aws-github-runner/commit/dbba705038828c86f6f5adef18f7a7a35643c359))
+
 ### [0.26.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.26.0...v0.26.1) (2021-12-08)
 
 
