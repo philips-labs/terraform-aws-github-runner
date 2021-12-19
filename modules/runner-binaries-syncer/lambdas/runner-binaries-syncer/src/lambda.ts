@@ -9,6 +9,9 @@ export async function handler(event: any, context: any): Promise<void> {
   try {
     await sync();
   } catch (e) {
-    logger.warn('Ignoring error:', e);
+    if (e instanceof Error) {
+      logger.warn(`Ignoring error: ${e.message}`);
+    }
+    logger.trace(e);
   }
 }

@@ -172,6 +172,8 @@ module "runner_binaries" {
 
   log_type  = var.log_type
   log_level = var.log_level
+
+  lambda_principals = var.lambda_principals
 }
 
 resource "aws_resourcegroups_group" "resourcegroups_group" {

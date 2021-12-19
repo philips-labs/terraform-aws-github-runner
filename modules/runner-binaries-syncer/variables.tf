@@ -142,3 +142,12 @@ variable "server_side_encryption_configuration" {
   type        = any
   default     = {}
 }
+
+variable "lambda_principals" {
+  description = "(Optional) add extra principals to the role created for execution of the lambda, e.g. for local testing."
+  type = list(object({
+    type        = string
+    identifiers = list(string)
+  }))
+  default = []
+}

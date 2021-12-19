@@ -464,3 +464,12 @@ variable "runner_os" {
     error_message = "Valid values for runner_os are (linux, win)."
   }
 }
+
+variable "lambda_principals" {
+  description = "(Optional) add extra principals to the role created for execution of the lambda, e.g. for local testing."
+  type = list(object({
+    type        = string
+    identifiers = list(string)
+  }))
+  default = []
+}
