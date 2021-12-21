@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.27.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.27.0...v0.27.1) (2021-12-21)
+
+
+### Bug Fixes
+
+* add --preserve-env to start-runner.sh to enable RUNNER_ALLOW_RUNASROOT ([#1537](https://github.com/philips-labs/terraform-aws-github-runner/issues/1537)) ([1cd9cd3](https://github.com/philips-labs/terraform-aws-github-runner/commit/1cd9cd394893206bc96fb72cfdbe5b3c5c288530))
+* remove export from install script. ([#1538](https://github.com/philips-labs/terraform-aws-github-runner/issues/1538)) ([d32ca1b](https://github.com/philips-labs/terraform-aws-github-runner/commit/d32ca1b74be88196eacc51a186bc5e2a505dcf0c))
+
 ## [0.27.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.26.1...v0.27.0) (2021-12-16)
 
 
