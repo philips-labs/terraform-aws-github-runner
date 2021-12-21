@@ -1,6 +1,8 @@
+import { LogType, LogLevel } from './logger';
+
 declare namespace NodeJS {
   export interface ProcessEnv {
-    LOG_LEVEL: 'silly' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-    LOG_TYPE: 'json' | 'pretty' | 'hidden';
+    LOG_LEVEL: LogLevel;
+    LOG_TYPE: LogType;
   }
 }
