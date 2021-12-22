@@ -96,7 +96,7 @@ variable "runners_lambda_zip" {
 variable "runners_scale_up_lambda_timeout" {
   description = "Time out for the scale up lambda in seconds."
   type        = number
-  default     = 180
+  default     = 30
 }
 
 variable "runners_scale_down_lambda_timeout" {
@@ -451,7 +451,12 @@ variable "runner_metadata_options" {
     http_tokens                 = "optional"
     http_put_response_hop_limit = 1
   }
+}
 
+variable "enable_ephemeral_runners" {
+  description = "Enable ephemeral runners, runners will only be used once."
+  type        = bool
+  default     = false
 }
 
 variable "runner_os" {
@@ -472,4 +477,26 @@ variable "lambda_principals" {
     identifiers = list(string)
   }))
   default = []
+}
+
+variable "fifo_build_queue" {
+  description = "Enable a FIFO queue to remain the order of events received by the webhook. Suggest to set to true for repo level runners."
+  type        = bool
+  default     = false
+}
+
+variable "redrive_build_queue" {
+  description = "Set options to attach (optional) a dead letter queue to the build queue, the queue between the webhook and the scale up lambda. You have the following options. 1. Disable by setting, `enalbed' to false. 2. Enable by setting `enabled` to `true`, `maxReceiveCount` to a number of max retries."
+  type = object({
+    enabled         = bool
+    maxReceiveCount = number
+  })
+  default = {
+    enabled         = false
+    maxReceiveCount = null
+  }
+  validation {
+    condition     = var.redrive_build_queue.enabled && var.redrive_build_queue.maxReceiveCount != null || !var.redrive_build_queue.enabled
+    error_message = "Ensure you have set the maxReceiveCount when enabled."
+  }
 }

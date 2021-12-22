@@ -30,11 +30,13 @@ module "runners" {
     webhook_secret = random_id.random.hex
   }
 
+  # Grab zip files via lambda_download
   webhook_lambda_zip                = "lambdas-download/webhook.zip"
   runner_binaries_syncer_lambda_zip = "lambdas-download/runner-binaries-syncer.zip"
   runners_lambda_zip                = "lambdas-download/runners.zip"
-  enable_organization_runners       = false
-  runner_extra_labels               = "default,example"
+
+  enable_organization_runners = false
+  runner_extra_labels         = "default,example"
 
   # enable access to the runners via SSM
   enable_ssm_on_runners = true
@@ -61,7 +63,11 @@ module "runners" {
   instance_types = ["m5.large", "c5.large"]
 
   # override delay of events in seconds
-  delay_webhook_event = 5
+  delay_webhook_event   = 5
+  runners_maximum_count = 1
+
+  # set up a fifo queue to remain order
+  fifo_build_queue = true
 
   # override scaling down
   scale_down_schedule_expression = "cron(* * * * ? *)"

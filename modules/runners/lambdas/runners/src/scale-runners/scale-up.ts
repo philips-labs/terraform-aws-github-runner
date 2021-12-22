@@ -2,7 +2,8 @@ import { listEC2Runners, createRunner, RunnerInputParameters } from './runners';
 import { createOctoClient, createGithubAppAuth, createGithubInstallationAuth } from './gh-auth';
 import yn from 'yn';
 import { Octokit } from '@octokit/rest';
-import { logger as rootLogger, LogFields } from './logger';
+import { LogFields, logger as rootLogger } from './logger';
+import ScaleError from './ScaleError';
 
 const logger = rootLogger.getChildLogger({ name: 'scale-up' });
 
@@ -15,6 +16,11 @@ export interface ActionRequestMessage {
 }
 
 export async function scaleUp(eventSource: string, payload: ActionRequestMessage): Promise<void> {
+  logger.info(
+    `Received ${payload.eventType} from ${payload.repositoryOwner}/${payload.repositoryName}`,
+    LogFields.print(),
+  );
+
   if (eventSource !== 'aws:sqs') throw Error('Cannot handle non-SQS events!');
   const enableOrgLevel = yn(process.env.ENABLE_ORGANIZATION_RUNNERS, { default: true });
   const maximumRunners = parseInt(process.env.RUNNERS_MAXIMUM_COUNT || '3');
@@ -22,7 +28,19 @@ export async function scaleUp(eventSource: string, payload: ActionRequestMessage
   const runnerGroup = process.env.RUNNER_GROUP_NAME;
   const environment = process.env.ENVIRONMENT;
   const ghesBaseUrl = process.env.GHES_URL;
+  const ephemeralEnabled = yn(process.env.ENABLE_EPHEMERAL_RUNNERS, { default: false });
 
+  if (ephemeralEnabled && payload.eventType !== 'workflow_job') {
+    logger.warn(
+      `${payload.eventType} event is not supported in combination with ephemeral runners.`,
+      LogFields.print(),
+    );
+    throw Error(
+      `The event type ${payload.eventType} is not supported in combination with ephemeral runners.` +
+        `Please ensure you have enabled workflow_job events.`,
+    );
+  }
+  const ephemeral = ephemeralEnabled && payload.eventType === 'workflow_job';
   const runnerType = enableOrgLevel ? 'Org' : 'Repo';
   const runnerOwner = enableOrgLevel ? payload.repositoryOwner : `${payload.repositoryOwner}/${payload.repositoryName}`;
 
@@ -60,8 +78,7 @@ export async function scaleUp(eventSource: string, payload: ActionRequestMessage
   const ghAuth = await createGithubInstallationAuth(installationId, ghesApiUrl);
   const githubInstallationClient = await createOctoClient(ghAuth.token, ghesApiUrl);
 
-  const isQueued = await getJobStatus(githubInstallationClient, payload);
-  if (isQueued) {
+  if (ephemeral || (await getJobStatus(githubInstallationClient, payload))) {
     const currentRunners = await listEC2Runners({
       environment,
       runnerType,
@@ -80,21 +97,25 @@ export async function scaleUp(eventSource: string, payload: ActionRequestMessage
           });
       const token = registrationToken.data.token;
 
-      const labelsArgument = runnerExtraLabels !== undefined ? `--labels ${runnerExtraLabels}` : '';
-      const runnerGroupArgument = runnerGroup !== undefined ? ` --runnergroup ${runnerGroup}` : '';
+      const labelsArgument = runnerExtraLabels !== undefined ? `--labels ${runnerExtraLabels} ` : '';
+      const runnerGroupArgument = runnerGroup !== undefined ? `--runnergroup ${runnerGroup} ` : '';
       const configBaseUrl = ghesBaseUrl ? ghesBaseUrl : 'https://github.com';
+      const ephemeralArgument = ephemeral ? '--ephemeral ' : '';
+      const runnerArgs = `--token ${token} ${labelsArgument}${ephemeralArgument}`;
 
       await createRunnerLoop({
         environment,
         runnerServiceConfig: enableOrgLevel
-          ? `--url ${configBaseUrl}/${payload.repositoryOwner} --token ${token} ${labelsArgument}${runnerGroupArgument}`
-          : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} ` +
-            `--token ${token} ${labelsArgument}`,
+          ? `--url ${configBaseUrl}/${payload.repositoryOwner} ${runnerArgs}${runnerGroupArgument}`.trim()
+          : `--url ${configBaseUrl}/${payload.repositoryOwner}/${payload.repositoryName} ${runnerArgs}`.trim(),
         runnerOwner,
         runnerType,
       });
     } else {
       logger.info('No runner will be created, maximum number of runners reached.', LogFields.print());
+      if (ephemeral) {
+        throw new ScaleError('No runners create: maximum of runners reached.');
+      }
     }
   }
 }
@@ -139,6 +160,6 @@ export async function createRunnerLoop(runnerParameters: RunnerInputParameters):
     }
   }
   if (launched == false) {
-    throw Error('All launch templates failed');
+    throw new ScaleError('All launch templates failed');
   }
 }

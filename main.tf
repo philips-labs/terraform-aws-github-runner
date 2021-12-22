@@ -19,13 +19,24 @@ resource "random_string" "random" {
 }
 
 resource "aws_sqs_queue" "queued_builds" {
-  name                        = "${var.environment}-queued-builds.fifo"
+  name                        = "${var.environment}-queued-builds${var.fifo_build_queue ? ".fifo" : ""}"
   delay_seconds               = var.delay_webhook_event
   visibility_timeout_seconds  = var.runners_scale_up_lambda_timeout
   message_retention_seconds   = var.job_queue_retention_in_seconds
-  fifo_queue                  = true
-  receive_wait_time_seconds   = 10
-  content_based_deduplication = true
+  fifo_queue                  = var.fifo_build_queue
+  receive_wait_time_seconds   = 0
+  content_based_deduplication = var.fifo_build_queue
+  redrive_policy = var.redrive_build_queue.enabled ? jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.queued_builds_dlq[0].arn,
+    maxReceiveCount     = var.redrive_build_queue.maxReceiveCount
+  }) : null
+
+  tags = var.tags
+}
+
+resource "aws_sqs_queue" "queued_builds_dlq" {
+  count = var.redrive_build_queue.enabled ? 1 : 0
+  name  = "${var.environment}-queued-builds_dead_letter"
 
   tags = var.tags
 }
@@ -48,6 +59,7 @@ module "webhook" {
   kms_key_arn = var.kms_key_arn
 
   sqs_build_queue               = aws_sqs_queue.queued_builds
+  sqs_build_queue_fifo          = var.fifo_build_queue
   github_app_webhook_secret_arn = module.ssm.parameters.github_app_webhook_secret.arn
 
   lambda_s3_bucket                 = var.lambda_s3_bucket
@@ -92,6 +104,7 @@ module "runners" {
   sqs_build_queue                      = aws_sqs_queue.queued_builds
   github_app_parameters                = local.github_app_parameters
   enable_organization_runners          = var.enable_organization_runners
+  enable_ephemeral_runners             = var.enable_ephemeral_runners
   scale_down_schedule_expression       = var.scale_down_schedule_expression
   minimum_running_time_in_minutes      = var.minimum_running_time_in_minutes
   runner_boot_time_in_minutes          = var.runner_boot_time_in_minutes

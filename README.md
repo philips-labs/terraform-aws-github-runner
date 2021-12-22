@@ -4,9 +4,16 @@
 
 This [Terraform](https://www.terraform.io/) module creates the required infrastructure needed to host [GitHub Actions](https://github.com/features/actions) self hosted, auto scaling runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). It provides the required logic to handle the life cycle for scaling up and down using a set of AWS Lambda functions. Runners are scaled down to zero to avoid costs when no workflows are active.
 
+> NEW: Ephemeral runners available as beta feature.
+
+> NEW: Windows runners are available.
+
+> NEW: Examples for custom AMI are available.
+
 - [Motivation](#motivation)
 - [Overview](#overview)
-  - [ARM64 support via Graviton/Graviton2 instance-types](#arm64-support-via-gravitongraviton2-instance-types)
+  - [Major configuration options.](#major-configuration-options)
+    - [ARM64 support via Graviton/Graviton2 instance-types](#arm64-support-via-gravitongraviton2-instance-types)
 - [Usages](#usages)
   - [Setup GitHub App (part 1)](#setup-github-app-part-1)
   - [Setup terraform module](#setup-terraform-module)
@@ -16,6 +23,7 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
     - [Install app](#install-app)
   - [Encryption](#encryption)
   - [Idle runners](#idle-runners)
+  - [Ephemeral runners](#ephemeral-runners)
   - [Prebuilt Images](#prebuilt-images)
 - [Examples](#examples)
 - [Sub modules](#sub-modules)
@@ -48,7 +56,6 @@ For receiving the `check_run` or `workflow_job` event by the webhook (lambda) a 
 - `check_run`: create a webhook on enterprise, org, repo or app level. When using the app option, the app needs to be installed to repo's are using the self-hosted runners.
 -  a Webhook needs to be created. The webhook hook can be defined on enterprise, org, repo, or app level. 
 
-
 In AWS a [API gateway](https://docs.aws.amazon.com/apigateway/index.html) endpoint is created that is able to receive the GitHub webhook events via HTTP post. The gateway triggers the webhook lambda which will verify the signature of the event. This check guarantees the event is sent by the GitHub App. The lambda only handles `workflow_job` or `check_run` events with status `queued` and matching the runner labels (only for `workflow_job`). The accepted events are posted on a SQS queue. Messages on this queue will be delayed for a configurable amount of seconds (default 30 seconds) to give the available runners time to pick up this build.
 
 The "scale up runner" lambda is listening to the SQS queue and picks up events. The lambda runs various checks to decide whether a new EC2 spot instance needs to be created. For example, the instance is not created if the build is already started by an existing runner, or the maximum number of runners is reached.
@@ -71,7 +78,18 @@ Permission are managed on several places. Below the most important ones. For det
 
 Besides these permissions, the lambdas also need permission to CloudWatch (for logging and scheduling), SSM and S3. For more details about the required permissions see the [documentation](./modules/setup-iam-permissions/README.md) of the IAM module which uses permission boundaries.
 
-### ARM64 support via Graviton/Graviton2 instance-types
+### Major configuration options.
+
+To be able to support a number of use-cases the module has quite a lot configuration options. We try to choose reasonable defaults. The several examples also shows for the main cases how to configure the runners.
+
+- Org vs Repo level. You can configure the module to connect the runners in GitHub on a org level and share the runners in your org. Or set the runners on repo level. The module will install the runner to the repo. This can be multiple repo's but runners are not shared between repo's.
+- Checkrun vs Workflow job event. You can configure the webhook in GitHub to send checkrun or workflow job events to the webhook. Workflow job events are introduced by GitHub in September 2021 and are designed to support scalable runners. We advise when possible to use the workflow job event, you can set `disable_check_wokflow_job_labels = true` to disable the label check. 
+- Linux vs Windows. you can configure the os types linux and win. Linux will be used by default.
+- Re-use vs Ephemeral. By default runners are re-used for till detected idle, once idle they will be removed from the pool. To improve security we are introducing ephemeral runners. Those runners are only used for one job. Ephemeral runners are only working in combination with the workflow job event. We also suggest to use a pre-build AMI to improve the start time of jobs.
+- GitHub cloud vs GitHub enterprise server (GHES). The runner support GitHub cloud as well GitHub enterprise service. For GHES we rely on our community to test and support. We have no possibility to test ourselves on GHES.
+
+
+#### ARM64 support via Graviton/Graviton2 instance-types
 
 When using the default example or top-level module, specifying an `instance_type` that matches a Graviton/Graviton 2 (ARM64) architecture (e.g. a1 or any 6th-gen `g` or `gd` type), the sub-modules will be automatically configured to provision with ARM64 AMIs and leverage GitHub's ARM64 action runner. See below for more details.
 
@@ -268,6 +286,17 @@ idle_config = [{
 
 _**Note**_: When using Windows runners it's recommended to keep a few runners warmed up due to the minutes-long cold start time.
 
+### Ephemeral runners
+
+Currently a beta feature! You can configure runners to be ephemeral, runners will be used only for one job. The feature should be used in conjunction with listening for the workflow job event. Please consider the following:
+
+- The scale down lambda is still active, and should only remove orphan instances. But there is no strict check in place. So ensure you configure the `minimum_running_time_in_minutes` to a value that is high enough to got your runner booted and connected to avoid it got terminated before executing a job.
+- The messages sent from the webhook lambda to scale-up lambda are by default delayed delayed by SQS, to give available runners to option to start the job before the decision is made to scale more runners. For ephemeral runners there is no need to wait. Set `delay_webhook_event` to `0`.
+- To ensure runners are created in the same order GitHub sends the events we use by default a FIFO queue, this is mainly relevant for repo level runners. For ephemeral runners you can set `fifo_build_queue` to `false`.
+- Error related to scaling should be retried via SQS. You can configure `job_queue_retention_in_seconds` `redrive_build_queue` to tune the behavior. We have no mechanism to avoid events will never processed, which means potential no runner could be created and the job in GitHub can time out in 6 hours. 
+ 
+The example for [ephemeral runners](./examples/ephemeral) is based on the [default example](./examples/default). Have look on the diff to see the major configuration differences.
+
 ### Prebuilt Images
 
 This module also allows you to run agents from a prebuilt AMI to gain faster startup times. You can find more information in [the image README.md](/images/README.md)
@@ -295,10 +324,11 @@ For time zones please check [TZ database name column](https://en.wikipedia.org/w
 Examples are located in the [examples](./examples) directory. The following examples are provided:
 
 - _[Default](examples/default/README.md)_: The default example of the module
-- _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
 - _[Ubuntu](examples/ubuntu/README.md)_: Example usage of creating a runner using Ubuntu AMIs.
-- _[Prebuilt Images](examples/prebuilt/README.md)_: Example usages of deploying runners with a custom prebuilt image.
 - _[Windows](examples/windows/README.md)_: Example usage of creating a runner using Windows as the OS.
+- _[Ephemeral](examples/ephemeral/README.md) : Example usages of ephemeral runners based on the default example.
+- _[Prebuilt Images](examples/prebuilt/README.md)_: Example usages of deploying runners with a custom prebuilt image.
+- _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
 
 ## Sub modules
 
@@ -367,6 +397,7 @@ In case the setup does not work as intended follow the trace of events:
 |------|------|
 | [aws_resourcegroups_group.resourcegroups_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/resourcegroups_group) | resource |
 | [aws_sqs_queue.queued_builds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
+| [aws_sqs_queue.queued_builds_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [random_string.random](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 
 ## Inputs
@@ -382,10 +413,12 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_delay_webhook_event"></a> [delay\_webhook\_event](#input\_delay\_webhook\_event) | The number of seconds the event accepted by the webhook is invisible on the queue before the scale up lambda will receive the event. | `number` | `30` | no |
 | <a name="input_disable_check_wokflow_job_labels"></a> [disable\_check\_wokflow\_job\_labels](#input\_disable\_check\_wokflow\_job\_labels) | Disable the the check of workflow labels for received workflow job events. | `bool` | `false` | no |
 | <a name="input_enable_cloudwatch_agent"></a> [enable\_cloudwatch\_agent](#input\_enable\_cloudwatch\_agent) | Enabling the cloudwatch agent on the ec2 runner instances, the runner contains default config. Configuration can be overridden via `cloudwatch_config`. | `bool` | `true` | no |
+| <a name="input_enable_ephemeral_runners"></a> [enable\_ephemeral\_runners](#input\_enable\_ephemeral\_runners) | Enable ephemeral runners, runners will only be used once. | `bool` | `false` | no |
 | <a name="input_enable_organization_runners"></a> [enable\_organization\_runners](#input\_enable\_organization\_runners) | Register runners to organization, instead of repo level | `bool` | `false` | no |
 | <a name="input_enable_ssm_on_runners"></a> [enable\_ssm\_on\_runners](#input\_enable\_ssm\_on\_runners) | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances. | `bool` | `false` | no |
 | <a name="input_enabled_userdata"></a> [enabled\_userdata](#input\_enabled\_userdata) | Should the userdata script be enabled for the runner. Set this to false if you are using your own prebuilt AMI | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | A name that identifies the environment, used as prefix and for tagging. | `string` | n/a | yes |
+| <a name="input_fifo_build_queue"></a> [fifo\_build\_queue](#input\_fifo\_build\_queue) | Enable a FIFO queue to remain the order of events received by the webhook. Suggest to set to true for repo level runners. | `bool` | `false` | no |
 | <a name="input_ghes_ssl_verify"></a> [ghes\_ssl\_verify](#input\_ghes\_ssl\_verify) | GitHub Enterprise SSL verification. Set to 'false' when custom certificate (chains) is used for GitHub Enterprise Server (insecure). | `bool` | `true` | no |
 | <a name="input_ghes_url"></a> [ghes\_url](#input\_ghes\_url) | GitHub Enterprise Server URL. Example: https://github.internal.co - DO NOT SET IF USING PUBLIC GITHUB | `string` | `null` | no |
 | <a name="input_github_app"></a> [github\_app](#input\_github\_app) | GitHub app parameters, see your github app. Ensure the key is the base64-encoded `.pem` file (the output of `base64 app.private-key.pem`, not the content of `private-key.pem`). | <pre>object({<br>    key_base64     = string<br>    id             = string<br>    webhook_secret = string<br>  })</pre> | n/a | yes |
@@ -405,6 +438,7 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_logging_retention_in_days"></a> [logging\_retention\_in\_days](#input\_logging\_retention\_in\_days) | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `180` | no |
 | <a name="input_market_options"></a> [market\_options](#input\_market\_options) | Market options for the action runner instances. Setting the value to `null` let the scaler create on-demand instances instead of spot instances. | `string` | `"spot"` | no |
 | <a name="input_minimum_running_time_in_minutes"></a> [minimum\_running\_time\_in\_minutes](#input\_minimum\_running\_time\_in\_minutes) | The time an ec2 action runner should be running at minimum before terminated if not busy. | `number` | `null` | no |
+| <a name="input_redrive_build_queue"></a> [redrive\_build\_queue](#input\_redrive\_build\_queue) | Set options to attach (optional) a dead letter queue to the build queue, the queue between the webhook and the scale up lambda. You have the following options. 1. Disable by setting, `enalbed' to false. 2. Enable by setting `enabled` to `true`, `maxReceiveCount` to a number of max retries.` | <pre>object({<br>    enabled         = bool<br>    maxReceiveCount = number<br>  })</pre> | <pre>{<br>  "enabled": false,<br>  "maxReceiveCount": null<br>}</pre> | no |
 | <a name="input_repository_white_list"></a> [repository\_white\_list](#input\_repository\_white\_list) | List of repositories allowed to use the github app | `list(string)` | `[]` | no |
 | <a name="input_role_path"></a> [role\_path](#input\_role\_path) | The path that will be added to role path for created roles, if not set the environment name will be used. | `string` | `null` | no |
 | <a name="input_role_permissions_boundary"></a> [role\_permissions\_boundary](#input\_role\_permissions\_boundary) | Permissions boundary that will be added to the created roles. | `string` | `null` | no |
@@ -428,7 +462,7 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_runners_lambda_zip"></a> [runners\_lambda\_zip](#input\_runners\_lambda\_zip) | File location of the lambda zip file for scaling runners. | `string` | `null` | no |
 | <a name="input_runners_maximum_count"></a> [runners\_maximum\_count](#input\_runners\_maximum\_count) | The maximum number of runners that will be created. | `number` | `3` | no |
 | <a name="input_runners_scale_down_lambda_timeout"></a> [runners\_scale\_down\_lambda\_timeout](#input\_runners\_scale\_down\_lambda\_timeout) | Time out for the scale down lambda in seconds. | `number` | `60` | no |
-| <a name="input_runners_scale_up_lambda_timeout"></a> [runners\_scale\_up\_lambda\_timeout](#input\_runners\_scale\_up\_lambda\_timeout) | Time out for the scale up lambda in seconds. | `number` | `180` | no |
+| <a name="input_runners_scale_up_lambda_timeout"></a> [runners\_scale\_up\_lambda\_timeout](#input\_runners\_scale\_up\_lambda\_timeout) | Time out for the scale up lambda in seconds. | `number` | `30` | no |
 | <a name="input_scale_down_schedule_expression"></a> [scale\_down\_schedule\_expression](#input\_scale\_down\_schedule\_expression) | Scheduler expression to check every x for scale down. | `string` | `"cron(*/5 * * * ? *)"` | no |
 | <a name="input_scale_up_reserved_concurrent_executions"></a> [scale\_up\_reserved\_concurrent\_executions](#input\_scale\_up\_reserved\_concurrent\_executions) | Amount of reserved concurrent executions for the scale-up lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations. | `number` | `1` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnets in which the action runners will be launched, the subnets needs to be subnets in the `vpc_id`. | `list(string)` | n/a | yes |
@@ -450,6 +484,7 @@ In case the setup does not work as intended follow the trace of events:
 | Name | Description |
 |------|-------------|
 | <a name="output_binaries_syncer"></a> [binaries\_syncer](#output\_binaries\_syncer) | n/a |
+| <a name="output_queues"></a> [queues](#output\_queues) | SQS queues. |
 | <a name="output_runners"></a> [runners](#output\_runners) | n/a |
 | <a name="output_ssm_parameters"></a> [ssm\_parameters](#output\_ssm\_parameters) | n/a |
 | <a name="output_webhook"></a> [webhook](#output\_webhook) | n/a |
