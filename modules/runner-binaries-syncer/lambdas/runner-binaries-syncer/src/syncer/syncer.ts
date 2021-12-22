@@ -57,10 +57,13 @@ async function getReleaseAsset(
   } else if (latestReleaseIndex != -1) {
     asset = assetsList.data[latestReleaseIndex];
   } else {
+    logger.warn('Cannot find either a release or pre release.');
     return undefined;
   }
+
+  const releaseVersion = asset.tag_name.replace('v', '');
   const assets = asset.assets?.filter((a: { name?: string }) =>
-    a.name?.includes(`actions-runner-${runnerOs}-${runnerArch}-`),
+    a.name?.includes(`actions-runner-${runnerOs}-${runnerArch}-${releaseVersion}.`),
   );
 
   return assets?.length === 1 ? { name: assets[0].name, downloadUrl: assets[0].browser_download_url } : undefined;
