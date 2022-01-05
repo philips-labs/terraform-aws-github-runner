@@ -1,5 +1,5 @@
 locals {
-  environment = "ephemeraal"
+  environment = "ephemeral"
   aws_region  = "eu-west-1"
 }
 
@@ -60,7 +60,7 @@ module "runners" {
   # ami_owners       = [data.aws_caller_identity.current.account_id]
 
   # Enable logging
-  # log_level                        = "debug"
+  # log_level = "debug"
 
   # Setup a dead letter queue, by default scale up lambda will kepp retrying to process event in case of scaling error.
   # redrive_policy_build_queue = {

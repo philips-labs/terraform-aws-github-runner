@@ -52,9 +52,42 @@ variable "block_device_mappings" {
 }
 
 variable "market_options" {
-  description = "Market options for the action runner instances."
+  description = "DEPCRECATED: Replaced by `instance_target_capacity_type`."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = anytrue([var.market_options == null])
+    error_message = "Deprecated, replaced by `instance_target_capacity_type`."
+  }
+}
+
+variable "instance_target_capacity_type" {
+  description = "Default lifecyle used runner instances, can be either `spot` or `on-demand`."
   type        = string
   default     = "spot"
+
+  validation {
+    condition     = contains(["spot", "on-demand"], var.instance_target_capacity_type)
+    error_message = "The instance target capacity should be either spot or on-demand."
+  }
+}
+
+variable "instance_allocation_strategy" {
+  description = "The allocation strategy for spot instances. AWS recommends to use `capacity-optimized` however the AWS default is `lowest-price`."
+  type        = string
+  default     = "lowest-price"
+
+  validation {
+    condition     = contains(["lowest-price", "diversified", "capacity-optimized", "capacity-optimized-prioritized"], var.instance_allocation_strategy)
+    error_message = "The instance allocation strategy does not match the allowed values."
+  }
+}
+
+variable "instance_max_spot_price" {
+  description = "Max price price for spot intances per hour. This variable will be passed to the create fleet as max spot price for the fleet."
+  type        = string
+  default     = null
 }
 
 variable "runner_os" {

@@ -10,8 +10,8 @@ import {
   AuthInterface,
 } from '@octokit/auth-app/dist-types/types';
 import { OctokitOptions } from '@octokit/core/dist-types/types';
-import { getParameterValue } from './ssm';
-import { logger as rootLogger, LogFields } from './logger';
+import { getParameterValue } from '../aws/ssm';
+import { logger as rootLogger, LogFields } from '../logger';
 
 const logger = rootLogger.getChildLogger({ name: 'gh-auth' });
 
@@ -32,7 +32,7 @@ export async function createGithubAppAuth(
 ): Promise<AppAuthentication> {
   const auth = await createAuth(installationId, ghesApiUrl);
   const appAuthOptions: AppAuthOptions = { type: 'app' };
-  return await auth(appAuthOptions);
+  return auth(appAuthOptions);
 }
 
 export async function createGithubInstallationAuth(
@@ -41,7 +41,7 @@ export async function createGithubInstallationAuth(
 ): Promise<InstallationAccessTokenAuthentication> {
   const auth = await createAuth(installationId, ghesApiUrl);
   const installationAuthOptions: InstallationAuthOptions = { type: 'installation', installationId };
-  return await auth(installationAuthOptions);
+  return auth(installationAuthOptions);
 }
 
 async function createAuth(installationId: number | undefined, ghesApiUrl: string): Promise<AuthInterface> {
