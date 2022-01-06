@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.28.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.27.2...v0.28.0) (2022-01-06)
+
+
+### Features
+
+* add option ephemeral runners ([#1374](https://github.com/philips-labs/terraform-aws-github-runner/issues/1374)) ([2f323d6](https://github.com/philips-labs/terraform-aws-github-runner/commit/2f323d642c28d42b36705d2768715302f301ea33)), closes [#1399](https://github.com/philips-labs/terraform-aws-github-runner/issues/1399) [#1444](https://github.com/philips-labs/terraform-aws-github-runner/issues/1444)
+* Change default location of runner to `/opt` and fix Ubuntu example ([#1572](https://github.com/philips-labs/terraform-aws-github-runner/issues/1572)) ([77f350b](https://github.com/philips-labs/terraform-aws-github-runner/commit/77f350b0be40ad953c51057b7ab1a23b68ee9862))
+* Replace run instance API by create fleet API ([#1556](https://github.com/philips-labs/terraform-aws-github-runner/issues/1556)) ([27e974d](https://github.com/philips-labs/terraform-aws-github-runner/commit/27e974da12e5c009732b5dd6adc0b7a7711fba14))
+* Support t4g Graviton instance type ([#1561](https://github.com/philips-labs/terraform-aws-github-runner/issues/1561)) ([3fa5896](https://github.com/philips-labs/terraform-aws-github-runner/commit/3fa5896301e1b3042e7d06babab636daa453d339))
+
+
+### Bug Fixes
+
+* Add config for windows ami ([#1525](https://github.com/philips-labs/terraform-aws-github-runner/issues/1525)) ([7907984](https://github.com/philips-labs/terraform-aws-github-runner/commit/790798402be060fe5c3b190c00782eeca8456c11))
+
 ### [0.27.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.27.1...v0.27.2) (2021-12-22)
 
 
