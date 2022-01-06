@@ -96,7 +96,7 @@ variable "runners_lambda_zip" {
 variable "runners_scale_up_lambda_timeout" {
   description = "Time out for the scale up lambda in seconds."
   type        = number
-  default     = 180
+  default     = 30
 }
 
 variable "runners_scale_down_lambda_timeout" {
@@ -141,16 +141,16 @@ variable "instance_profile_path" {
   default     = null
 }
 
-variable "instance_type" {
-  description = "[DEPRECATED] See instance_types."
-  type        = string
-  default     = "m5.large"
-}
-
 variable "runner_as_root" {
-  description = "Run the action runner under the root user."
+  description = "Run the action runner under the root user. Variable `runner_run_as` will be ingored."
   type        = bool
   default     = false
+}
+
+variable "runner_run_as" {
+  description = "Run the GitHub actions agent as user."
+  type        = string
+  default     = "ec2-user"
 }
 
 variable "runners_maximum_count" {
@@ -340,9 +340,40 @@ variable "runner_additional_security_group_ids" {
 }
 
 variable "market_options" {
-  description = "Market options for the action runner instances. Setting the value to `null` let the scaler create on-demand instances instead of spot instances."
+  description = "DEPCRECATED: Replaced by `instance_target_capacity_type`."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = anytrue([var.market_options == null])
+    error_message = "Deprecated, replaced by `instance_target_capacity_type`."
+  }
+}
+
+variable "instance_target_capacity_type" {
+  description = "Default lifecycle used for runner instances, can be either `spot` or `on-demand`."
   type        = string
   default     = "spot"
+  validation {
+    condition     = contains(["spot", "on-demand"], var.instance_target_capacity_type)
+    error_message = "The instance target capacity should be either spot or on-demand."
+  }
+}
+
+variable "instance_allocation_strategy" {
+  description = "The allocation strategy for spot instances. AWS recommends to use `capacity-optimized` however the AWS default is `lowest-price`."
+  type        = string
+  default     = "lowest-price"
+  validation {
+    condition     = contains(["lowest-price", "diversified", "capacity-optimized", "capacity-optimized-prioritized"], var.instance_allocation_strategy)
+    error_message = "The instance allocation strategy does not match the allowed values."
+  }
+}
+
+variable "instance_max_spot_price" {
+  description = "Max price price for spot intances per hour. This variable will be passed to the create fleet as max spot price for the fleet."
+  type        = string
+  default     = null
 }
 
 variable "volume_size" {
@@ -351,10 +382,21 @@ variable "volume_size" {
   default     = 30
 }
 
+variable "instance_type" {
+  description = "[DEPRECATED] See instance_types."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = anytrue([var.instance_type == null])
+    error_message = "Deprecated, replaced by `instance_types`."
+  }
+}
+
 variable "instance_types" {
   description = "List of instance types for the action runner. Defaults are based on runner_os (amzn2 for linux and Windows Server Core for win)."
   type        = list(string)
-  default     = null
+  default     = ["m5.large", "c5.large"]
 }
 
 variable "repository_white_list" {
@@ -451,7 +493,12 @@ variable "runner_metadata_options" {
     http_tokens                 = "optional"
     http_put_response_hop_limit = 1
   }
+}
 
+variable "enable_ephemeral_runners" {
+  description = "Enable ephemeral runners, runners will only be used once."
+  type        = bool
+  default     = false
 }
 
 variable "runner_os" {
@@ -472,4 +519,37 @@ variable "lambda_principals" {
     identifiers = list(string)
   }))
   default = []
+}
+
+variable "fifo_build_queue" {
+  description = "Enable a FIFO queue to remain the order of events received by the webhook. Suggest to set to true for repo level runners."
+  type        = bool
+  default     = false
+}
+
+variable "redrive_build_queue" {
+  description = "Set options to attach (optional) a dead letter queue to the build queue, the queue between the webhook and the scale up lambda. You have the following options. 1. Disable by setting, `enalbed' to false. 2. Enable by setting `enabled` to `true`, `maxReceiveCount` to a number of max retries."
+  type = object({
+    enabled         = bool
+    maxReceiveCount = number
+  })
+  default = {
+    enabled         = false
+    maxReceiveCount = null
+  }
+  validation {
+    condition     = var.redrive_build_queue.enabled && var.redrive_build_queue.maxReceiveCount != null || !var.redrive_build_queue.enabled
+    error_message = "Ensure you have set the maxReceiveCount when enabled."
+  }
+}
+
+
+variable "runner_architecture" {
+  description = "The platform architecture of the runner instance_type."
+  type        = string
+  default     = "x64"
+  validation {
+    condition     = contains(["x64", "arm64"], var.runner_architecture)
+    error_message = "`runner_architecture` value not valid, valid values are: `x64` and `arm64`."
+  }
 }

@@ -18,7 +18,7 @@ resource "aws_lambda_function" "scale_up" {
       ENABLE_ORGANIZATION_RUNNERS          = var.enable_organization_runners
       ENVIRONMENT                          = var.environment
       GHES_URL                             = var.ghes_url
-      LAUNCH_TEMPLATE_NAME                 = join(",", [for template in aws_launch_template.runner : template.name])
+      LAUNCH_TEMPLATE_NAME                 = aws_launch_template.runner.name
       LOG_LEVEL                            = var.log_level
       LOG_TYPE                             = var.log_type
       NODE_TLS_REJECT_UNAUTHORIZED         = var.ghes_url != null && !var.ghes_ssl_verify ? 0 : 1
@@ -28,6 +28,11 @@ resource "aws_lambda_function" "scale_up" {
       RUNNER_GROUP_NAME                    = var.runner_group_name
       RUNNERS_MAXIMUM_COUNT                = var.runners_maximum_count
       SUBNET_IDS                           = join(",", var.subnet_ids)
+      ENABLE_EPHEMERAL_RUNNERS             = var.enable_ephemeral_runners
+      INSTANCE_TYPES                       = join(",", var.instance_types)
+      INSTANCE_TARGET_CAPACITY_TYPE        = var.instance_target_capacity_type
+      INSTANCE_MAX_SPOT_PRICE              = var.instance_max_spot_price
+      INSTANCE_ALLOCATION_STRATEGY         = var.instance_allocation_strategy
     }
   }
 
@@ -49,6 +54,7 @@ resource "aws_cloudwatch_log_group" "scale_up" {
 resource "aws_lambda_event_source_mapping" "scale_up" {
   event_source_arn = var.sqs_build_queue.arn
   function_name    = aws_lambda_function.scale_up.arn
+  batch_size       = 1
 }
 
 resource "aws_lambda_permission" "scale_runners_lambda" {
