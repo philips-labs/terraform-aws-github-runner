@@ -10,6 +10,8 @@ const supportedEvents = ['check_run', 'workflow_job'];
 const logger = rootLogger.getChildLogger();
 
 export async function handle(headers: IncomingHttpHeaders, body: string): Promise<Response> {
+  const { environment, repositoryWhiteList, enableWorkflowLabelCheck, runnerLabels } = readEnvironmentVariables();
+
   // ensure header keys lower case since github headers can contain capitals.
   for (const key in headers) {
     headers[key.toLowerCase()] = headers[key];
@@ -18,12 +20,13 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   const githubEvent = headers['x-github-event'] as string;
 
   let response: Response = {
-    statusCode: await verifySignature(githubEvent, headers['x-hub-signature'] as string, body),
+    statusCode: await verifySignature(githubEvent, headers, body, environment),
   };
 
   if (response.statusCode != 200) {
     return response;
   }
+
   const payload = JSON.parse(body);
   LogFields.fields.event = githubEvent;
   LogFields.fields.repository = payload.repository.full_name;
@@ -48,7 +51,7 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   LogFields.fields.completed_at = payload[githubEvent]?.completed_at;
   LogFields.fields.conclusion = payload[githubEvent]?.conclusion;
 
-  if (isRepoNotAllowed(payload.repository.full_name)) {
+  if (isRepoNotAllowed(payload.repository.full_name, repositoryWhiteList)) {
     logger.error(`Received event from unauthorized repository ${payload.repository.full_name}`, LogFields.print());
     return {
       statusCode: 403,
@@ -58,7 +61,12 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   logger.info(`Processing Github event`, LogFields.print());
 
   if (githubEvent == 'workflow_job') {
-    response = await handleWorkflowJob(payload as WorkflowJobEvent, githubEvent);
+    response = await handleWorkflowJob(
+      payload as WorkflowJobEvent,
+      githubEvent,
+      enableWorkflowLabelCheck,
+      runnerLabels,
+    );
   } else if (githubEvent == 'check_run') {
     response = await handleCheckRun(payload as CheckRunEvent, githubEvent);
   }
@@ -66,7 +74,24 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   return response;
 }
 
-async function verifySignature(githubEvent: string, signature: string, body: string): Promise<number> {
+function readEnvironmentVariables() {
+  const environment = process.env.ENVIRONMENT;
+  const enableWorkflowLabelCheckEnv = process.env.ENABLE_WORKFLOW_JOB_LABELS_CHECK || 'false';
+  const enableWorkflowLabelCheck = JSON.parse(enableWorkflowLabelCheckEnv) as boolean;
+  const repositoryWhiteListEnv = process.env.REPOSITORY_WHITE_LIST || '[]';
+  const repositoryWhiteList = JSON.parse(repositoryWhiteListEnv) as Array<string>;
+  const runnerLabelsEnv = process.env.RUNNER_LABELS || '[]';
+  const runnerLabels = JSON.parse(runnerLabelsEnv) as Array<string>;
+  return { environment, repositoryWhiteList, enableWorkflowLabelCheck, runnerLabels };
+}
+
+async function verifySignature(
+  githubEvent: string,
+  headers: IncomingHttpHeaders,
+  body: string,
+  environment: string,
+): Promise<number> {
+  const signature = headers['x-hub-signature'] as string;
   if (!signature) {
     logger.error(
       "Github event doesn't have signature. This webhook requires a secret to be configured.",
@@ -75,7 +100,7 @@ async function verifySignature(githubEvent: string, signature: string, body: str
     return 500;
   }
 
-  const secret = await getParameterValue(process.env.ENVIRONMENT as string, 'github_app_webhook_secret');
+  const secret = await getParameterValue(environment, 'github_app_webhook_secret');
 
   const webhooks = new Webhooks({
     secret: secret,
@@ -87,10 +112,13 @@ async function verifySignature(githubEvent: string, signature: string, body: str
   return 200;
 }
 
-async function handleWorkflowJob(body: WorkflowJobEvent, githubEvent: string): Promise<Response> {
-  const disableCheckWorkflowJobLabelsEnv = process.env.DISABLE_CHECK_WORKFLOW_JOB_LABELS || 'false';
-  const disableCheckWorkflowJobLabels = JSON.parse(disableCheckWorkflowJobLabelsEnv) as boolean;
-  if (!disableCheckWorkflowJobLabels && !canRunJob(body)) {
+async function handleWorkflowJob(
+  body: WorkflowJobEvent,
+  githubEvent: string,
+  enableWorkflowLabelCheck: boolean,
+  runnerLabels: string[],
+): Promise<Response> {
+  if (enableWorkflowLabelCheck && !canRunJob(body, runnerLabels)) {
     logger.warn(
       `Received event contains runner labels '${body.workflow_job.labels}' that are not accepted.`,
       LogFields.print(),
@@ -138,34 +166,21 @@ function getInstallationId(body: WorkflowJobEvent | CheckRunEvent) {
   return installationId;
 }
 
-function isRepoNotAllowed(repo_full_name: string): boolean {
-  const repositoryWhiteListEnv = process.env.REPOSITORY_WHITE_LIST || '[]';
-  const repositoryWhiteList = JSON.parse(repositoryWhiteListEnv) as Array<string>;
-
-  return repositoryWhiteList.length > 0 && !repositoryWhiteList.includes(repo_full_name);
+function isRepoNotAllowed(repoFullName: string, repositoryWhiteList: string[]): boolean {
+  return repositoryWhiteList.length > 0 && !repositoryWhiteList.includes(repoFullName);
 }
 
-function canRunJob(job: WorkflowJobEvent): boolean {
-  const runnerLabelsEnv = process.env.RUNNER_LABELS || '[]';
-  const runnerLabels = new Set(JSON.parse(runnerLabelsEnv) as Array<string>);
-
-  // ensure the self-hosted label is in the list.
-  runnerLabels.add('self-hosted');
+function canRunJob(job: WorkflowJobEvent, runnerLabels: string[]): boolean {
   const workflowJobLabels = job.workflow_job.labels;
-
-  // eslint-disable-next-line max-len
-  // GitHub managed labels: https://docs.github.com/en/actions/hosting-your-own-runners/using-self-hosted-runners-in-a-workflow#using-default-labels-to-route-jobs
-  const githubManagedLabels = ['self-hosted', 'linux', 'macOS', 'windows', 'x64', 'ARM', 'ARM64'];
-  // Remove GitHub managed labels
-  const customWorkflowJobLabels = workflowJobLabels.filter((l) => githubManagedLabels.indexOf(l) < 0);
-
-  const runnerMatch = customWorkflowJobLabels.every((l) => runnerLabels.has(l));
+  const runnerMatch = runnerLabels.every((l) => workflowJobLabels.includes(l));
+  const jobMatch = workflowJobLabels.every((l) => runnerLabels.includes(l));
+  const match = jobMatch && runnerMatch;
 
   logger.debug(
-    `Received workflow job event with labels: '${JSON.stringify(job.workflow_job.labels)}'. The event does ${
-      runnerMatch ? '' : 'NOT '
-    }match the configured labels: '${Array.from(runnerLabels).join(',')}'`,
+    `Received workflow job event with labels: '${JSON.stringify(workflowJobLabels)}'. The event does ${
+      match ? '' : 'NOT '
+    }match the runner labels: '${Array.from(runnerLabels).join(',')}'`,
     LogFields.print(),
   );
-  return runnerMatch;
+  return match;
 }

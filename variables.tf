@@ -58,7 +58,7 @@ variable "runner_boot_time_in_minutes" {
 }
 
 variable "runner_extra_labels" {
-  description = "Extra labels for the runners (GitHub). Separate each label by a comma"
+  description = "Extra (custom) labels for the runners (GitHub). Separate each label by a comma. Labels checks on the webhook can be enforced by setting `enable_workflow_job_labels_check`. GitHub read-only labels should not be provided."
   type        = string
   default     = ""
 }
@@ -473,8 +473,8 @@ variable "log_level" {
   }
 }
 
-variable "disable_check_wokflow_job_labels" {
-  description = "Disable the the check of workflow labels for received workflow job events."
+variable "runner_enable_workflow_job_labels_check" {
+  description = "If set to true all labels in the workflow job even are matched agaist the custom labels and GitHub labels (os, architecture and `self-hosted`). When the labels are not matching the event is dropped at the webhook."
   type        = bool
   default     = false
 }
@@ -507,7 +507,7 @@ variable "runner_os" {
   default     = "linux"
 
   validation {
-    condition     = contains(["linux", "win"], var.runner_os)
+    condition     = contains(["linux", "windows"], var.runner_os)
     error_message = "Valid values for runner_os are (linux, win)."
   }
 }
