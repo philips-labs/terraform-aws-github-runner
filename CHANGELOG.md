@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.29.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.28.0...v0.29.0) (2022-01-11)
+
+
+### Features
+
+* Strict label check and replace disable_check_wokflow_job_labels by opt in enable_workflow_job_labels_check ([#1591](https://github.com/philips-labs/terraform-aws-github-runner/issues/1591)) ([405b11d](https://github.com/philips-labs/terraform-aws-github-runner/commit/405b11db828234bfb1eb8482493a25505ce59a34))
+
 ## [0.28.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.27.2...v0.28.0) (2022-01-06)
 
 
