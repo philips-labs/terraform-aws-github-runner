@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.29.0...v0.30.0) (2022-01-12)
+
+
+### Features
+
+* Add scheduled / pull based scaling for org level runners ([#1577](https://github.com/philips-labs/terraform-aws-github-runner/issues/1577)) ([8197432](https://github.com/philips-labs/terraform-aws-github-runner/commit/8197432a21011ecc6a8519862be8872b3b5d6113))
+
 ## [0.29.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.28.0...v0.29.0) (2022-01-11)
 
 
