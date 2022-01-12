@@ -22,6 +22,7 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
     - [Option 2: App](#option-2-app)
     - [Install app](#install-app)
   - [Encryption](#encryption)
+  - [Pool](#pool)
   - [Idle runners](#idle-runners)
   - [Ephemeral runners](#ephemeral-runners)
   - [Prebuilt Images](#prebuilt-images)
@@ -87,7 +88,7 @@ To be able to support a number of use-cases the module has quite a lot configura
 - Linux vs Windows. you can configure the os types linux and win. Linux will be used by default.
 - Re-use vs Ephemeral. By default runners are re-used for till detected idle, once idle they will be removed from the pool. To improve security we are introducing ephemeral runners. Those runners are only used for one job. Ephemeral runners are only working in combination with the workflow job event. We also suggest to use a pre-build AMI to improve the start time of jobs.
 - GitHub cloud vs GitHub enterprise server (GHES). The runner support GitHub cloud as well GitHub enterprise service. For GHES we rely on our community to test and support. We have no possibility to test ourselves on GHES.
-- Spot vs on-demand. The runners using either the EC2 spot or on-demand life cycle. Runners will be created via the AWS [CreateFleet API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html). The module (scale up lambda) will request an instance via the create fleet API in one of the subnets and matching one of the specified instance types.
+- Spot vs on-demand. The runners using either the EC2 spot or on-demand life cycle. Runners will be created via the AWC [CreateFLeet API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html). THe module (scale up lambda) will request via the create fleet API aan instance in one of the subnets and matching one of the specified instances types.
 
 
 #### ARM64 support via Graviton/Graviton2 instance-types
@@ -251,6 +252,22 @@ module "runners" {
 
 ```
 
+### Pool
+
+The module basically supports two options for keeping a pool of runners. One is via a pool which only supports org-level runners, the second option is [keeping runners idle](#idle-runners). 
+
+The pool is introduced in combination with the ephemeral runners and is primary meant to ensure if any event is unexpected dropped, and no runner was created the pool can pick up the job. The pool is maintained by a lambda. Each time the lambda is triggered a check is preformed if the number of idler runners managed by the module are meeting the expected pool size. If not, the pool will be adjusted. Keep in mind that the scale down function is still active and will terminate instances that are detected to long as idle.
+
+```hcl
+pool_runner_owner = "my-org"                  # Org to which the runners are added
+pool_config = [{
+  size                = 20                    # size of the pool
+  schedule_expression = "cron(* * * * ? *)"   # cron expression to trigger the adjustment of the pool
+}]
+```
+
+The pool is NOT enabled by default can can be enabled by setting the at least one object to the pool config list. The [ephemeral example](./examples/ephemeral/README.md) contains a configuration options (commented out).
+
 ### Idle runners
 
 The module will scale down to zero runners be default, by specifying a `idle_config` config idle runners can be kept active. The scale down lambda checks if any of the cron expressions matches the current time with a marge of 5 seconds. When there is a match the number of runners specified in the idle config will be kept active. In case multiple cron expressions matches only the first one is taken in to account. Below an idle configuration for keeping runners active from 9 to 5 on working days.
@@ -265,20 +282,6 @@ idle_config = [{
 
 _**Note**_: When using Windows runners it's recommended to keep a few runners warmed up due to the minutes-long cold start time.
 
-### Ephemeral runners
-
-Currently a beta feature! You can configure runners to be ephemeral, runners will be used only for one job. The feature should be used in conjunction with listening for the workflow job event. Please consider the following:
-
-- The scale down lambda is still active, and should only remove orphan instances. But there is no strict check in place. So ensure you configure the `minimum_running_time_in_minutes` to a value that is high enough to got your runner booted and connected to avoid it got terminated before executing a job.
-- The messages sent from the webhook lambda to scale-up lambda are by default delayed delayed by SQS, to give available runners to option to start the job before the decision is made to scale more runners. For ephemeral runners there is no need to wait. Set `delay_webhook_event` to `0`.
-- To ensure runners are created in the same order GitHub sends the events we use by default a FIFO queue, this is mainly relevant for repo level runners. For ephemeral runners you can set `fifo_build_queue` to `false`.
-- Error related to scaling should be retried via SQS. You can configure `job_queue_retention_in_seconds` `redrive_build_queue` to tune the behavior. We have no mechanism to avoid events will never processed, which means potential no runner could be created and the job in GitHub can time out in 6 hours. 
- 
-The example for [ephemeral runners](./examples/ephemeral) is based on the [default example](./examples/default). Have look on the diff to see the major configuration differences.
-
-### Prebuilt Images
-
-This module also allows you to run agents from a prebuilt AMI to gain faster startup times. You can find more information in [the image README.md](/images/README.md)
 
 #### Supported config <!-- omit in toc -->
 
@@ -297,6 +300,22 @@ Cron expressions are parsed by [cron-parser](https://github.com/harrisiirak/cron
 ```
 
 For time zones please check [TZ database name column](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for the supported values.
+
+### Ephemeral runners
+
+Currently a beta feature! You can configure runners to be ephemeral, runners will be used only for one job. The feature should be used in conjunction with listening for the workflow job event. Please consider the following:
+
+- The scale down lambda is still active, and should only remove orphan instances. But there is no strict check in place. So ensure you configure the `minimum_running_time_in_minutes` to a value that is high enough to got your runner booted and connected to avoid it got terminated before executing a job.
+- The messages sent from the webhook lambda to scale-up lambda are by default delayed delayed by SQS, to give available runners to option to start the job before the decision is made to scale more runners. For ephemeral runners there is no need to wait. Set `delay_webhook_event` to `0`.
+- To ensure runners are created in the same order GitHub sends the events we use by default a FIFO queue, this is mainly relevant for repo level runners. For ephemeral runners you can set `fifo_build_queue` to `false`.
+- Error related to scaling should be retried via SQS. You can configure `job_queue_retention_in_seconds` `redrive_build_queue` to tune the behavior. We have no mechanism to avoid events will never processed, which means potential no runner could be created and the job in GitHub can time out in 6 hours. 
+ 
+The example for [ephemeral runners](./examples/ephemeral) is based on the [default example](./examples/default). Have look on the diff to see the major configuration differences.
+
+### Prebuilt Images
+
+This module also allows you to run agents from a prebuilt AMI to gain faster startup times. You can find more information in [the image README.md](/images/README.md)
+
 
 ## Examples
 
@@ -326,7 +345,7 @@ The following sub modules are optional and are provided as example or utility:
 
 ### ARM64 configuration for submodules
 
-When using the top-level module configure `runner_architecture = arm64` and ensure the list of `instance_types` matches. When not using the top-level ensure the bot properties are set on the submodules. 
+When using the top level module configure `runner_architecture = arm64` and insure the list of `instance_types` matches. When not using the top-level ensure the bot properties are set on the submodules. 
 
 ## Debugging
 
@@ -411,6 +430,10 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_logging_retention_in_days"></a> [logging\_retention\_in\_days](#input\_logging\_retention\_in\_days) | Specifies the number of days you want to retain log events for the lambda log group. Possible values are: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, and 3653. | `number` | `180` | no |
 | <a name="input_market_options"></a> [market\_options](#input\_market\_options) | DEPCRECATED: Replaced by `instance_target_capacity_type`. | `string` | `null` | no |
 | <a name="input_minimum_running_time_in_minutes"></a> [minimum\_running\_time\_in\_minutes](#input\_minimum\_running\_time\_in\_minutes) | The time an ec2 action runner should be running at minimum before terminated if not busy. | `number` | `null` | no |
+| <a name="input_pool_config"></a> [pool\_config](#input\_pool\_config) | The configuration for updating the pool. The `pool_size` to adjust to by the events triggered by the the `schedule_expression. For example you can configure a cron expression for week days to adjust the pool to 10 and another expression for the weekend to adjust the pool to 1.` | <pre>list(object({<br>    schedule_expression = string<br>    size                = number<br>  }))</pre> | `[]` | no |
+| <a name="input_pool_lambda_reserved_concurrent_executions"></a> [pool\_lambda\_reserved\_concurrent\_executions](#input\_pool\_lambda\_reserved\_concurrent\_executions) | Amount of reserved concurrent executions for the scale-up lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations. | `number` | `1` | no |
+| <a name="input_pool_lambda_timeout"></a> [pool\_lambda\_timeout](#input\_pool\_lambda\_timeout) | Time out for the pool lambda lambda in seconds. | `number` | `60` | no |
+| <a name="input_pool_runner_owner"></a> [pool\_runner\_owner](#input\_pool\_runner\_owner) | The pool will deploy runners to the GitHub org ID, set this value to the org to which you want the runners deployed. Repo level is not supported. | `string` | `null` | no |
 | <a name="input_redrive_build_queue"></a> [redrive\_build\_queue](#input\_redrive\_build\_queue) | Set options to attach (optional) a dead letter queue to the build queue, the queue between the webhook and the scale up lambda. You have the following options. 1. Disable by setting, `enalbed' to false. 2. Enable by setting `enabled` to `true`, `maxReceiveCount` to a number of max retries.` | <pre>object({<br>    enabled         = bool<br>    maxReceiveCount = number<br>  })</pre> | <pre>{<br>  "enabled": false,<br>  "maxReceiveCount": null<br>}</pre> | no |
 | <a name="input_repository_white_list"></a> [repository\_white\_list](#input\_repository\_white\_list) | List of repositories allowed to use the github app | `list(string)` | `[]` | no |
 | <a name="input_role_path"></a> [role\_path](#input\_role\_path) | The path that will be added to role path for created roles, if not set the environment name will be used. | `string` | `null` | no |
