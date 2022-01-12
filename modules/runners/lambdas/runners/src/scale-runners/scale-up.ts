@@ -1,8 +1,9 @@
-import { listEC2Runners, createRunner, RunnerInputParameters } from './../aws/runners';
-import { createOctoClient, createGithubAppAuth, createGithubInstallationAuth } from '../gh-auth/gh-auth';
-import yn from 'yn';
 import { Octokit } from '@octokit/rest';
+import yn from 'yn';
+
+import { createGithubAppAuth, createGithubInstallationAuth, createOctoClient } from '../gh-auth/gh-auth';
 import { LogFields, logger as rootLogger } from '../logger';
+import { RunnerInputParameters, createRunner, listEC2Runners } from './../aws/runners';
 import ScaleError from './ScaleError';
 
 const logger = rootLogger.getChildLogger({ name: 'scale-up' });
@@ -29,9 +30,10 @@ interface CreateEC2RunnerConfig {
   subnets: string[];
   launchTemplateName: string;
   ec2instanceCriteria: RunnerInputParameters['ec2instanceCriteria'];
+  numberOfRunners?: number;
 }
 
-function generateRunnerServiceConfig(githubRunnerConfig: CreateGitHubRunnerConfig, token: any) {
+function generateRunnerServiceConfig(githubRunnerConfig: CreateGitHubRunnerConfig, token: string) {
   const labelsArgument =
     githubRunnerConfig.runnerExtraLabels !== undefined ? `--labels ${githubRunnerConfig.runnerExtraLabels} ` : '';
   const runnerGroupArgument =
@@ -55,7 +57,11 @@ async function getGithubRunnerRegistrationToken(githubRunnerConfig: CreateGitHub
   return registrationToken.data.token;
 }
 
-async function getInstallationId(ghesApiUrl: string, enableOrgLevel: boolean, payload: ActionRequestMessage) {
+async function getInstallationId(
+  ghesApiUrl: string,
+  enableOrgLevel: boolean,
+  payload: ActionRequestMessage,
+): Promise<number> {
   if (payload.installationId !== 0) {
     return payload.installationId;
   }
