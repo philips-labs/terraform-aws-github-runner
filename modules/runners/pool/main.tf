@@ -99,7 +99,7 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 resource "aws_cloudwatch_event_rule" "pool" {
   count = length(var.config.pool)
 
-  name                = "${var.config.environment}-pool-rule"
+  name                = "${var.config.environment}-pool-${count.index}-rule"
   schedule_expression = var.config.pool[count.index].schedule_expression
   tags                = var.config.tags
 }
@@ -118,7 +118,7 @@ resource "aws_cloudwatch_event_target" "pool" {
 resource "aws_lambda_permission" "pool" {
   count = length(var.config.pool)
 
-  statement_id  = "AllowExecutionFromCloudWatch"
+  statement_id  = "AllowExecutionFromCloudWatch-${count.index}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.pool.function_name
   principal     = "events.amazonaws.com"
