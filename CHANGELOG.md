@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.30.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.30.0...v0.30.1) (2022-01-13)
+
+
+### Bug Fixes
+
+* **runnrs:** Pool runners to allow multiple pool_config objects ([#1621](https://github.com/philips-labs/terraform-aws-github-runner/issues/1621)) ([c9c7c69](https://github.com/philips-labs/terraform-aws-github-runner/commit/c9c7c6991b59c6f70e4a8005c042bd98b8a71840))
+
 ## [0.30.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.29.0...v0.30.0) (2022-01-12)
 
 
