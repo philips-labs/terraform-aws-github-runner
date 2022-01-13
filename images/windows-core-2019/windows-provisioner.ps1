@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Continue"
+$ErrorActionPreference = "Stop"
 $VerbosePreference = "Continue"
 
 # Install Chocolatey
@@ -12,7 +12,6 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
-
 refreshenv
 '@
 # Write it to the $profile location
@@ -33,18 +32,9 @@ Write-Host "Installing additional development tools"
 choco install git awscli -y
 refreshenv
 
-Write-Host "Creating actions-runner directory for the GH Action installtion"
-New-Item -ItemType Directory -Path C:\actions-runner ; Set-Location C:\actions-runner
+${install_runner}
 
-Write-Host "Downloading the GH Action runner from ${action_runner_url}"
-Invoke-WebRequest -Uri ${action_runner_url} -OutFile actions-runner.zip
-
-Write-Host "Un-zip action runner"
-Expand-Archive -Path actions-runner.zip -DestinationPath .
-
-Write-Host "Delete zip file"
-Remove-Item actions-runner.zip
-
+Write-Output "Configuring start-runner.ps1 to run on startup"
 $action = New-ScheduledTaskAction -WorkingDirectory "C:\actions-runner" -Execute "PowerShell.exe" -Argument "-File C:\start-runner.ps1"
 $trigger = New-ScheduledTaskTrigger -AtStartup
 Register-ScheduledTask -TaskName "runnerinit" -Action $action -Trigger $trigger -User System -RunLevel Highest -Force

@@ -59,8 +59,11 @@ build {
   }
 
   provisioner "powershell" {
+    environment_vars = [
+      "RUNNER_TARBALL_URL=${var.action_runner_url}"
+    ]
     inline = [templatefile("./windows-provisioner.ps1", {
-      action_runner_url = var.action_runner_url
+      install_runner = templatefile("../../modules/runners/templates/install-runner.ps1", {})
     })]
   }
 }
