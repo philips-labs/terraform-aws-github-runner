@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.31.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.30.1...v0.31.0) (2022-01-14)
+
+
+### Features
+
+* **packer:** add vars and minor clean up ([#1611](https://github.com/philips-labs/terraform-aws-github-runner/issues/1611)) ([1c897a4](https://github.com/philips-labs/terraform-aws-github-runner/commit/1c897a457bc4a4a53d68e90acb29cb04d1e7e0cc))
+
+
+### Bug Fixes
+
+* **webhook:** depcrated warning on ts-jest mocked ([#1615](https://github.com/philips-labs/terraform-aws-github-runner/issues/1615)) ([56c1ece](https://github.com/philips-labs/terraform-aws-github-runner/commit/56c1ece7e02ab5b2ad0a04460412b95933092b1f))
+
 ### [0.30.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.30.0...v0.30.1) (2022-01-13)
 
 
