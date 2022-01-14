@@ -1,5 +1,6 @@
 import { SQS } from 'aws-sdk';
-import { LogFields, logger as logger } from '../webhook/logger';
+
+import { LogFields, logger } from '../webhook/logger';
 
 export interface ActionRequestMessage {
   id: number;

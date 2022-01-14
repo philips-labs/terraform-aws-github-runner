@@ -1,11 +1,12 @@
-import { handle } from './handler';
-import { mocked } from 'ts-jest/utils';
 import { Webhooks } from '@octokit/webhooks';
-import { getParameterValue } from '../ssm';
-import { sendActionRequest } from '../sqs';
-import workflowjob_event from '../../test/resources/github_workflowjob_event.json';
-import checkrun_event from '../../test/resources/github_check_run_event.json';
+import { mocked } from 'jest-mock';
 import nock from 'nock';
+
+import checkrun_event from '../../test/resources/github_check_run_event.json';
+import workflowjob_event from '../../test/resources/github_workflowjob_event.json';
+import { sendActionRequest } from '../sqs';
+import { getParameterValue } from '../ssm';
+import { handle } from './handler';
 
 jest.mock('../sqs');
 jest.mock('../ssm');
