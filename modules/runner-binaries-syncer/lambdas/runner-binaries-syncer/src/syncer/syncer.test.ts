@@ -1,12 +1,13 @@
-import { sync } from './syncer';
-import listReleases from '../../test/resources/github-list-releases.json';
-import listReleasesEmpty from '../../test/resources/github-list-releases-empty-assets.json';
-import listReleasesNoLinux from '../../test/resources/github-list-releases-no-linux.json';
-import listReleasesNoArm64 from '../../test/resources/github-list-releases-no-arm64.json';
 import { S3 } from 'aws-sdk';
 import axios from 'axios';
 import { request } from 'http';
 import { EventEmitter, PassThrough, Readable } from 'stream';
+
+import listReleasesEmpty from '../../test/resources/github-list-releases-empty-assets.json';
+import listReleasesNoArm64 from '../../test/resources/github-list-releases-no-arm64.json';
+import listReleasesNoLinux from '../../test/resources/github-list-releases-no-linux.json';
+import listReleases from '../../test/resources/github-list-releases.json';
+import { sync } from './syncer';
 
 const mockOctokit = {
   repos: {

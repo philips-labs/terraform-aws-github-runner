@@ -1,8 +1,9 @@
 import { Octokit } from '@octokit/rest';
-import { PassThrough } from 'stream';
 import { S3 } from 'aws-sdk';
 import AWS from 'aws-sdk';
 import axios from 'axios';
+import { PassThrough } from 'stream';
+
 import { logger as rootLogger } from './logger';
 
 const logger = rootLogger.getChildLogger();

@@ -1,6 +1,7 @@
-import { sync } from './syncer/syncer';
-import { handler } from './lambda';
 import { mocked } from 'jest-mock';
+
+import { handler } from './lambda';
+import { sync } from './syncer/syncer';
 
 jest.mock('./syncer/syncer');
 
