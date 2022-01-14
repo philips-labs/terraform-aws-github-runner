@@ -1,10 +1,11 @@
-import { IncomingHttpHeaders } from 'http';
 import { Webhooks } from '@octokit/webhooks';
-import { sendActionRequest } from '../sqs';
 import { CheckRunEvent, WorkflowJobEvent } from '@octokit/webhooks-types';
-import { getParameterValue } from '../ssm';
-import { logger as rootLogger, LogFields } from './logger';
+import { IncomingHttpHeaders } from 'http';
+
 import { Response } from '../lambda';
+import { sendActionRequest } from '../sqs';
+import { getParameterValue } from '../ssm';
+import { LogFields, logger as rootLogger } from './logger';
 
 const supportedEvents = ['check_run', 'workflow_job'];
 const logger = rootLogger.getChildLogger();

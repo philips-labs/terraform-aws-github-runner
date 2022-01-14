@@ -1,4 +1,4 @@
-import { LogType, LogLevel } from './logger';
+import { LogLevel, LogType } from './logger';
 
 declare namespace NodeJS {
   export interface ProcessEnv {

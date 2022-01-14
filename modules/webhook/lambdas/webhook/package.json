@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@octokit/webhooks-definitions": "^3.67.3",
+    "@trivago/prettier-plugin-sort-imports": "^3.1.1",
     "@types/aws-lambda": "^8.10.89",
     "@types/express": "^4.17.11",
     "@types/jest": "^27.4.0",
@@ -30,6 +31,7 @@
     "eslint-plugin-prettier": "4.0.0",
     "express": "^4.17.2",
     "jest": "^27.4.7",
+    "jest-mock": "^27.4.6",
     "nock": "^13.2.1",
     "prettier": "2.5.1",
     "ts-jest": "^27.1.2",

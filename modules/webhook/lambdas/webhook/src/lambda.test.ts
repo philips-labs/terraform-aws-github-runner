@@ -1,5 +1,6 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import { mocked } from 'ts-jest/utils';
+
 import { githubWebhook } from './lambda';
 import { handle } from './webhook/handler';
 import { logger } from './webhook/logger';

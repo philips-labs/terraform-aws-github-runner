@@ -1,5 +1,5 @@
-import { sync } from './syncer/syncer';
 import { logger } from './syncer/logger';
+import { sync } from './syncer/syncer';
 
 sync()
   .then()
