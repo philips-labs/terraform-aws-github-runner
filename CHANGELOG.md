@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.32.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.31.0...v0.32.0) (2022-01-19)
+
+
+### Features
+
+* **runner:** Replace patch by install ICU package for ARM runners ([#1624](https://github.com/philips-labs/terraform-aws-github-runner/issues/1624)) ([74cfa51](https://github.com/philips-labs/terraform-aws-github-runner/commit/74cfa511291f6175f3418cf3595b08ac2894ae04))
+
+
+### Bug Fixes
+
+* **images:** use new runner install location ([#1628](https://github.com/philips-labs/terraform-aws-github-runner/issues/1628)) ([36c1bf5](https://github.com/philips-labs/terraform-aws-github-runner/commit/36c1bf5acda33f6e1498cf380a669df976fb12c6))
+* **packer:** Add missing RUNNER_ARCHITECTURE for amazn-linux2 ([#1647](https://github.com/philips-labs/terraform-aws-github-runner/issues/1647)) ([ec497a2](https://github.com/philips-labs/terraform-aws-github-runner/commit/ec497a2576abb086e67f75e4358fd107e57212db))
+
 ## [0.31.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.30.1...v0.31.0) (2022-01-14)
 
 
