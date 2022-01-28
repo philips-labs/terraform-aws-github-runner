@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.33.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.32.0...v0.33.0) (2022-01-28)
+
+
+### Features
+
+* **images:** Added ubuntu-focual example packer configuration ([#1644](https://github.com/philips-labs/terraform-aws-github-runner/issues/1644)) ([997b171](https://github.com/philips-labs/terraform-aws-github-runner/commit/997b17174b1c59476d1e7ff5ca8b6a9b1e1b8528))
+
+
+### Bug Fixes
+
+* **examples:** Update AMI filter ([#1673](https://github.com/philips-labs/terraform-aws-github-runner/issues/1673)) ([39c019c](https://github.com/philips-labs/terraform-aws-github-runner/commit/39c019cb30aca306ba330a8613222f011436faec))
+
 ## [0.32.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.31.0...v0.32.0) (2022-01-19)
 
 
