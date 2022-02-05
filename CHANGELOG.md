@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.33.0...v0.34.0) (2022-02-05)
+
+
+### Features
+
+* Add output image id used in launch template ([#1676](https://github.com/philips-labs/terraform-aws-github-runner/issues/1676)) ([a49fab4](https://github.com/philips-labs/terraform-aws-github-runner/commit/a49fab4703dc6eec88d83b457af268a0f802eef5))
+
 ## [0.33.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.32.0...v0.33.0) (2022-01-28)
 
 
