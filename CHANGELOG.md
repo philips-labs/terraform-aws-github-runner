@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.34.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.0...v0.34.1) (2022-02-10)
+
+
+### Bug Fixes
+
+* **syncer:** Fix for windows binaries in action runner syncer ([#1716](https://github.com/philips-labs/terraform-aws-github-runner/issues/1716)) ([63e0e27](https://github.com/philips-labs/terraform-aws-github-runner/commit/63e0e27d4ed4d93f060153d3eb706ce7b5750bd1))
+
 ## [0.34.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.33.0...v0.34.0) (2022-02-05)
 
 
