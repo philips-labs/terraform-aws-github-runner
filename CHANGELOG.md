@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.34.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.1...v0.34.2) (2022-02-11)
+
+
+### Bug Fixes
+
+* Limit AWS Terraform Provider to 3.* ([#1741](https://github.com/philips-labs/terraform-aws-github-runner/issues/1741)) ([0cf2b5d](https://github.com/philips-labs/terraform-aws-github-runner/commit/0cf2b5d751600c716aaf2c222ea24721611f16a2))
+* **runner:** Cannot disable cloudwatch agent ([#1738](https://github.com/philips-labs/terraform-aws-github-runner/issues/1738)) ([0f798ca](https://github.com/philips-labs/terraform-aws-github-runner/commit/0f798caf923d0be86713b36273c5b53510a57def))
+
 ### [0.34.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.0...v0.34.1) (2022-02-10)
 
 
