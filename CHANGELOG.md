@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.35.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.2...v0.35.0) (2022-02-18)
+
+
+### Features
+
+* Parameterise delete_on_termination ([#1758](https://github.com/philips-labs/terraform-aws-github-runner/issues/1758)) ([6282351](https://github.com/philips-labs/terraform-aws-github-runner/commit/628235135d4e01dd1a1bde5b8f5a063eff73c05e)), closes [#1745](https://github.com/philips-labs/terraform-aws-github-runner/issues/1745)
+* **runner:** Ability to disable default runner security group creation ([#1718](https://github.com/philips-labs/terraform-aws-github-runner/issues/1718)) ([94779f8](https://github.com/philips-labs/terraform-aws-github-runner/commit/94779f8aa217edfebfba57da73a246f7497dc793))
+
 ### [0.34.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.1...v0.34.2) (2022-02-11)
 
 
