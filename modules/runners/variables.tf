@@ -318,6 +318,12 @@ variable "enable_cloudwatch_agent" {
   default     = true
 }
 
+variable "enable_managed_runner_security_group" {
+  description = "Enabling the default managed security group creation. Unmanaged security groups can be specified via `runner_additional_security_group_ids`."
+  type        = bool
+  default     = true
+}
+
 variable "cloudwatch_config" {
   description = "(optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details."
   type        = string
