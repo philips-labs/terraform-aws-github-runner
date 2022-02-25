@@ -81,14 +81,14 @@ Besides these permissions, the lambdas also need permission to CloudWatch (for l
 
 ### Major configuration options.
 
-To be able to support a number of use-cases the module has quite a lot configuration options. We try to choose reasonable defaults. The several examples also shows for the main cases how to configure the runners.
+To be able to support a number of use-cases the module has quite a lot of configuration options. We try to choose reasonable defaults. The several examples also show for the main cases how to configure the runners.
 
-- Org vs Repo level. You can configure the module to connect the runners in GitHub on a org level and share the runners in your org. Or set the runners on repo level. The module will install the runner to the repo. This can be multiple repo's but runners are not shared between repo's.
-- Checkrun vs Workflow job event. You can configure the webhook in GitHub to send checkrun or workflow job events to the webhook. Workflow job events are introduced by GitHub in September 2021 and are designed to support scalable runners. We advise when possible to use the workflow job event, you can set `runner_enable_workflow_job_labels_check = true` to let the webhook only accept jobs based on the labels configured. The webhook will check the custom labels provided via the variable `runner_extra_labels` and the GitHub managed labels, "self-hosted", OS and architecture. The OS and architecture are derived from the settings. By default the check is disabled.
-- Linux vs Windows. you can configure the os types linux and win. Linux will be used by default.
-- Re-use vs Ephemeral. By default runners are re-used for till detected idle, once idle they will be removed from the pool. To improve security we are introducing ephemeral runners. Those runners are only used for one job. Ephemeral runners are only working in combination with the workflow job event. We also suggest to use a pre-build AMI to improve the start time of jobs.
-- GitHub cloud vs GitHub enterprise server (GHES). The runner support GitHub cloud as well GitHub enterprise service. For GHES we rely on our community to test and support. We have no possibility to test ourselves on GHES.
-- Spot vs on-demand. The runners using either the EC2 spot or on-demand life cycle. Runners will be created via the AWS [CreateFleet API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html). THe module (scale up lambda) will request via the create fleet API aan instance in one of the subnets and matching one of the specified instances types.
+- Org vs Repo level. You can configure the module to connect the runners in GitHub on an org level and share the runners in your org. Or set the runners on repo level and the module will install the runner to the repo. There can be multiple repos but runners are not shared between repos.
+- Checkrun vs Workflow job event. You can configure the webhook in GitHub to send checkrun or workflow job events to the webhook. Workflow job events are introduced by GitHub in September 2021 and are designed to support scalable runners. We advise when possible using the workflow job event, you can set `runner_enable_workflow_job_labels_check = true` to let the webhook only accept jobs based on the labels configured. The webhook will check the custom labels provided via the variable `runner_extra_labels` and the GitHub managed labels, "self-hosted", OS and architecture. The OS and architecture are derived from the settings. By default the check is disabled.
+- Linux vs Windows. you can configure the OS types linux and win. Linux will be used by default.
+- Re-use vs Ephemeral. By default runners are re-used for till detected idle. Once idle they will be removed from the pool. To improve security we are introducing ephemeral runners. Those runners are only used for one job. Ephemeral runners are only working in combination with the workflow job event. We also suggest using a pre-build AMI to improve the start time of jobs.
+- GitHub Cloud vs GitHub Enterprise Server (GHES). The runner support GitHub Cloud as well GitHub Enterprise Server. For GHES we rely on our community to test and support. We have no possibility to test ourselves on GHES.
+- Spot vs on-demand. The runners use either the EC2 spot or on-demand life cycle. Runners will be created via the AWS [CreateFleet API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html). The module (scale up lambda) will request via the CreateFleet API to create instances in one of the subnets and of the specified instance types.
 
 
 #### ARM64 support via Graviton/Graviton2 instance-types
@@ -254,7 +254,7 @@ module "runners" {
 
 The module basically supports two options for keeping a pool of runners. One is via a pool which only supports org-level runners, the second option is [keeping runners idle](#idle-runners). 
 
-The pool is introduced in combination with the ephemeral runners and is primary meant to ensure if any event is unexpected dropped, and no runner was created the pool can pick up the job. The pool is maintained by a lambda. Each time the lambda is triggered a check is preformed if the number of idler runners managed by the module are meeting the expected pool size. If not, the pool will be adjusted. Keep in mind that the scale down function is still active and will terminate instances that are detected to long as idle.
+The pool is introduced in combination with the ephemeral runners and is primary meant to ensure if any event is unexpected dropped, and no runner was created the pool can pick up the job. The pool is maintained by a lambda. Each time the lambda is triggered a check is preformed if the number of idler runners managed by the module are meeting the expected pool size. If not, the pool will be adjusted. Keep in mind that the scale down function is still active and will terminate instances that are detected as idle.
 
 ```hcl
 pool_runner_owner = "my-org"                  # Org to which the runners are added
@@ -264,11 +264,11 @@ pool_config = [{
 }]
 ```
 
-The pool is NOT enabled by default can can be enabled by setting the at least one object to the pool config list. The [ephemeral example](./examples/ephemeral/README.md) contains a configuration options (commented out).
+The pool is NOT enabled by default and can be enabled by setting at least one object of the pool config list. The [ephemeral example](./examples/ephemeral/README.md) contains configuration options (commented out).
 
 ### Idle runners
 
-The module will scale down to zero runners by default, by specifying a `idle_config` config, idle runners can be kept active. The scale down lambda checks if any of the cron expressions matches the current time with a margin of 5 seconds. When there is a match, the number of runners specified in the idle config will be kept active. In case multiple cron expressions matches, only the first one is taken into account. Below is an idle configuration for keeping runners active from 9 to 5 on working days.
+The module will scale down to zero runners by default. By specifying a `idle_config` config, idle runners can be kept active. The scale down lambda checks if any of the cron expressions matches the current time with a margin of 5 seconds. When there is a match, the number of runners specified in the idle config will be kept active. In case multiple cron expressions matches, only the first one is taken into account. Below is an idle configuration for keeping runners active from 9 to 5 on working days.
 
 ```hcl
 idle_config = [{
@@ -400,9 +400,10 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_cloudwatch_config"></a> [cloudwatch\_config](#input\_cloudwatch\_config) | (optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details. | `string` | `null` | no |
 | <a name="input_create_service_linked_role_spot"></a> [create\_service\_linked\_role\_spot](#input\_create\_service\_linked\_role\_spot) | (optional) create the serviced linked role for spot instances that is required by the scale-up lambda. | `bool` | `false` | no |
 | <a name="input_delay_webhook_event"></a> [delay\_webhook\_event](#input\_delay\_webhook\_event) | The number of seconds the event accepted by the webhook is invisible on the queue before the scale up lambda will receive the event. | `number` | `30` | no |
+| <a name="input_disable_runner_autoupdate"></a> [disable\_runner\_autoupdate](#input\_disable\_runner\_autoupdate) | Disable the auto update of the github runner agent. Be-aware there is a grace period of 30 days, see also the [GitHub article](https://github.blog/changelog/2022-02-01-github-actions-self-hosted-runners-can-now-disable-automatic-updates/) | `bool` | `false` | no |
 | <a name="input_enable_cloudwatch_agent"></a> [enable\_cloudwatch\_agent](#input\_enable\_cloudwatch\_agent) | Enabling the cloudwatch agent on the ec2 runner instances, the runner contains default config. Configuration can be overridden via `cloudwatch_config`. | `bool` | `true` | no |
 | <a name="input_enable_ephemeral_runners"></a> [enable\_ephemeral\_runners](#input\_enable\_ephemeral\_runners) | Enable ephemeral runners, runners will only be used once. | `bool` | `false` | no |
-| <a name="input_enable_managed_runner_security_group"></a> [enable\_managed\_runner\_security\_group](#inputenable\_managed\_runner\_security\_group) | Enabling the default managed security group creation. Unmanaged security groups can be specified via `runner_additional_security_group_ids`. | `bool` | `true` | no |
+| <a name="input_enable_managed_runner_security_group"></a> [enable\_managed\_runner\_security\_group](#input\_enable\_managed\_runner\_security\_group) | Enabling the default managed security group creation. Unmanaged security groups can be specified via `runner_additional_security_group_ids`. | `bool` | `true` | no |
 | <a name="input_enable_organization_runners"></a> [enable\_organization\_runners](#input\_enable\_organization\_runners) | Register runners to organization, instead of repo level | `bool` | `false` | no |
 | <a name="input_enable_ssm_on_runners"></a> [enable\_ssm\_on\_runners](#input\_enable\_ssm\_on\_runners) | Enable to allow access the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances. | `bool` | `false` | no |
 | <a name="input_enabled_userdata"></a> [enabled\_userdata](#input\_enabled\_userdata) | Should the userdata script be enabled for the runner. Set this to false if you are using your own prebuilt AMI | `bool` | `true` | no |
@@ -454,7 +455,7 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_runner_iam_role_managed_policy_arns"></a> [runner\_iam\_role\_managed\_policy\_arns](#input\_runner\_iam\_role\_managed\_policy\_arns) | Attach AWS or customer-managed IAM policies (by ARN) to the runner IAM role | `list(string)` | `[]` | no |
 | <a name="input_runner_log_files"></a> [runner\_log\_files](#input\_runner\_log\_files) | (optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details. | <pre>list(object({<br>    log_group_name   = string<br>    prefix_log_group = bool<br>    file_path        = string<br>    log_stream_name  = string<br>  }))</pre> | `null` | no |
 | <a name="input_runner_metadata_options"></a> [runner\_metadata\_options](#input\_runner\_metadata\_options) | Metadata options for the ec2 runner instances. | `map(any)` | <pre>{<br>  "http_endpoint": "enabled",<br>  "http_put_response_hop_limit": 1,<br>  "http_tokens": "optional"<br>}</pre> | no |
-| <a name="input_runner_os"></a> [runner\_os](#input\_runner\_os) | The Operating System to use for GitHub Actions Runners (linux,win) | `string` | `"linux"` | no |
+| <a name="input_runner_os"></a> [runner\_os](#input\_runner\_os) | The EC2 Operating System type to use for action runner instances (linux,windows). | `string` | `"linux"` | no |
 | <a name="input_runner_run_as"></a> [runner\_run\_as](#input\_runner\_run\_as) | Run the GitHub actions agent as user. | `string` | `"ec2-user"` | no |
 | <a name="input_runners_lambda_s3_key"></a> [runners\_lambda\_s3\_key](#input\_runners\_lambda\_s3\_key) | S3 key for runners lambda function. Required if using S3 bucket to specify lambdas. | `any` | `null` | no |
 | <a name="input_runners_lambda_s3_object_version"></a> [runners\_lambda\_s3\_object\_version](#input\_runners\_lambda\_s3\_object\_version) | S3 object version for runners lambda function. Useful if S3 versioning is enabled on source bucket. | `any` | `null` | no |
