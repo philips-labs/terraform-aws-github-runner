@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.35.0...v0.36.0) (2022-02-25)
+
+
+### Features
+
+* **runner:** Add option to disable auto update ([#1791](https://github.com/philips-labs/terraform-aws-github-runner/issues/1791)) ([c2a834f](https://github.com/philips-labs/terraform-aws-github-runner/commit/c2a834fa324016a18227327c262203791478b394))
+
 ## [0.35.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.34.2...v0.35.0) (2022-02-18)
 
 
