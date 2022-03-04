@@ -64,6 +64,9 @@ ${install_runner}
 
 ${post_install}
 
-cd /opt/actions-runner
+trap "{ echo 'failed to change directory'; exit 255; }" SIGINT SIGTERM ERR EXIT
+pushd /opt/actions-runner || exit
 
 ${start_runner}
+
+popd || exit
