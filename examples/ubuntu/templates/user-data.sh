@@ -6,6 +6,10 @@ ${pre_install}
 # Install AWS CLI
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    lsb-release \
     awscli \
     jq \
     curl \
@@ -27,32 +31,10 @@ wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-
 dpkg -i -E ./amazon-cloudwatch-agent.deb
 amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c ssm:${ssm_key_cloudwatch_agent_config}
 
-# configure systemd for running service in users accounts
-cat >/etc/systemd/user@UID.service <<-EOF
-
-[Unit]
-Description=User Manager for UID %i
-After=user-runtime-dir@%i.service
-Wants=user-runtime-dir@%i.service
-
-[Service]
-LimitNOFILE=infinity
-LimitNPROC=infinity
-User=%i
-PAMName=systemd-user
-Type=notify
-
-[Install]
-WantedBy=default.target
-
-EOF
-
-systemctl daemon-reload
-systemctl enable user@UID.service
-systemctl start user@UID.service
-
-curl -fsSL https://get.docker.com/rootless >>/opt/rootless.sh && chmod 755 /opt/rootless.sh
-su -l "$USER_NAME" -c /opt/rootless.sh
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-ce-rootless-extras
 
 {
   echo
@@ -61,6 +43,9 @@ su -l "$USER_NAME" -c /opt/rootless.sh
   echo "export PATH=/home/$USER_NAME/bin:$PATH"
   echo
 } >> "/home/$USER_NAME/.profile"
+
+systemctl stop docker
+systemctl disable docker
 
 # Run docker service by default
 loginctl enable-linger "$USER_NAME"
