@@ -16,8 +16,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     unzip
 
 USER_NAME=${runner_run_as}
-useradd -m -s /bin/bash $USER_NAME
-USER_ID=$(id -ru $USER_NAME)
+useradd -m -s /bin/bash "$USER_NAME"
+USER_ID=$(id -ru "$USER_NAME")
 
 # uncomment following line to be able to debug and login as the user via ssm
 # echo -e "test1234\ntest1234" | passwd $USER_NAME
@@ -47,27 +47,27 @@ WantedBy=default.target
 
 EOF
 
-echo export XDG_RUNTIME_DIR=/run/user/$USER_ID >>/home/$USER_NAME/.profile
+echo "export XDG_RUNTIME_DIR=/run/user/$USER_ID" >> "/home/$USER_NAME/.profile"
 
 systemctl daemon-reload
 systemctl enable user@UID.service
 systemctl start user@UID.service
 
 curl -fsSL https://get.docker.com/rootless >>/opt/rootless.sh && chmod 755 /opt/rootless.sh
-su -l $USER_NAME -c /opt/rootless.sh
-echo export DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock >>/home/$USER_NAME/.profile
-echo export PATH=/home/$USER_NAME/bin:$PATH >>/home/$USER_NAME/.profile
+su -l "$USER_NAME" -c /opt/rootless.sh
+echo "export DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock" >> "/home/$USER_NAME/.profile"
+echo "export PATH=/home/$USER_NAME/bin:$PATH" >> "/home/$USER_NAME/.profile"
 
 # Run docker service by default
-loginctl enable-linger $USER_NAME
-su -l $USER_NAME -c "systemctl --user enable docker"
+loginctl enable-linger "$USER_NAME"
+su -l "$USER_NAME" -c "systemctl --user enable docker"
 
 ${install_runner}
 
 # config runner for rootless docker
 cd /opt/actions-runner/
-echo DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock >>.env
-echo PATH=/home/$USER_NAME/bin:$PATH >>.env
+echo "DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock" >> .env
+echo "PATH=/home/$USER_NAME/bin:$PATH" >> .env
 
 ${post_install}
 
