@@ -47,16 +47,20 @@ WantedBy=default.target
 
 EOF
 
-echo "export XDG_RUNTIME_DIR=/run/user/$USER_ID" >> "/home/$USER_NAME/.profile"
-
 systemctl daemon-reload
 systemctl enable user@UID.service
 systemctl start user@UID.service
 
 curl -fsSL https://get.docker.com/rootless >>/opt/rootless.sh && chmod 755 /opt/rootless.sh
 su -l "$USER_NAME" -c /opt/rootless.sh
-echo "export DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock" >> "/home/$USER_NAME/.profile"
-echo "export PATH=/home/$USER_NAME/bin:$PATH" >> "/home/$USER_NAME/.profile"
+
+{
+  echo
+  echo "export XDG_RUNTIME_DIR=/run/user/$USER_ID"
+  echo "export DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock"
+  echo "export PATH=/home/$USER_NAME/bin:$PATH"
+  echo
+} >> "/home/$USER_NAME/.profile"
 
 # Run docker service by default
 loginctl enable-linger "$USER_NAME"
@@ -65,9 +69,13 @@ su -l "$USER_NAME" -c "systemctl --user enable docker"
 ${install_runner}
 
 # config runner for rootless docker
-cd /opt/actions-runner/
-echo "DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock" >> .env
-echo "PATH=/home/$USER_NAME/bin:$PATH" >> .env
+{
+  echo
+  echo "XDG_RUNTIME_DIR=/run/user/$USER_ID"
+  echo "DOCKER_HOST=unix:///run/user/$USER_ID/docker.sock"
+  echo "PATH=/home/$USER_NAME/bin:$PATH"
+  echo
+} >> /opt/actions-runner/.env
 
 ${post_install}
 
