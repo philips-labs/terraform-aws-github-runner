@@ -15,9 +15,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
     unzip
 
-USER_NAME=runners
+USER_NAME=${runner_run_as}
 useradd -m -s /bin/bash $USER_NAME
 USER_ID=$(id -ru $USER_NAME)
+
+# uncomment following line to be able to debug and login as the user via ssm
+# echo -e "test1234\ntest1234" | passwd $USER_NAME
 
 # install and configure cloudwatch logging agent
 wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb

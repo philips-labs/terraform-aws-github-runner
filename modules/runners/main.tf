@@ -120,6 +120,7 @@ resource "aws_launch_template" "runner" {
       S3_LOCATION_RUNNER_DISTRIBUTION = var.s3_location_runner_binaries
       RUNNER_ARCHITECTURE             = var.runner_architecture
     })
+    runner_run_as   = var.runner_run_as
     post_install    = var.userdata_post_install
     start_runner    = templatefile(local.userdata_start_runner[var.runner_os], {})
     ghes_url        = var.ghes_url
