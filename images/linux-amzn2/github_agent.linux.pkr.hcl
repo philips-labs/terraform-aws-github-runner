@@ -81,7 +81,7 @@ source "amazon-ebs" "githubrunner" {
   associate_public_ip_address = var.associate_public_ip_address
   source_ami_filter {
     filters = {
-      name                = "amzn2-ami-hvm-2.*-x86_64-ebs"
+      name                = "amzn2-ami-kernel-5.*-hvm-*-x86_64-gp2"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
