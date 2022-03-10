@@ -46,6 +46,7 @@ resource "aws_lambda_function" "scale_down" {
 resource "aws_cloudwatch_log_group" "scale_down" {
   name              = "/aws/lambda/${aws_lambda_function.scale_down.function_name}"
   retention_in_days = var.logging_retention_in_days
+  kms_key_id        = var.logging_kms_key_id
   tags              = var.tags
 }
 

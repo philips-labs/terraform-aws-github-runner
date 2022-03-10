@@ -4,6 +4,7 @@ variable "config" {
       log_level                      = string
       log_type                       = string
       logging_retention_in_days      = number
+      logging_kms_key_id             = string
       reserved_concurrent_executions = number
       s3_bucket                      = string
       s3_key                         = string

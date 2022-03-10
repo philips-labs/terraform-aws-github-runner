@@ -67,6 +67,7 @@ module "webhook" {
   lambda_zip                       = var.webhook_lambda_zip
   lambda_timeout                   = var.webhook_lambda_timeout
   logging_retention_in_days        = var.logging_retention_in_days
+  logging_kms_key_id               = var.logging_kms_key_id
 
   # labels
   enable_workflow_job_labels_check = var.runner_enable_workflow_job_labels_check
@@ -133,6 +134,7 @@ module "runners" {
   lambda_subnet_ids                = var.lambda_subnet_ids
   lambda_security_group_ids        = var.lambda_security_group_ids
   logging_retention_in_days        = var.logging_retention_in_days
+  logging_kms_key_id               = var.logging_kms_key_id
   enable_cloudwatch_agent          = var.enable_cloudwatch_agent
   cloudwatch_config                = var.cloudwatch_config
   runner_log_files                 = var.runner_log_files
@@ -188,6 +190,7 @@ module "runner_binaries" {
   lambda_zip                      = var.runner_binaries_syncer_lambda_zip
   lambda_timeout                  = var.runner_binaries_syncer_lambda_timeout
   logging_retention_in_days       = var.logging_retention_in_days
+  logging_kms_key_id              = var.logging_kms_key_id
 
   server_side_encryption_configuration = var.runner_binaries_s3_sse_configuration
 

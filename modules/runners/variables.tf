@@ -280,6 +280,12 @@ variable "logging_retention_in_days" {
   default     = 180
 }
 
+variable "logging_kms_key_id" {
+  description = "Specifies the kms key id to encrypt the logs with"
+  type        = string
+  default     = null
+}
+
 variable "enable_ssm_on_runners" {
   description = "Enable to allow access to the runner instances for debugging purposes via SSM. Note that this adds additional permissions to the runner instances."
   type        = bool
