@@ -211,6 +211,12 @@ variable "logging_retention_in_days" {
   default     = 180
 }
 
+variable "logging_kms_key_id" {
+  description = "Specifies the kms key id to encrypt the logs with"
+  type        = string
+  default     = null
+}
+
 variable "runner_allow_prerelease_binaries" {
   description = "Allow the runners to update to prerelease binaries."
   type        = bool
@@ -584,6 +590,12 @@ variable "pool_config" {
     size                = number
   }))
   default = []
+}
+
+variable "aws_partition" {
+  description = "(optiona) partition in the arn namespace to use if not 'aws'"
+  type        = string
+  default     = "aws"
 }
 
 variable "disable_runner_autoupdate" {
