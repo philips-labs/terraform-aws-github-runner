@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.37.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.36.0...v0.37.0) (2022-03-10)
+
+
+### Features
+
+*  Add associate_public_ip_address variable to windows AMI too ([#1819](https://github.com/philips-labs/terraform-aws-github-runner/issues/1819)) ([0b8e1fc](https://github.com/philips-labs/terraform-aws-github-runner/commit/0b8e1fc6ce0308c925f33ab5b118215259392359)), closes [/github.com/philips-labs/terraform-aws-github-runner/pull/1816#issuecomment-1060650668](https://github.com/philips-labs//github.com/philips-labs/terraform-aws-github-runner/pull/1816/issues/issuecomment-1060650668)
+* Add associate_public_ip_address variable ([#1816](https://github.com/philips-labs/terraform-aws-github-runner/issues/1816)) ([052e9f8](https://github.com/philips-labs/terraform-aws-github-runner/commit/052e9f861ea718be9c579aa1d52bc52237aea320))
+* Add option for KMS encryption for cloudwatch log groups ([#1833](https://github.com/philips-labs/terraform-aws-github-runner/issues/1833)) ([3f1a67f](https://github.com/philips-labs/terraform-aws-github-runner/commit/3f1a67ff2135880b2fe217bf3403170012c304a2))
+* Add SQS queue resource policy to improve security ([#1798](https://github.com/philips-labs/terraform-aws-github-runner/issues/1798)) ([96def9a](https://github.com/philips-labs/terraform-aws-github-runner/commit/96def9a2150e3aa253b9f24884097eef2a84bc99))
+* Add Support for Alternative Partitions in ARNs (like govcloud) ([#1815](https://github.com/philips-labs/terraform-aws-github-runner/issues/1815)) ([0ba06c8](https://github.com/philips-labs/terraform-aws-github-runner/commit/0ba06c87cd393db7caa91f603051011de6a13c46))
+* Add variable to specify custom commands while building the AMI ([#1838](https://github.com/philips-labs/terraform-aws-github-runner/issues/1838)) ([8f9c342](https://github.com/philips-labs/terraform-aws-github-runner/commit/8f9c34236adc74e4ccb46a06bdd4d946a2bee9a7))
+
+
+### Bug Fixes
+
+* Autoupdate should be disabled by default ([#1797](https://github.com/philips-labs/terraform-aws-github-runner/issues/1797)) ([828bed6](https://github.com/philips-labs/terraform-aws-github-runner/commit/828bed6f021439e5a1cff690e29b6e322cb4d304))
+* Create SQS DLQ policy only if DLQ is created ([#1839](https://github.com/philips-labs/terraform-aws-github-runner/issues/1839)) ([c88a005](https://github.com/philips-labs/terraform-aws-github-runner/commit/c88a0054bb00f64c69a4aef08a6258ab98ee0b9d))
+* Upgrade Amazon base AMI to Amazon Linux 2 kernel 5x ([#1812](https://github.com/philips-labs/terraform-aws-github-runner/issues/1812)) ([9aa5532](https://github.com/philips-labs/terraform-aws-github-runner/commit/9aa5532e6e9d7fab7ea2f1e9995e608cf063ca5e))
+
 ## [0.36.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.35.0...v0.36.0) (2022-02-25)
 
 
