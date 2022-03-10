@@ -31,6 +31,12 @@ variable "associate_public_ip_address" {
   default     = null
 }
 
+variable "custom_shell_commands" {
+  description = "Additional commands to run on the EC2 instance, to customize the instance, like installing packages"
+  type        = list(string)
+  default     = []
+}
+
 source "amazon-ebs" "githubrunner" {
   ami_name                    = "github-runner-windows-core-2019-${formatdate("YYYYMMDDhhmm", timestamp())}"
   communicator                = "winrm"
@@ -78,8 +84,10 @@ build {
   }
 
   provisioner "powershell" {
-    inline = [templatefile("./windows-provisioner.ps1", {
-      action_runner_url = var.action_runner_url
-    })]
+    inline = concat([
+      templatefile("./windows-provisioner.ps1", {
+        action_runner_url = var.action_runner_url
+      })
+    ], var.custom_shell_commands)
   }
 }

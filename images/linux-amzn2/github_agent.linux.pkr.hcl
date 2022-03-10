@@ -72,6 +72,12 @@ variable "snapshot_tags" {
   default     = {}
 }
 
+variable "custom_shell_commands" {
+  description = "Additional commands to run on the EC2 instance, to customize the instance, like installing packages"
+  type        = list(string)
+  default     = []
+}
+
 source "amazon-ebs" "githubrunner" {
   ami_name                    = "github-runner-amzn2-x86_64-${formatdate("YYYYMMDDhhmm", timestamp())}"
   instance_type               = var.instance_type
@@ -118,7 +124,7 @@ build {
   ]
   provisioner "shell" {
     environment_vars = []
-    inline = [
+    inline = concat([
       "sudo yum update -y",
       "sudo yum install -y amazon-cloudwatch-agent curl jq git",
       "sudo amazon-linux-extras install docker",
@@ -126,7 +132,7 @@ build {
       "sudo systemctl enable containerd.service",
       "sudo service docker start",
       "sudo usermod -a -G docker ec2-user",
-    ]
+    ], var.custom_shell_commands)
   }
 
   provisioner "file" {
