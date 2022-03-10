@@ -17,6 +17,38 @@ resource "random_string" "random" {
   upper   = false
 }
 
+data "aws_iam_policy_document" "deny_unsecure_transport" {
+  statement {
+    sid = "DenyUnsecureTransport"
+
+    effect = "Deny"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "sqs:*"
+    ]
+
+    resources = [
+      "*"
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "build_queue_policy" {
+  queue_url = aws_sqs_queue.queued_builds.id
+  policy    = data.aws_iam_policy_document.deny_unsecure_transport.json
+}
+
 resource "aws_sqs_queue" "queued_builds" {
   name                        = "${var.environment}-queued-builds${var.fifo_build_queue ? ".fifo" : ""}"
   delay_seconds               = var.delay_webhook_event
@@ -31,6 +63,12 @@ resource "aws_sqs_queue" "queued_builds" {
   }) : null
 
   tags = var.tags
+}
+
+
+resource "aws_sqs_queue_policy" "build_queue_dlq_policy" {
+  queue_url = aws_sqs_queue.queued_builds.id
+  policy    = data.aws_iam_policy_document.deny_unsecure_transport.json
 }
 
 resource "aws_sqs_queue" "queued_builds_dlq" {
