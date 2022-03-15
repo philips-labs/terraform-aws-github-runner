@@ -35,17 +35,28 @@ interface CreateEC2RunnerConfig {
 }
 
 function generateRunnerServiceConfig(githubRunnerConfig: CreateGitHubRunnerConfig, token: string) {
-  const labelsArgument =
-    githubRunnerConfig.runnerExtraLabels !== undefined ? `--labels ${githubRunnerConfig.runnerExtraLabels} ` : '';
-  const runnerGroupArgument =
-    githubRunnerConfig.runnerGroup !== undefined ? `--runnergroup ${githubRunnerConfig.runnerGroup} ` : '';
-  const configBaseUrl = githubRunnerConfig.ghesBaseUrl ? githubRunnerConfig.ghesBaseUrl : 'https://github.com';
-  const ephemeralArgument = githubRunnerConfig.ephemeral ? '--ephemeral ' : '';
-  const disableUpdateArgument = githubRunnerConfig.disableAutoUpdate ? '--disableupdate ' : '';
-  const runnerArgs = `--token ${token} ${labelsArgument}${ephemeralArgument}${disableUpdateArgument}`;
-  return githubRunnerConfig.runnerType === 'Org'
-    ? `--url ${configBaseUrl}/${githubRunnerConfig.runnerOwner} ${runnerArgs}${runnerGroupArgument}`.trim()
-    : `--url ${configBaseUrl}/${githubRunnerConfig.runnerOwner} ${runnerArgs}`.trim();
+  const config = [
+    `--url ${githubRunnerConfig.ghesBaseUrl ?? 'https://github.com'}/${githubRunnerConfig.runnerOwner}`,
+    `--token ${token}`,
+  ];
+
+  if (githubRunnerConfig.runnerExtraLabels !== undefined) {
+    config.push(`--labels ${githubRunnerConfig.runnerExtraLabels}`);
+  }
+
+  if (githubRunnerConfig.ephemeral) {
+    config.push(`--ephemeral`);
+  }
+
+  if (githubRunnerConfig.disableAutoUpdate) {
+    config.push('--disableupdate');
+  }
+
+  if (githubRunnerConfig.runnerType === 'Org' && githubRunnerConfig.runnerGroup !== undefined) {
+    config.push(`--runnergroup ${githubRunnerConfig.runnerGroup}`);
+  }
+
+  return config;
 }
 
 async function getGithubRunnerRegistrationToken(githubRunnerConfig: CreateGitHubRunnerConfig, ghClient: Octokit) {
