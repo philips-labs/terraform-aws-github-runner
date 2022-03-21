@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.38.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.37.0...v0.38.0) (2022-03-21)
+
+
+### Features
+
+* Add option for ephemeral to check builds status before scaling ([#1854](https://github.com/philips-labs/terraform-aws-github-runner/issues/1854)) ([7eb0bda](https://github.com/philips-labs/terraform-aws-github-runner/commit/7eb0bdad62d77fa418ddf5db16bdddec2cb92875))
+
+
+### Bug Fixes
+
+* Retention days was used instead of kms key id for pool ([#1855](https://github.com/philips-labs/terraform-aws-github-runner/issues/1855)) ([aa29d93](https://github.com/philips-labs/terraform-aws-github-runner/commit/aa29d9385753e3a578fb681363f022129dc501c2))
+
 ## [0.37.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.36.0...v0.37.0) (2022-03-10)
 
 
