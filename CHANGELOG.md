@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.39.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.38.0...v0.39.0) (2022-03-25)
+
+
+### Features
+
+* Add possibility to create multiple ebs ([#1845](https://github.com/philips-labs/terraform-aws-github-runner/issues/1845)) ([7a2ca0d](https://github.com/philips-labs/terraform-aws-github-runner/commit/7a2ca0deb0d874a1ff2460f1108f56dde8c683b8))
+
+
+### Bug Fixes
+
+* Don't delete busy runners ([#1832](https://github.com/philips-labs/terraform-aws-github-runner/issues/1832)) ([0e9b083](https://github.com/philips-labs/terraform-aws-github-runner/commit/0e9b083ec99b228037acca4477e680deb6343bb7))
+
 ## [0.38.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.37.0...v0.38.0) (2022-03-21)
 
 
