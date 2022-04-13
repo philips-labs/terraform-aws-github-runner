@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.40.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.39.0...v0.40.0) (2022-04-13)
+
+
+### Features
+
+* Support multi runner process support for runner scale down. ([#1859](https://github.com/philips-labs/terraform-aws-github-runner/issues/1859)) ([3658d6a](https://github.com/philips-labs/terraform-aws-github-runner/commit/3658d6a8a8b119133f66572fa090b720d5132f5a))
+
+
+### Bug Fixes
+
+* Set the minimal AWS provider to 3.50 ([#1937](https://github.com/philips-labs/terraform-aws-github-runner/issues/1937)) ([16095d8](https://github.com/philips-labs/terraform-aws-github-runner/commit/16095d86b848c26e93a5576302ffba8f43c12c28))
+
 ## [0.39.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.38.0...v0.39.0) (2022-03-25)
 
 
