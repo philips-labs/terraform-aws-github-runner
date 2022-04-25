@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.40.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.1...v0.40.2) (2022-04-25)
+
+
+### Bug Fixes
+
+* Outputs for pool need to account for complexity ([#1970](https://github.com/philips-labs/terraform-aws-github-runner/issues/1970)) ([2d92906](https://github.com/philips-labs/terraform-aws-github-runner/commit/2d92906c54675b502d9bee7012f031db9f3e2943))
+
 ### [0.40.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.0...v0.40.1) (2022-04-25)
 
 
