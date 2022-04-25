@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.40.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.0...v0.40.1) (2022-04-25)
+
+
+### Bug Fixes
+
+* Avoid non semantic commontes can be merged. ([#1969](https://github.com/philips-labs/terraform-aws-github-runner/issues/1969)) ([ad1c872](https://github.com/philips-labs/terraform-aws-github-runner/commit/ad1c872601148d4c32b67735a4c6935c6e5e234f))
+
 ## [0.40.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.39.0...v0.40.0) (2022-04-13)
 
 
