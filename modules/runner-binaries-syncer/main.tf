@@ -35,7 +35,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket-config" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "action_dist" {
   bucket = aws_s3_bucket.action_dist.id
-  count  = length(keys(lookup(var.server_side_encryption_configuration, "rule", {}))) == 0 ? 0 : 1
+  count  = try(var.server_side_encryption_configuration, null) != null ? 1 : 0
 
   dynamic "rule" {
     for_each = [lookup(var.server_side_encryption_configuration, "rule", {})]
@@ -62,4 +62,42 @@ resource "aws_s3_bucket_public_access_block" "action_dist" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+
+
+data "aws_iam_policy_document" "action_dist_sse_policy" {
+  count = try(var.server_side_encryption_configuration.rule.apply_server_side_encryption_by_default, null) != null ? 1 : 0
+
+  statement {
+    effect = "Deny"
+
+    principals {
+      type = "AWS"
+
+      identifiers = [
+        "*",
+      ]
+    }
+
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.action_dist.arn}/*",
+    ]
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption"
+      values   = [var.server_side_encryption_configuration.rule.apply_server_side_encryption_by_default.sse_algorithm]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "action_dist_sse_policy" {
+  count  = try(var.server_side_encryption_configuration.rule.apply_server_side_encryption_by_default, null) != null ? 1 : 0
+  bucket = aws_s3_bucket.action_dist.id
+  policy = data.aws_iam_policy_document.action_dist_sse_policy[0].json
 }
