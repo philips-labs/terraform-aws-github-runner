@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.40.3](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.2...v0.40.3) (2022-05-05)
+
+
+### Bug Fixes
+
+* Volume size is ingored ([#2014](https://github.com/philips-labs/terraform-aws-github-runner/issues/2014)) ([b733248](https://github.com/philips-labs/terraform-aws-github-runner/commit/b7332489f637ad94bcdceef1e0c7c46149f1e6a7)), closes [#1954](https://github.com/philips-labs/terraform-aws-github-runner/issues/1954)
+
 ### [0.40.2](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.1...v0.40.2) (2022-04-25)
 
 
