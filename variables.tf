@@ -396,12 +396,6 @@ variable "instance_max_spot_price" {
   default     = null
 }
 
-variable "volume_size" {
-  description = "(Deprecaated, use block_device_mappings. Size of runner volume, if set it overrides the value provide via block_device_mappings."
-  type        = number
-  default     = null
-}
-
 variable "instance_type" {
   description = "[DEPRECATED] See instance_types."
   type        = string
