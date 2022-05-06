@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.40.4](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.3...v0.40.4) (2022-05-06)
+
+
+### Bug Fixes
+
+* Wrong block device mapping ([#2019](https://github.com/philips-labs/terraform-aws-github-runner/issues/2019)) ([c42a467](https://github.com/philips-labs/terraform-aws-github-runner/commit/c42a467164f6ad5ea7e7a0e5d22653b938cdeaf0))
+
 ### [0.40.3](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.2...v0.40.3) (2022-05-05)
 
 
