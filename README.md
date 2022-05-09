@@ -4,12 +4,8 @@
 
 This [Terraform](https://www.terraform.io/) module creates the required infrastructure needed to host [GitHub Actions](https://github.com/features/actions) self-hosted, auto-scaling runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). It provides the required logic to handle the life cycle for scaling up and down using a set of AWS Lambda functions. Runners are scaled down to zero to avoid costs when no workflows are active.
 
-> NEW: Ephemeral runners available as beta feature.
-
-> NEW: Windows runners are available.
-
-> NEW: Examples for custom AMI are available.
-
+> BREAKING CHANGE: The module is upgraded to Terraform AWS provider 4.x. All new development will only support the new AWS Terraform provider. We keep a branch `terraform-aws-provider-3` to witch we welcome backports to AWS Terraform 3.x provider. Besides reviewing PR's we will do not any active checking on maintance on this branch. We strongly advise to update your deployment to the new provider version. For more details about upgrading see the [upgrade guide](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-4-upgrade).
+ 
 - [Motivation](#motivation)
 - [Overview](#overview)
   - [Major configuration options.](#major-configuration-options)
@@ -364,13 +360,13 @@ In case the setup does not work as intended follow the trace of events:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.50 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.50 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
 ## Modules
@@ -480,7 +476,6 @@ In case the setup does not work as intended follow the trace of events:
 | <a name="input_userdata_post_install"></a> [userdata\_post\_install](#input\_userdata\_post\_install) | Script to be ran after the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
 | <a name="input_userdata_pre_install"></a> [userdata\_pre\_install](#input\_userdata\_pre\_install) | Script to be ran before the GitHub Actions runner is installed on the EC2 instances | `string` | `""` | no |
 | <a name="input_userdata_template"></a> [userdata\_template](#input\_userdata\_template) | Alternative user-data template, replacing the default template. By providing your own user\_data you have to take care of installing all required software, including the action runner. Variables userdata\_pre/post\_install are ignored. | `string` | `null` | no |
-| <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | (Deprecaated, use block\_device\_mappings. Size of runner volume, if set it overrides the value provide via block\_device\_mappings. | `number` | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The VPC for security groups of the action runners. | `string` | n/a | yes |
 | <a name="input_webhook_lambda_s3_key"></a> [webhook\_lambda\_s3\_key](#input\_webhook\_lambda\_s3\_key) | S3 key for webhook lambda function. Required if using S3 bucket to specify lambdas. | `any` | `null` | no |
 | <a name="input_webhook_lambda_s3_object_version"></a> [webhook\_lambda\_s3\_object\_version](#input\_webhook\_lambda\_s3\_object\_version) | S3 object version for webhook lambda function. Useful if S3 versioning is enabled on source bucket. | `any` | `null` | no |

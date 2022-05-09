@@ -53,13 +53,13 @@ yarn run dist
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.38 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.0 |
 
 ## Modules
 
@@ -186,7 +186,6 @@ yarn run dist
 | <a name="input_userdata_post_install"></a> [userdata\_post\_install](#input\_userdata\_post\_install) | User-data script snippet to insert after GitHub action runner install | `string` | `""` | no |
 | <a name="input_userdata_pre_install"></a> [userdata\_pre\_install](#input\_userdata\_pre\_install) | User-data script snippet to insert before GitHub action runner install | `string` | `""` | no |
 | <a name="input_userdata_template"></a> [userdata\_template](#input\_userdata\_template) | Alternative user-data template, replacing the default template. By providing your own user\_data you have to take care of installing all required software, including the action runner. Variables userdata\_pre/post\_install are ignored. | `string` | `null` | no |
-| <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | (Deprecaated, use block\_device\_mappings. Size of runner volume, if set it overrides the value provide via block\_device\_mappings. | `number` | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The VPC for the security groups. | `string` | n/a | yes |
 
 ## Outputs
