@@ -403,12 +403,6 @@ variable "runner_additional_security_group_ids" {
   default     = []
 }
 
-variable "volume_size" {
-  description = "(Deprecaated, use block_device_mappings. Size of runner volume, if set it overrides the value provide via block_device_mappings."
-  type        = number
-  default     = null
-}
-
 variable "kms_key_arn" {
   description = "Optional CMK Key ARN to be used for Parameter Store."
   type        = string
