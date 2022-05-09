@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.4...v1.0.0) (2022-05-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* var.volume_size replaced by var.block_device_mappings
+* The module is upgraded to AWS Terraform provider 4.x
+
+### Features
+
+* Improve syncer s3 kms encryption ([38ed5be](https://github.com/philips-labs/terraform-aws-github-runner/commit/38ed5be5db8af92c5e182cd83cffb6451c330970))
+* Remove var.volume_size in favour of var.block_device_mappings ([4e97048](https://github.com/philips-labs/terraform-aws-github-runner/commit/4e9704892f8f008cb467342ae5e8c565f4c68e39))
+* Support AWS 4.x Terraform provider ([#1739](https://github.com/philips-labs/terraform-aws-github-runner/issues/1739)) ([cfb6da2](https://github.com/philips-labs/terraform-aws-github-runner/commit/cfb6da212e1d481a39427188fc1dd49a18e45cf4))
+
+
+### Bug Fixes
+
+* Wrong block device mapping ([#2019](https://github.com/philips-labs/terraform-aws-github-runner/issues/2019)) ([185ef20](https://github.com/philips-labs/terraform-aws-github-runner/commit/185ef20301229ffbdc81874cee2c13f296256036))
+
 ### [0.40.4](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.3...v0.40.4) (2022-05-06)
 
 
