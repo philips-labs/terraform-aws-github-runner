@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.0.0...v1.1.0) (2022-05-10)
+
+
+### Features
+
+* Add option to enable detailed monitoring for runner launch template ([#2024](https://github.com/philips-labs/terraform-aws-github-runner/issues/2024)) ([e73a267](https://github.com/philips-labs/terraform-aws-github-runner/commit/e73a267c63444a3ff07db549f9cee05fd94fc2f2))
+
 ## [1.0.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v0.40.4...v1.0.0) (2022-05-09)
 
 
