@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.1.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.1.0...v1.1.1) (2022-05-17)
+
+
+### Bug Fixes
+
+* **runner:** Don't treat the string "false" as true. ([#2051](https://github.com/philips-labs/terraform-aws-github-runner/issues/2051)) ([b67c7dc](https://github.com/philips-labs/terraform-aws-github-runner/commit/b67c7dcbee7618f830b2365a73a2bc25f20b52b5))
+
 ## [1.1.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.0.0...v1.1.0) (2022-05-10)
 
 
