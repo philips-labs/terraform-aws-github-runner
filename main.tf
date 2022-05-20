@@ -1,7 +1,6 @@
 locals {
   tags = merge(var.tags, {
-    Environment       = var.environment,
-    "ghr:environment" = format("%s", var.environment)
+    "ghr:environment" = var.prefix
   })
 
   s3_action_runner_url = "s3://${module.runner_binaries.bucket.id}/${module.runner_binaries.runner_distribution_object_key}"
@@ -50,7 +49,7 @@ resource "aws_sqs_queue_policy" "build_queue_policy" {
 }
 
 resource "aws_sqs_queue" "queued_builds" {
-  name                        = "${var.environment}-queued-builds${var.fifo_build_queue ? ".fifo" : ""}"
+  name                        = "${var.prefix}-queued-builds${var.fifo_build_queue ? ".fifo" : ""}"
   delay_seconds               = var.delay_webhook_event
   visibility_timeout_seconds  = var.runners_scale_up_lambda_timeout
   message_retention_seconds   = var.job_queue_retention_in_seconds
@@ -74,7 +73,7 @@ resource "aws_sqs_queue_policy" "build_queue_dlq_policy" {
 
 resource "aws_sqs_queue" "queued_builds_dlq" {
   count = var.redrive_build_queue.enabled ? 1 : 0
-  name  = "${var.environment}-queued-builds_dead_letter"
+  name  = "${var.prefix}-queued-builds_dead_letter"
 
   tags = var.tags
 }
@@ -83,7 +82,7 @@ module "ssm" {
   source = "./modules/ssm"
 
   kms_key_arn = var.kms_key_arn
-  environment = var.environment
+  prefix      = var.prefix
   github_app  = var.github_app
   tags        = local.tags
 }
@@ -92,7 +91,7 @@ module "webhook" {
   source = "./modules/webhook"
 
   aws_region  = var.aws_region
-  environment = var.environment
+  prefix      = var.prefix
   tags        = local.tags
   kms_key_arn = var.kms_key_arn
 
@@ -127,7 +126,7 @@ module "runners" {
   aws_partition = var.aws_partition
   vpc_id        = var.vpc_id
   subnet_ids    = var.subnet_ids
-  environment   = var.environment
+  prefix        = var.prefix
   tags          = local.tags
 
   s3_bucket_runner_binaries   = module.runner_binaries.bucket
@@ -214,11 +213,11 @@ module "runners" {
 module "runner_binaries" {
   source = "./modules/runner-binaries-syncer"
 
-  aws_region  = var.aws_region
-  environment = var.environment
-  tags        = local.tags
+  aws_region = var.aws_region
+  prefix     = var.prefix
+  tags       = local.tags
 
-  distribution_bucket_name = "${var.environment}-dist-${random_string.random.result}"
+  distribution_bucket_name = "${var.prefix}-dist-${random_string.random.result}"
 
   runner_os                        = var.runner_os
   runner_architecture              = var.runner_architecture
@@ -244,10 +243,10 @@ module "runner_binaries" {
 }
 
 resource "aws_resourcegroups_group" "resourcegroups_group" {
-  name = "${var.environment}-group"
+  name = "${var.prefix}-group"
   resource_query {
     query = templatefile("${path.module}/templates/resource-group.json", {
-      environment = var.environment
+      environment = var.prefix
     })
   }
 }

@@ -101,7 +101,7 @@ describe('list instances', () => {
       Filters: [
         { Name: 'tag:Application', Values: ['github-action-runner'] },
         { Name: 'instance-state-name', Values: ['running', 'pending'] },
-        { Name: 'tag:Environment', Values: [ENVIRONMENT] },
+        { Name: 'tag:ghr:environment', Values: [ENVIRONMENT] },
       ],
     });
   });

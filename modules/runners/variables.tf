@@ -24,7 +24,7 @@ variable "overrides" {
 }
 
 variable "tags" {
-  description = "Map of tags that will be added to created resources. By default resources will be tagged with name and environment."
+  description = "Map of tags that will be added to created resources. By default resources will be tagged with name."
   type        = map(string)
   default     = {}
 }
@@ -32,6 +32,18 @@ variable "tags" {
 variable "environment" {
   description = "A name that identifies the environment, used as prefix and for tagging."
   type        = string
+  default     = null
+
+  validation {
+    condition     = var.environment == null
+    error_message = "The \"environment\" variable is no longer used. To migrate, set the \"prefix\" variable to the original value of \"environment\" and optionally, add \"Environment\" to the \"tags\" variable map with the same value."
+  }
+}
+
+variable "prefix" {
+  description = "The prefix used for naming resources"
+  type        = string
+  default     = "github-actions"
 }
 
 variable "s3_bucket_runner_binaries" {
@@ -243,13 +255,13 @@ variable "role_permissions_boundary" {
 }
 
 variable "role_path" {
-  description = "The path that will be added to the role; if not set, the environment name will be used."
+  description = "The path that will be added to the role; if not set, the prefix will be used."
   type        = string
   default     = null
 }
 
 variable "instance_profile_path" {
-  description = "The path that will be added to the instance_profile, if not set the environment name will be used."
+  description = "The path that will be added to the instance_profile, if not set the prefix will be used."
   type        = string
   default     = null
 }
@@ -357,7 +369,7 @@ variable "cloudwatch_config" {
 }
 
 variable "runner_log_files" {
-  description = "(optional) List of logfiles to send to CloudWatch, will only be used if `enable_cloudwatch_agent` is set to true. Object description: `log_group_name`: Name of the log group, `prefix_log_group`: If true, the log group name will be prefixed with `/github-self-hosted-runners/<var.environment>`, `file_path`: path to the log file, `log_stream_name`: name of the log stream."
+  description = "(optional) List of logfiles to send to CloudWatch, will only be used if `enable_cloudwatch_agent` is set to true. Object description: `log_group_name`: Name of the log group, `prefix_log_group`: If true, the log group name will be prefixed with `/github-self-hosted-runners/<var.prefix>`, `file_path`: path to the log file, `log_stream_name`: name of the log stream."
   type = list(object({
     log_group_name   = string
     prefix_log_group = bool
