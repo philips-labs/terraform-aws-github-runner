@@ -4,7 +4,7 @@ module "pool" {
   source = "./pool"
 
   config = {
-    environment = var.environment
+    prefix = var.prefix
     ghes = {
       ssl_verify = var.ghes_ssl_verify
       url        = var.ghes_url
