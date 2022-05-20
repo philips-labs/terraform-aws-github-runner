@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.1.1...v1.2.0) (2022-05-20)
+
+
+### Features
+
+* Replace environment variable by prefix ([#1858](https://github.com/philips-labs/terraform-aws-github-runner/issues/1858)) ([e2f9a27](https://github.com/philips-labs/terraform-aws-github-runner/commit/e2f9a2764f3c404cd2f8649db64253c9e886e2e7))
+
 ### [1.1.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.1.0...v1.1.1) (2022-05-17)
 
 
