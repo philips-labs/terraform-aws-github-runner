@@ -156,3 +156,9 @@ variable "sqs_build_queue_fifo" {
   type        = bool
   default     = false
 }
+
+variable "lambda_runtime" {
+  description = "AWS Lambda runtime."
+  type        = string
+  default     = "nodejs14.x"
+}

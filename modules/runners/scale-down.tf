@@ -14,7 +14,7 @@ resource "aws_lambda_function" "scale_down" {
   function_name     = "${var.prefix}-scale-down"
   role              = aws_iam_role.scale_down.arn
   handler           = "index.scaleDownHandler"
-  runtime           = "nodejs14.x"
+  runtime           = var.lambda_runtime
   timeout           = var.lambda_timeout_scale_down
   tags              = local.tags
   memory_size       = 512

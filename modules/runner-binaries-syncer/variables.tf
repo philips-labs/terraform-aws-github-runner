@@ -181,3 +181,9 @@ variable "lambda_principals" {
   }))
   default = []
 }
+
+variable "lambda_runtime" {
+  description = "AWS Lambda runtime."
+  type        = string
+  default     = "nodejs14.x"
+}

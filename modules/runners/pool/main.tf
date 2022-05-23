@@ -8,7 +8,7 @@ resource "aws_lambda_function" "pool" {
   function_name                  = "${var.config.prefix}-pool"
   role                           = aws_iam_role.pool.arn
   handler                        = "index.adjustPool"
-  runtime                        = "nodejs14.x"
+  runtime                        = var.config.lambda.runtime
   timeout                        = var.config.lambda.timeout
   reserved_concurrent_executions = var.config.lambda.reserved_concurrent_executions
   memory_size                    = 512
