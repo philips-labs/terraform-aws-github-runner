@@ -10,6 +10,8 @@ variable "config" {
       s3_key                         = string
       s3_object_version              = string
       security_group_ids             = list(string)
+      runtime                        = string
+      architecture                   = string
       timeout                        = number
       zip                            = string
       subnet_ids                     = list(string)

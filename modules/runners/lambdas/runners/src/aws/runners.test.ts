@@ -256,7 +256,7 @@ describe('create runner', () => {
     mockCreateFleet.promise.mockReturnValue({
       Instances: [],
     });
-    await expect(createRunner(createRunnerConfig(defaultRunnerConfig))).rejects;
+    await expect(createRunner(createRunnerConfig(defaultRunnerConfig))).rejects.toThrowError(Error);
     expect(mockSSM.putParameter).not.toBeCalled();
   });
 });

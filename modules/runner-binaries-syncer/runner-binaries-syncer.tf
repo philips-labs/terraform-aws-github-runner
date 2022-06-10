@@ -16,9 +16,10 @@ resource "aws_lambda_function" "syncer" {
   function_name     = "${var.prefix}-syncer"
   role              = aws_iam_role.syncer_lambda.arn
   handler           = "index.handler"
-  runtime           = "nodejs14.x"
+  runtime           = var.lambda_runtime
   timeout           = var.lambda_timeout
   memory_size       = 256
+  architectures     = [var.lambda_architecture]
 
   environment {
     variables = {
