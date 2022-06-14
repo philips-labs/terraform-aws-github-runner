@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.2.0...v1.3.0) (2022-06-14)
+
+
+### Features
+
+* Support arm64 lambda functions ([#2121](https://github.com/philips-labs/terraform-aws-github-runner/issues/2121)) ([9e2a7b6](https://github.com/philips-labs/terraform-aws-github-runner/commit/9e2a7b69cce2f7a876bbb8c865d4cd5116299640))
+* Support Node16 for AWS Lambda ([#2073](https://github.com/philips-labs/terraform-aws-github-runner/issues/2073)) ([68a2014](https://github.com/philips-labs/terraform-aws-github-runner/commit/68a2014db5e909bbf0c09bb6880f1eff2441ea7e))
+
+
+### Bug Fixes
+
+* replaced old environment variable ([#2146](https://github.com/philips-labs/terraform-aws-github-runner/issues/2146)) ([f2072f7](https://github.com/philips-labs/terraform-aws-github-runner/commit/f2072f75e9bb6c2e4979a86009a7c3fecb0b9812))
+* set explicit permissions on s3 for syncer lambda ([#2145](https://github.com/philips-labs/terraform-aws-github-runner/issues/2145)) ([aa7edd1](https://github.com/philips-labs/terraform-aws-github-runner/commit/aa7edd144f64da38f4ef6ecf032118980d684fcd))
+* set kms key on aws_s3_object when encryption is enabled ([#2147](https://github.com/philips-labs/terraform-aws-github-runner/issues/2147)) ([b4dc706](https://github.com/philips-labs/terraform-aws-github-runner/commit/b4dc70610b085a8a4a0f25faf9e9637a56887762))
+
 ## [1.2.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.1.1...v1.2.0) (2022-05-20)
 
 
