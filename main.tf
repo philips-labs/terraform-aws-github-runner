@@ -111,6 +111,7 @@ module "webhook" {
 
   # labels
   enable_workflow_job_labels_check = var.runner_enable_workflow_job_labels_check
+  workflow_job_labels_check_all    = var.runner_enable_workflow_job_labels_check_all
   runner_labels                    = "self-hosted,${var.runner_os},${var.runner_architecture},${var.runner_extra_labels}"
 
   role_path                 = var.role_path
