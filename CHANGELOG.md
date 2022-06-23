@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.3.0...v1.4.0) (2022-06-23)
+
+
+### Features
+
+* Add option to match some of the labes instead of all [#2122](https://github.com/philips-labs/terraform-aws-github-runner/issues/2122) ([#2123](https://github.com/philips-labs/terraform-aws-github-runner/issues/2123)) ([c5e3c21](https://github.com/philips-labs/terraform-aws-github-runner/commit/c5e3c21a5c963b083ca3756a53c3e55a408c144c))
+
+
+### Bug Fixes
+
+* don't apply extra labels unless defined ([#2181](https://github.com/philips-labs/terraform-aws-github-runner/issues/2181)) ([c0b11bb](https://github.com/philips-labs/terraform-aws-github-runner/commit/c0b11bb1a78eb1a2f0453031c04f781d33d3dc17))
+* Remove asterik in permission for runner lambda to describe instances ([9b9da03](https://github.com/philips-labs/terraform-aws-github-runner/commit/9b9da036a723305531bd4b5f66addf2f219bc1af))
+
 ## [1.3.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.2.0...v1.3.0) (2022-06-14)
 
 
