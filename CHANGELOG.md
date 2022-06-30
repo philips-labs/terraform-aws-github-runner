@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.4.0...v1.4.1) (2022-06-30)
+
+
+### Bug Fixes
+
+* added server_side_encryption key to download trigger for distribution ([#2207](https://github.com/philips-labs/terraform-aws-github-runner/issues/2207)) ([404e3b6](https://github.com/philips-labs/terraform-aws-github-runner/commit/404e3b6fa5e2d0037a7bc8fe7674a887ab6504eb))
+
 ## [1.4.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.3.0...v1.4.0) (2022-06-23)
 
 
