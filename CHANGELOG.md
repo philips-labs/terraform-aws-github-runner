@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.4.1...v1.5.0) (2022-07-08)
+
+
+### Features
+
+* Add ubuntu-jammy example image based on existing ubuntu-focal ([#2102](https://github.com/philips-labs/terraform-aws-github-runner/issues/2102)) ([486ae91](https://github.com/philips-labs/terraform-aws-github-runner/commit/486ae9122420f621aa1c61fd4f21aff3f4e9d39e))
+
+
+### Bug Fixes
+
+* **images:** avoid wrong AMI could be selected for ubuntu focal ([#2214](https://github.com/philips-labs/terraform-aws-github-runner/issues/2214)) ([76be94b](https://github.com/philips-labs/terraform-aws-github-runner/commit/76be94beda6c13c75145c7c79dae888bdb647da3))
+
 ## [1.4.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.4.0...v1.4.1) (2022-06-30)
 
 
