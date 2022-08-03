@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.5.0...v1.6.0) (2022-08-03)
+
+
+### Features
+
+* Add options extra option to ebs block device mapping ([#2052](https://github.com/philips-labs/terraform-aws-github-runner/issues/2052)) ([7cd2524](https://github.com/philips-labs/terraform-aws-github-runner/commit/7cd2524ed0dba38849ac1e0e477cffda24bf21a3))
+* Enable node16 default ([#2074](https://github.com/philips-labs/terraform-aws-github-runner/issues/2074)) ([58aa5ed](https://github.com/philips-labs/terraform-aws-github-runner/commit/58aa5ed8a3f09a09b459122b5e7265f98777d59b))
+
+
+### Bug Fixes
+
+* Incorrect path of Runner logs ([#2233](https://github.com/philips-labs/terraform-aws-github-runner/issues/2233)) ([98eff98](https://github.com/philips-labs/terraform-aws-github-runner/commit/98eff98158381bd57d59e9a54efc3ee5db294110))
+* Preventing that lambda webhook fails when it tries to process an installation_repositories event ([#2288](https://github.com/philips-labs/terraform-aws-github-runner/issues/2288)) ([8656c83](https://github.com/philips-labs/terraform-aws-github-runner/commit/8656c83ec250e461062a2f4415c31f7c5186bef9))
+* Update ubuntu example to fix /opt/hostedtoolcache ([#2302](https://github.com/philips-labs/terraform-aws-github-runner/issues/2302)) ([8eea748](https://github.com/philips-labs/terraform-aws-github-runner/commit/8eea74817a9817ca386b77f1b90ae9ef721e250e))
+* Webhook lambda misleading log ([#2291](https://github.com/philips-labs/terraform-aws-github-runner/issues/2291)) ([c6275f9](https://github.com/philips-labs/terraform-aws-github-runner/commit/c6275f9d5a68c962e32596e4abf77b1fda6dd18f))
+
 ## [1.5.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.4.1...v1.5.0) (2022-07-08)
 
 
