@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.6.0...v1.7.0) (2022-08-04)
+
+
+### Features
+
+* Webhook accept jobs where not all labels are provided in job. ([#2209](https://github.com/philips-labs/terraform-aws-github-runner/issues/2209)) ([6d9116f](https://github.com/philips-labs/terraform-aws-github-runner/commit/6d9116fe9a8b8620691d4af8aa6c6d6e0003b502))
+
+
+### Bug Fixes
+
+* Ignore case for runner labels. ([#2315](https://github.com/philips-labs/terraform-aws-github-runner/issues/2315)) ([014985a](https://github.com/philips-labs/terraform-aws-github-runner/commit/014985a567e05e74713126fe7913d1ce0a66250e))
+
 ## [1.6.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.5.0...v1.6.0) (2022-08-03)
 
 
