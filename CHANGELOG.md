@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.7.0...v1.8.0) (2022-08-15)
+
+
+### Features
+
+* Add option to disable lambda to sync runner binaries ([#2314](https://github.com/philips-labs/terraform-aws-github-runner/issues/2314)) ([9f7d32d](https://github.com/philips-labs/terraform-aws-github-runner/commit/9f7d32d7edd724ee015a053dc1914a4b871aafe1))
+
+
+### Bug Fixes
+
+* **examples:** Upgrading ubuntu example to 22.04 ([#2250](https://github.com/philips-labs/terraform-aws-github-runner/issues/2250)) ([d4b7650](https://github.com/philips-labs/terraform-aws-github-runner/commit/d4b7650312274594a0f5274abccf99c66b594966)), closes [#2103](https://github.com/philips-labs/terraform-aws-github-runner/issues/2103)
+
 ## [1.7.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.6.0...v1.7.0) (2022-08-04)
 
 
