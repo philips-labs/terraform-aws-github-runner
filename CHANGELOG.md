@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.8.0...v1.8.1) (2022-08-17)
+
+
+### Bug Fixes
+
+* **runners:** Pass allocation strategy ([#2345](https://github.com/philips-labs/terraform-aws-github-runner/issues/2345)) ([68d3445](https://github.com/philips-labs/terraform-aws-github-runner/commit/68d3445036babd5efa2e3077597b6ab6b958128e))
+
 ## [1.8.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.7.0...v1.8.0) (2022-08-15)
 
 
