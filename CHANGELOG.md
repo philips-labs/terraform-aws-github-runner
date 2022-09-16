@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.9.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.8.1...v1.9.0) (2022-09-16)
+
+
+### Features
+
+* Add option to enable access log for API gateway ([#2387](https://github.com/philips-labs/terraform-aws-github-runner/issues/2387)) ([fcd9fba](https://github.com/philips-labs/terraform-aws-github-runner/commit/fcd9fbace1df963a7b86862ecfbbae7b33a867b4))
+* add s3_location_runner_distribution var as expandable for userdata ([#2371](https://github.com/philips-labs/terraform-aws-github-runner/issues/2371)) ([05fe737](https://github.com/philips-labs/terraform-aws-github-runner/commit/05fe737375da38d4779af5acdc5c8256718109c4))
+* Encrypted data at REST on SQS by default ([#2431](https://github.com/philips-labs/terraform-aws-github-runner/issues/2431)) ([7f3f4bf](https://github.com/philips-labs/terraform-aws-github-runner/commit/7f3f4bf53673afcde2335bf763f7d40912880e44))
+* **images:** Allow passing instance type when building windows image ([#2369](https://github.com/philips-labs/terraform-aws-github-runner/issues/2369)) ([eca23bf](https://github.com/philips-labs/terraform-aws-github-runner/commit/eca23bffe9a219d3dc66028149f5cb2d8c7eca35))
+
+
+### Bug Fixes
+
+* **runners:** Fetch instance environment tag though metadata ([#2346](https://github.com/philips-labs/terraform-aws-github-runner/issues/2346)) ([27db290](https://github.com/philips-labs/terraform-aws-github-runner/commit/27db29046f3a23240a6a28c255cc9354d7c1804d))
+* **runners:** Set the default Windows AMI to Server 2022 ([#2325](https://github.com/philips-labs/terraform-aws-github-runner/issues/2325)) ([78e99d1](https://github.com/philips-labs/terraform-aws-github-runner/commit/78e99d1c80587b8cfebedde5c5f2d615300d417d))
+
 ## [1.8.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.8.0...v1.8.1) (2022-08-17)
 
 
