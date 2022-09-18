@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.9.0...v1.9.1) (2022-09-18)
+
+
+### Bug Fixes
+
+* **webhook:** Use `x-hub-signature-256` header as default ([#2434](https://github.com/philips-labs/terraform-aws-github-runner/issues/2434)) ([9c3e495](https://github.com/philips-labs/terraform-aws-github-runner/commit/9c3e495295e6fbd34e655bd3853b6bf631436925))
+
 ## [1.9.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.8.1...v1.9.0) (2022-09-16)
 
 
