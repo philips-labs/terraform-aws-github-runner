@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.9.1...v1.10.0) (2022-09-24)
+
+
+### Features
+
+* Download runner release via latest release API ([#2455](https://github.com/philips-labs/terraform-aws-github-runner/issues/2455)) ([e75e092](https://github.com/philips-labs/terraform-aws-github-runner/commit/e75e092f328dcba40f2d970a090dd6d16b5dd9d7))
+
 ## [1.9.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.9.0...v1.9.1) (2022-09-18)
 
 
