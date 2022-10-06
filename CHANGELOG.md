@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.10.0...v1.11.0) (2022-10-06)
+
+
+### Features
+
+* Support s3 bucket logging for distribution cache bucket ([#2430](https://github.com/philips-labs/terraform-aws-github-runner/issues/2430)) ([69578e0](https://github.com/philips-labs/terraform-aws-github-runner/commit/69578e0d1d381a11e359ea68957b5a3b27fad5a5))
+
 ## [1.10.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.9.1...v1.10.0) (2022-09-24)
 
 
