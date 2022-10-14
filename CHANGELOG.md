@@ -99,6 +99,7 @@
 * Update ubuntu example to fix /opt/hostedtoolcache ([#2302](https://github.com/philips-labs/terraform-aws-github-runner/issues/2302)) ([8eea748](https://github.com/philips-labs/terraform-aws-github-runner/commit/8eea74817a9817ca386b77f1b90ae9ef721e250e))
 * Webhook lambda misleading log ([#2291](https://github.com/philips-labs/terraform-aws-github-runner/issues/2291)) ([c6275f9](https://github.com/philips-labs/terraform-aws-github-runner/commit/c6275f9d5a68c962e32596e4abf77b1fda6dd18f))
 
+
 ## [1.5.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.4.1...v1.5.0) (2022-07-08)
 
 
