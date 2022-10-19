@@ -9,7 +9,6 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
 - [Motivation](#motivation)
 - [Overview](#overview)
   - [Major configuration options.](#major-configuration-options)
-    - [ARM64 support via Graviton/Graviton2 instance-types](#arm64-support-via-gravitongraviton2-instance-types)
 - [Usages](#usages)
   - [Setup GitHub App (part 1)](#setup-github-app-part-1)
   - [Setup terraform module](#setup-terraform-module)
@@ -25,7 +24,6 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
   - [Experimental - Optional queue to publish GitHub workflow job events](#experimental---optional-queue-to-publish-github-workflow-job-events)
 - [Examples](#examples)
 - [Sub modules](#sub-modules)
-  - [ARM64 configuration for submodules](#arm64-configuration-for-submodules)
 - [Debugging](#debugging)
 - [Security Consideration](#security-consideration)
 - [Requirements](#requirements)
@@ -81,16 +79,13 @@ Besides these permissions, the lambdas also need permission to CloudWatch (for l
 To be able to support a number of use-cases the module has quite a lot of configuration options. We try to choose reasonable defaults. The several examples also show for the main cases how to configure the runners.
 
 - Org vs Repo level. You can configure the module to connect the runners in GitHub on an org level and share the runners in your org. Or set the runners on repo level and the module will install the runner to the repo. There can be multiple repos but runners are not shared between repos.
-- Checkrun vs Workflow job event. You can configure the webhook in GitHub to send checkrun or workflow job events to the webhook. Workflow job events are introduced by GitHub in September 2021 and are designed to support scalable runners. We advise when possible using the workflow job event, you can set `runner_enable_workflow_job_labels_check = true` to let the webhook only accept jobs based on the labels configured. The webhook will check the custom labels provided via the variable `runner_extra_labels` and the GitHub managed labels, "self-hosted", OS and architecture. The OS and architecture are derived from the settings. By default the check is disabled.
+- Multi-Runner module. This modules allows to create multiple runner configurations with a single webhook and single GitHub App to simply deployment of different types of runners. Refer to the [ReadMe](.modules/../modules/multi-runner/README.md) for more information to understand the functionality.
+- Workflow job event. You can configure the webhook in GitHub to send workflow job events to the webhook. Workflow job events are introduced by GitHub in September 2021 and are designed to support scalable runners. We advise when possible using the workflow job event.
 - Linux vs Windows. you can configure the OS types linux and win. Linux will be used by default.
 - Re-use vs Ephemeral. By default runners are re-used for till detected idle. Once idle they will be removed from the pool. To improve security we are introducing ephemeral runners. Those runners are only used for one job. Ephemeral runners are only working in combination with the workflow job event. We also suggest using a pre-build AMI to improve the start time of jobs.
 - GitHub Cloud vs GitHub Enterprise Server (GHES). The runner support GitHub Cloud as well GitHub Enterprise Server. For GHES we rely on our community to test and support. We have no possibility to test ourselves on GHES.
 - Spot vs on-demand. The runners use either the EC2 spot or on-demand life cycle. Runners will be created via the AWS [CreateFleet API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateFleet.html). The module (scale up lambda) will request via the CreateFleet API to create instances in one of the subnets and of the specified instance types.
-
-
-#### ARM64 support via Graviton/Graviton2 instance-types
-
-When using the default example or top-level module, specifying `instance_types` that match a Graviton/Graviton 2 (ARM64) architecture (e.g. a1, t4g or any 6th-gen `g` or `gd` type), you must also specify `runner_architecture = "arm64"` and the sub-modules will be automatically configured to provision with ARM64 AMIs and leverage GitHub's ARM64 action runner. See below for more details.
+- ARM64 support via Graviton/Graviton2 instance-types. When using the default example or top-level module, specifying `instance_types` that match a Graviton/Graviton 2 (ARM64) architecture (e.g. a1, t4g or any 6th-gen `g` or `gd` type), you must also specify `runner_architecture = "arm64"` and the sub-modules will be automatically configured to provision with ARM64 AMIs and leverage GitHub's ARM64 action runner. See below for more details.
 
 ## Usages
 
@@ -334,11 +329,13 @@ Examples are located in the [examples](./examples) directory. The following exam
 
 - _[Default](examples/default/README.md)_: The default example of the module
 - _[ARM64](examples/arm64/README.md)_: Example usage with ARM64 architecture
+- _[Ephemeral](examples/ephemeral/README.md)_: Example usages of ephemeral runners based on the default example.
+- _[Multi Runner](examples/multi-runner/README.md)_ : Example usage of creating a multi runner which creates multiple runners/ configurations with a single deployment
+- _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
+- _[Prebuilt Images](examples/prebuilt/README.md)_: Example usages of deploying runners with a custom prebuilt image.
 - _[Ubuntu](examples/ubuntu/README.md)_: Example usage of creating a runner using Ubuntu AMIs.
 - _[Windows](examples/windows/README.md)_: Example usage of creating a runner using Windows as the OS.
-- _[Ephemeral](examples/ephemeral/README.md)_: Example usages of ephemeral runners based on the default example.
-- _[Prebuilt Images](examples/prebuilt/README.md)_: Example usages of deploying runners with a custom prebuilt image.
-- _[Permissions boundary](examples/permissions-boundary/README.md)_: Example usages of permissions boundaries.
+
 
 ## Sub modules
 
@@ -349,15 +346,14 @@ The following submodules are the core of the module and are mandatory:
 - _[runner-binaries-syncer](./modules/runner-binaries-syncer/README.md)_ - Syncs the action runner distribution.
 - _[runners](./modules/runners/README.md)_ - Scales the action runners up and down
 - _[webhook](./modules/webhook/README.md)_ - Handles GitHub webhooks
+- _[multi-runner](./modules/multi-runner/README.md) - Creates multiple runner configurations in a single deployment
 
 The following sub modules are optional and are provided as example or utility:
 
 - _[download-lambda](./modules/download-lambda/README.md)_ - Utility module to download lambda artifacts from GitHub Release
 - _[setup-iam-permissions](./modules/setup-iam-permissions/README.md)_ - Example module to setup permission boundaries
 
-### ARM64 configuration for submodules
-
-When using the top level module configure `runner_architecture = "arm64"` and ensure the list of `instance_types` matches. When not using the top-level, ensure these properties are set on the submodules.
+ARM64 configuration for submodules. When using the top level module configure `runner_architecture = "arm64"` and ensure the list of `instance_types` matches. When not using the top-level, ensure these properties are set on the submodules.
 
 ## Debugging
 
@@ -484,8 +480,7 @@ We welcome any improvement to the standard module to make the default as secure 
 | <a name="input_runner_boot_time_in_minutes"></a> [runner\_boot\_time\_in\_minutes](#input\_runner\_boot\_time\_in\_minutes) | The minimum time for an EC2 runner to boot and register as a runner. | `number` | `5` | no |
 | <a name="input_runner_ec2_tags"></a> [runner\_ec2\_tags](#input\_runner\_ec2\_tags) | Map of tags that will be added to the launch template instance tag specifications. | `map(string)` | `{}` | no |
 | <a name="input_runner_egress_rules"></a> [runner\_egress\_rules](#input\_runner\_egress\_rules) | List of egress rules for the GitHub runner instances. | <pre>list(object({<br>    cidr_blocks      = list(string)<br>    ipv6_cidr_blocks = list(string)<br>    prefix_list_ids  = list(string)<br>    from_port        = number<br>    protocol         = string<br>    security_groups  = list(string)<br>    self             = bool<br>    to_port          = number<br>    description      = string<br>  }))</pre> | <pre>[<br>  {<br>    "cidr_blocks": [<br>      "0.0.0.0/0"<br>    ],<br>    "description": null,<br>    "from_port": 0,<br>    "ipv6_cidr_blocks": [<br>      "::/0"<br>    ],<br>    "prefix_list_ids": null,<br>    "protocol": "-1",<br>    "security_groups": null,<br>    "self": null,<br>    "to_port": 0<br>  }<br>]</pre> | no |
-| <a name="input_runner_enable_workflow_job_labels_check"></a> [runner\_enable\_workflow\_job\_labels\_check](#input\_runner\_enable\_workflow\_job\_labels\_check) | If set to true all labels in the workflow job even are matched against the custom labels and GitHub labels (os, architecture and `self-hosted`). When the labels are not matching the event is dropped at the webhook. | `bool` | `false` | no |
-| <a name="input_runner_enable_workflow_job_labels_check_all"></a> [runner\_enable\_workflow\_job\_labels\_check\_all](#input\_runner\_enable\_workflow\_job\_labels\_check\_all) | If set to true all labels in the workflow job must match the GitHub labels (os, architecture and `self-hosted`). When false if __any__ label matches it will trigger the webhook. `runner_enable_workflow_job_labels_check` must be true for this to take effect. | `bool` | `true` | no |
+| <a name="input_runner_enable_workflow_job_labels_check_all"></a> [runner\_enable\_workflow\_job\_labels\_check\_all](#input\_runner\_enable\_workflow\_job\_labels\_check\_all) | If set to true all labels in the workflow job must match the GitHub labels (os, architecture and `self-hosted`). When false if __any__ label matches it will trigger the webhook. | `bool` | `true` | no |
 | <a name="input_runner_extra_labels"></a> [runner\_extra\_labels](#input\_runner\_extra\_labels) | Extra (custom) labels for the runners (GitHub). Separate each label by a comma. Labels checks on the webhook can be enforced by setting `enable_workflow_job_labels_check`. GitHub read-only labels should not be provided. | `string` | `""` | no |
 | <a name="input_runner_group_name"></a> [runner\_group\_name](#input\_runner\_group\_name) | Name of the runner group. | `string` | `"Default"` | no |
 | <a name="input_runner_iam_role_managed_policy_arns"></a> [runner\_iam\_role\_managed\_policy\_arns](#input\_runner\_iam\_role\_managed\_policy\_arns) | Attach AWS or customer-managed IAM policies (by ARN) to the runner IAM role | `list(string)` | `[]` | no |
