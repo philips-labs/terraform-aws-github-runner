@@ -93,8 +93,8 @@ data "aws_ami" "runner" {
   most_recent = "true"
 
   filter {
-      name   = "name"
-      values = ["amzn2-ami-kernel-5.*-hvm-2.0.202209*-x86_64-gp*"]
+    name   = "name"
+    values = ["amzn2-ami-kernel-5.*-hvm-2.0.202209*-x86_64-gp*"]
   }
 
   owners = ["amazon"]
@@ -103,7 +103,7 @@ data "aws_ami" "runner" {
 resource "aws_ssm_parameter" "runner_enable_cloudwatch" {
   name  = "/${local.environment}/runners/amiid"
   type  = "String"
-  value =  data.aws_ami.runner.image_id
+  value = data.aws_ami.runner.image_id
 }
 
 
