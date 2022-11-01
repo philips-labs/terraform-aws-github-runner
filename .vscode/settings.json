@@ -3,5 +3,9 @@
         "javascript:S4123": {
             "level": "off"
         }
+    },
+    "jest.autoRun": "off",
+    "jest.testExplorer": {
+      "enabled": false
     }
 }
