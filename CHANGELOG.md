@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.15.0...v1.15.1) (2022-11-17)
+
+
+### Bug Fixes
+
+* Updated the fifo flag for deadletter queue. ([#2641](https://github.com/philips-labs/terraform-aws-github-runner/issues/2641)) ([a8b1645](https://github.com/philips-labs/terraform-aws-github-runner/commit/a8b1645bea0d5ef05f5eb65651eeea99bcf49ade))
+
 ## [1.15.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.14.0...v1.15.0) (2022-11-08)
 
 
