@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.16.0...v1.16.1) (2022-11-18)
+
+
+### Bug Fixes
+
+* added runner labels to output. ([#2669](https://github.com/philips-labs/terraform-aws-github-runner/issues/2669)) ([4726c1a](https://github.com/philips-labs/terraform-aws-github-runner/commit/4726c1a2bd074e4018e2b9d0652a8ce1881ae0aa))
+
 ## [1.16.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.15.1...v1.16.0) (2022-11-18)
 
 
