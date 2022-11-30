@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.16.1...v1.17.0) (2022-11-30)
+
+
+### Features
+
+* **runners:** Namespace `Application` tag ([#2182](https://github.com/philips-labs/terraform-aws-github-runner/issues/2182)) ([a1a47a4](https://github.com/philips-labs/terraform-aws-github-runner/commit/a1a47a4a18fe500ea58481dd29cbd95ce45c9bb5))
+
+
+### Bug Fixes
+
+* Adding missing input lambda vpc vars to syncer module ([#2701](https://github.com/philips-labs/terraform-aws-github-runner/issues/2701)) ([c91a96b](https://github.com/philips-labs/terraform-aws-github-runner/commit/c91a96bcc95defa0dc1e6bff71b3f607b5523bb5))
+
 ## [1.16.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.16.0...v1.16.1) (2022-11-18)
 
 
