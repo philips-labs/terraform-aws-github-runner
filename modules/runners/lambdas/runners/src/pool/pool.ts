@@ -4,7 +4,7 @@ import { listEC2Runners, RunnerList } from '../aws/runners';
 import { createGithubAppAuth, createGithubInstallationAuth, createOctoClient } from '../gh-auth/gh-auth';
 import { logger as rootLogger } from '../logger';
 import { createRunners } from '../scale-runners/scale-up';
-import moment from "moment";
+import moment from 'moment';
 
 const logger = rootLogger.getChildLogger({ name: 'pool' });
 
@@ -49,19 +49,19 @@ export async function adjust(event: PoolEvent): Promise<void> {
   const githubIdleRunners = runners.filter((r) => !r.busy && r.status === 'online');
 
   // Look up the managed ec2 runners in AWS, but running does not mean idle
-  const ec2runners = (
-    await listEC2Runners({
-      environment,
-      runnerOwner,
-      runnerType: 'Org',
-      statuses: ['running'],
-    })
-  );
+  const ec2runners = await listEC2Runners({
+    environment,
+    runnerOwner,
+    runnerType: 'Org',
+    statuses: ['running'],
+  });
 
   // Runner should be considered idle if it is still booting, or is idle in GitHub
-  const managedIdleRunners = ec2runners.filter((r) => {
-    return githubIdleRunners.some(ghRunner => ghRunner.name == r.instanceId) || !bootTimeExceeded(r);
-  }).map((r) => r.instanceId);
+  const managedIdleRunners = ec2runners
+    .filter((r) => {
+      return githubIdleRunners.some((ghRunner) => ghRunner.name == r.instanceId) || !bootTimeExceeded(r);
+    })
+    .map((r) => r.instanceId);
 
   const topUp = event.poolSize - managedIdleRunners.length;
   if (topUp > 0) {
