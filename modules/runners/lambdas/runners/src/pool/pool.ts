@@ -1,9 +1,10 @@
 import yn from 'yn';
 
-import { listEC2Runners } from '../aws/runners';
+import { listEC2Runners, RunnerList } from '../aws/runners';
 import { createGithubAppAuth, createGithubInstallationAuth, createOctoClient } from '../gh-auth/gh-auth';
 import { logger as rootLogger } from '../logger';
 import { createRunners } from '../scale-runners/scale-up';
+import moment from "moment";
 
 const logger = rootLogger.getChildLogger({ name: 'pool' });
 
@@ -45,7 +46,7 @@ export async function adjust(event: PoolEvent): Promise<void> {
       per_page: 100,
     },
   );
-  const idleRunners = runners.filter((r) => !r.busy && r.status === 'online').map((r) => r.name);
+  const githubIdleRunners = runners.filter((r) => !r.busy && r.status === 'online');
 
   // Look up the managed ec2 runners in AWS, but running does not mean idle
   const ec2runners = (
@@ -55,9 +56,13 @@ export async function adjust(event: PoolEvent): Promise<void> {
       runnerType: 'Org',
       statuses: ['running'],
     })
-  ).map((r) => r.instanceId);
+  );
 
-  const managedIdleRunners = ec2runners.filter((r) => idleRunners.includes(r));
+  // Runner should be considered idle if it is still booting, or is idle in GitHub
+  const managedIdleRunners = ec2runners.filter((r) => {
+    return githubIdleRunners.some(ghRunner => ghRunner.name == r.instanceId) || !bootTimeExceeded(r);
+  }).map((r) => r.instanceId);
+
   const topUp = event.poolSize - managedIdleRunners.length;
   if (topUp > 0) {
     logger.info(`The pool will be topped up with ${topUp} runners.`);
@@ -87,7 +92,7 @@ export async function adjust(event: PoolEvent): Promise<void> {
       githubInstallationClient,
     );
   } else {
-    logger.info(`Pool will not be topped up. Find ${managedIdleRunners} managed idle runners.`);
+    logger.info(`Pool will not be topped up. Found ${managedIdleRunners} managed idle runners.`);
   }
 }
 
@@ -100,4 +105,10 @@ async function getInstallationId(ghesApiUrl: string, org: string): Promise<numbe
       org,
     })
   ).data.id;
+}
+
+function bootTimeExceeded(ec2Runner: RunnerList): boolean {
+  const runnerBootTimeInMinutes = process.env.RUNNER_BOOT_TIME_IN_MINUTES;
+  const launchTimePlusBootTime = moment(ec2Runner.launchTime).utc().add(runnerBootTimeInMinutes, 'minutes');
+  return launchTimePlusBootTime < moment(new Date()).utc();
 }
