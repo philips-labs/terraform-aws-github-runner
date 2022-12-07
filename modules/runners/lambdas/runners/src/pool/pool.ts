@@ -1,10 +1,10 @@
+import moment from 'moment';
 import yn from 'yn';
 
-import { listEC2Runners, RunnerList } from '../aws/runners';
+import { RunnerList, listEC2Runners } from '../aws/runners';
 import { createGithubAppAuth, createGithubInstallationAuth, createOctoClient } from '../gh-auth/gh-auth';
 import { logger as rootLogger } from '../logger';
 import { createRunners } from '../scale-runners/scale-up';
-import moment from 'moment';
 
 const logger = rootLogger.getChildLogger({ name: 'pool' });
 
