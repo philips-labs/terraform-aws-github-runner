@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.18.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.17.0...v1.18.0) (2022-12-09)
+
+
+### Features
+
+* Support price-capacity-optimized strategy ([#2718](https://github.com/philips-labs/terraform-aws-github-runner/issues/2718)) ([ef08afb](https://github.com/philips-labs/terraform-aws-github-runner/commit/ef08afb2b5594b9f60b15dbb60687ba91c27d668))
+
+
+### Bug Fixes
+
+* added permissions for lambda to attach lambda to the VPC. ([#2734](https://github.com/philips-labs/terraform-aws-github-runner/issues/2734)) ([fb72ee8](https://github.com/philips-labs/terraform-aws-github-runner/commit/fb72ee8f6751ebe22f7453a58373f4a983b7ba3c))
+
 ## [1.17.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.16.1...v1.17.0) (2022-11-30)
 
 
