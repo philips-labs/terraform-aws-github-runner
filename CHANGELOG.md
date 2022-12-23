@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.18.0...v1.18.1) (2022-12-23)
+
+
+### Bug Fixes
+
+* Upgrade all non-breaking node dependencies ([#2759](https://github.com/philips-labs/terraform-aws-github-runner/issues/2759)) ([801e01f](https://github.com/philips-labs/terraform-aws-github-runner/commit/801e01f290407975aea11b85e44ac9743f9173cb))
+
 ## [1.18.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v1.17.0...v1.18.0) (2022-12-09)
 
 
