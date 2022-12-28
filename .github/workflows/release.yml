@@ -65,7 +65,7 @@ jobs:
 
   assets:
     name: upload assets
-    if: ${{ needs.release.outputs.releases_created }}
+    # if: ${{ needs.release.outputs.releases_created }}
     needs: prepare
     runs-on: ubuntu-latest
     strategy:
