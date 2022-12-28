@@ -1689,11 +1689,7 @@
   dependencies:
     "@types/node" "*"
 
-<<<<<<< HEAD
 "@types/express-serve-static-core@^4.17.31":
-=======
-"@types/express-serve-static-core@^4.17.18":
->>>>>>> d5c837ef (feat!: Organise SSM paramamters by path (#2569))
   version "4.17.31"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.17.31.tgz#a1139efeab4e7323834bb0226e62ac019f474b2f"
   integrity sha512-DxMhY+NAsTwMMFHBTtJFNp5qiHKJ7TeqOo23zVEM9alT1Ml27Q3xcTH0xwxn7Q0BbMcVEJOs/7aQtUWupUQN3Q==
