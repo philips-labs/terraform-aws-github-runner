@@ -4,6 +4,8 @@
 
 This [Terraform](https://www.terraform.io/) module creates the required infrastructure needed to host [GitHub Actions](https://github.com/features/actions) self-hosted, auto-scaling runners on [AWS spot instances](https://aws.amazon.com/ec2/spot/). It provides the required logic to handle the life cycle for scaling up and down using a set of AWS Lambda functions. Runners are scaled down to zero to avoid costs when no workflows are active.
 
+> 📢 [Upcoming v2](https://github.com/philips-labs/terraform-aws-github-runner/issues/2517): We are busy with merging `next` back in to `main`. From that moment on we will not actively support v1. We will maintain for some moment a `v1` branch. Default PR's will go only back into main (`v2`). In case you woul like to get work explicit back in `v1` consider a PR to `v1`.
+
 > 📢 HELP WANTED: We are running the AWS self-hosted GitHub runners OS project in Philips Labs for over two years! And we are incredibly happy with all the feedback and contribution of the open-source community. In the next months we will speak at some conferences to share the solution and story of running this open-source project. Via [this questionaire](https://forms.office.com/r/j03CUzdLFp) we would like to gather  feedback from the community to use in our talks.
 
 - [Motivation](#motivation)
