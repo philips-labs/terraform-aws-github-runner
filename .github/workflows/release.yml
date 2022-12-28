@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - refactor/release
+      - v1
 
 jobs:
   prepare:
@@ -41,32 +41,30 @@ jobs:
     needs:
       prepare
     outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
       releases_created: ${{ steps.release.outputs.releases_created }}
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      actions: write
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - name: Get installation token
-        uses: npalm/action-app-token@v1.1.0
+        uses: philips-software/app-token-action@v1.1.2
         id: token
         with:
-          appId: ${{ secrets.FOREST_RELEASER_APP_ID }}
-          appPrivateKeyBase64: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
-          appInstallationType: repo
-          appInstallationValue: ${{ github.repository }}
+          app_id: ${{ secrets.FOREST_RELEASER_APP_ID }}
+          app_base64_private_key: ${{ secrets.FOREST_RELEASER_APP_PRIVATE_KEY_BASE64 }}
+          auth_type: installation
 
-      # bootstrap-sha and release-as needs to be removed after first release
+
+      - name: Extract branch name
+        id: branch
+        shell: bash
+        run: echo "name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
       - name: Release
         id: release
         uses: google-github-actions/release-please-action@5c07f8be172b1f6e90f9c35baf8184461b91b85f # ratchet:google-github-actions/release-please-action@v3
         with:
-          default-branch: main
+          default-branch: ${{ steps.branch.outputs.name }}
           release-type: terraform-module
           token: ${{ steps.token.outputs.token }}
-          last-release-sha: b404332ff8b401a5a8958317a69b9f849b794a16
 
   assets:
     name: upload assets
@@ -81,18 +79,13 @@ jobs:
       actions: read
 
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.asset }}
-          path: artifacts
 
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: artifacts/${{ matrix.asset }}.zip
-          asset_name: ${{ matrix.asset }}.zip
-          asset_content_type: application/zip
+        run:
+          gh release upload ${{ needs.release.outputs.tag_name }} ${{ matrix.asset }}.zip
