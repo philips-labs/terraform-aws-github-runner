@@ -6,7 +6,6 @@ import { getParameterValue } from '.';
 jest.mock('@aws-sdk/client-ssm');
 
 const cleanEnv = process.env;
-const ENVIRONMENT = 'dev';
 
 beforeEach(() => {
   jest.resetModules();
@@ -34,9 +33,27 @@ describe('Test getParameterValue', () => {
     SSM.prototype.getParameter = jest.fn().mockResolvedValue(output);
 
     // Act
-    const result = await getParameterValue(ENVIRONMENT, parameterName);
+    const result = await getParameterValue(parameterName);
 
     // Assert
     expect(result).toBe(parameterValue);
+  });
+
+  test('Gets invalid parameters and returns string', async () => {
+    // Arrange
+    const parameterName = 'invalid';
+    const output: GetParameterCommandOutput = {
+      $metadata: {
+        httpStatusCode: 200,
+      },
+    };
+
+    SSM.prototype.getParameter = jest.fn().mockResolvedValue(output);
+
+    // Act
+    const result = await getParameterValue(parameterName);
+
+    // Assert
+    expect(result).toBe(undefined);
   });
 });

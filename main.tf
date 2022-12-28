@@ -10,6 +10,8 @@ locals {
 
   default_runner_labels = "self-hosted,${var.runner_os},${var.runner_architecture}"
   runner_labels         = var.runner_extra_labels != "" ? "${local.default_runner_labels},${var.runner_extra_labels}" : local.default_runner_labels
+
+  ssm_root_path = var.ssm_paths.use_prefix ? "/${var.ssm_paths.root}/${var.prefix}" : "/${var.ssm_paths.root}"
 }
 
 resource "random_string" "random" {
@@ -115,7 +117,7 @@ module "ssm" {
   source = "./modules/ssm"
 
   kms_key_arn = var.kms_key_arn
-  prefix      = var.prefix
+  path_prefix = "${local.ssm_root_path}/${var.ssm_paths.app}"
   github_app  = var.github_app
   tags        = local.tags
 }
@@ -123,14 +125,26 @@ module "ssm" {
 module "webhook" {
   source = "./modules/webhook"
 
-  aws_region                    = var.aws_region
-  prefix                        = var.prefix
-  tags                          = local.tags
-  kms_key_arn                   = var.kms_key_arn
-  sqs_build_queue               = aws_sqs_queue.queued_builds
-  sqs_build_queue_fifo          = var.fifo_build_queue
-  sqs_workflow_job_queue        = length(aws_sqs_queue.webhook_events_workflow_job_queue) > 0 ? aws_sqs_queue.webhook_events_workflow_job_queue[0] : null
-  github_app_webhook_secret_arn = module.ssm.parameters.github_app_webhook_secret.arn
+  prefix      = var.prefix
+  tags        = local.tags
+  kms_key_arn = var.kms_key_arn
+
+  runner_config = {
+    (aws_sqs_queue.queued_builds.id) = {
+      id : aws_sqs_queue.queued_builds.id
+      arn : aws_sqs_queue.queued_builds.arn
+      fifo : var.fifo_build_queue
+      matcherConfig : {
+        labelMatchers : [split(",", local.runner_labels)]
+        exactMatch : var.runner_enable_workflow_job_labels_check_all
+      }
+    }
+  }
+  sqs_workflow_job_queue = length(aws_sqs_queue.webhook_events_workflow_job_queue) > 0 ? aws_sqs_queue.webhook_events_workflow_job_queue[0] : null
+
+  github_app_parameters = {
+    webhook_secret = module.ssm.parameters.github_app_webhook_secret
+  }
 
   lambda_s3_bucket                              = var.lambda_s3_bucket
   webhook_lambda_s3_key                         = var.webhook_lambda_s3_key
@@ -143,13 +157,9 @@ module "webhook" {
   logging_retention_in_days                     = var.logging_retention_in_days
   logging_kms_key_id                            = var.logging_kms_key_id
 
-  # labels
-  enable_workflow_job_labels_check = var.runner_enable_workflow_job_labels_check
-  workflow_job_labels_check_all    = var.runner_enable_workflow_job_labels_check_all
-  runner_labels                    = local.runner_labels
-  role_path                        = var.role_path
-  role_permissions_boundary        = var.role_permissions_boundary
-  repository_white_list            = var.repository_white_list
+  role_path                 = var.role_path
+  role_permissions_boundary = var.role_permissions_boundary
+  repository_white_list     = var.repository_white_list
 
   log_type  = var.log_type
   log_level = var.log_level
@@ -164,6 +174,12 @@ module "runners" {
   subnet_ids    = var.subnet_ids
   prefix        = var.prefix
   tags          = local.tags
+
+  ssm_paths = {
+    root   = local.ssm_root_path
+    tokens = "${var.ssm_paths.runners}/tokens"
+    config = "${var.ssm_paths.runners}/config"
+  }
 
   s3_runner_binaries = var.enable_runner_binaries_syncer ? {
     arn = module.runner_binaries[0].bucket.arn
@@ -228,7 +244,7 @@ module "runners" {
   role_path                 = var.role_path
   role_permissions_boundary = var.role_permissions_boundary
 
-  enabled_userdata               = var.enabled_userdata
+  enable_userdata                = var.enable_userdata
   enable_user_data_debug_logging = var.enable_user_data_debug_logging_runner
   userdata_template              = var.userdata_template
   userdata_pre_install           = var.userdata_pre_install
@@ -259,9 +275,8 @@ module "runner_binaries" {
 
   source = "./modules/runner-binaries-syncer"
 
-  aws_region = var.aws_region
-  prefix     = var.prefix
-  tags       = local.tags
+  prefix = var.prefix
+  tags   = local.tags
 
   distribution_bucket_name = "${var.prefix}-dist-${random_string.random.result}"
   s3_logging_bucket        = var.runner_binaries_s3_logging_bucket

@@ -1,8 +1,3 @@
-variable "aws_region" {
-  description = "AWS region."
-  type        = string
-}
-
 variable "tags" {
   description = "Map of tags that will be added to created resources. By default resources will be tagged with name and environment."
   type        = map(string)
@@ -140,16 +135,19 @@ variable "runner_allow_prerelease_binaries" {
 
 variable "lambda_s3_bucket" {
   description = "S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly."
+  type        = string
   default     = null
 }
 
 variable "syncer_lambda_s3_key" {
   description = "S3 key for syncer lambda function. Required if using S3 bucket to specify lambdas."
+  type        = string
   default     = null
 }
 
 variable "syncer_lambda_s3_object_version" {
   description = "S3 object version for syncer lambda function. Useful if S3 versioning is enabled on source bucket."
+  type        = string
   default     = null
 }
 
@@ -215,13 +213,13 @@ variable "lambda_principals" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs16.x"
+  default     = "nodejs18.x"
 }
 
 variable "lambda_architecture" {
   description = "AWS Lambda architecture. Lambda functions using Graviton processors ('arm64') tend to have better price/performance than 'x86_64' functions. "
   type        = string
-  default     = "x86_64"
+  default     = "arm64"
   validation {
     condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
     error_message = "`lambda_architecture` value is not valid, valid values are: `arm64` and `x86_64`."

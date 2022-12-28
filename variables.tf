@@ -208,7 +208,7 @@ variable "enable_runner_detailed_monitoring" {
   default     = false
 }
 
-variable "enabled_userdata" {
+variable "enable_userdata" {
   description = "Should the userdata script be enabled for the runner. Set this to false if you are using your own prebuilt AMI."
   type        = bool
   default     = true
@@ -274,26 +274,18 @@ variable "runner_allow_prerelease_binaries" {
 variable "block_device_mappings" {
   description = "The EC2 instance block device configuration. Takes the following keys: `device_name`, `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops`, `throughput`, `kms_key_id`, `snapshot_id`."
   type = list(object({
-    delete_on_termination = bool
-    device_name           = string
-    encrypted             = bool
-    iops                  = number
-    kms_key_id            = string
-    snapshot_id           = string
-    throughput            = number
+    delete_on_termination = optional(bool, true)
+    device_name           = optional(string, "/dev/xvda")
+    encrypted             = optional(bool, true)
+    iops                  = optional(number)
+    kms_key_id            = optional(string)
+    snapshot_id           = optional(string)
+    throughput            = optional(number)
     volume_size           = number
-    volume_type           = string
+    volume_type           = optional(string, "gp3")
   }))
   default = [{
-    delete_on_termination = true
-    device_name           = "/dev/xvda"
-    encrypted             = true
-    iops                  = null
-    kms_key_id            = null
-    snapshot_id           = null
-    throughput            = null
-    volume_size           = 30
-    volume_type           = "gp3"
+    volume_size = 30
   }]
 }
 
@@ -317,26 +309,31 @@ variable "ami_id_ssm_parameter_name" {
 
 variable "lambda_s3_bucket" {
   description = "S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly."
+  type        = string
   default     = null
 }
 
 variable "syncer_lambda_s3_key" {
   description = "S3 key for syncer lambda function. Required if using S3 bucket to specify lambdas."
+  type        = string
   default     = null
 }
 
 variable "syncer_lambda_s3_object_version" {
   description = "S3 object version for syncer lambda function. Useful if S3 versioning is enabled on source bucket."
+  type        = string
   default     = null
 }
 
 variable "webhook_lambda_s3_key" {
   description = "S3 key for webhook lambda function. Required if using S3 bucket to specify lambdas."
+  type        = string
   default     = null
 }
 
 variable "webhook_lambda_s3_object_version" {
   description = "S3 object version for webhook lambda function. Useful if S3 versioning is enabled on source bucket."
+  type        = string
   default     = null
 }
 
@@ -350,11 +347,13 @@ variable "webhook_lambda_apigateway_access_log_settings" {
 
 variable "runners_lambda_s3_key" {
   description = "S3 key for runners lambda function. Required if using S3 bucket to specify lambdas."
+  type        = string
   default     = null
 }
 
 variable "runners_lambda_s3_object_version" {
   description = "S3 object version for runners lambda function. Useful if S3 versioning is enabled on source bucket."
+  type        = string
   default     = null
 }
 
@@ -429,17 +428,6 @@ variable "runner_additional_security_group_ids" {
   default     = []
 }
 
-variable "market_options" {
-  description = "DEPCRECATED: Replaced by `instance_target_capacity_type`."
-  type        = string
-  default     = null
-
-  validation {
-    condition     = anytrue([var.market_options == null])
-    error_message = "Deprecated, replaced by `instance_target_capacity_type`."
-  }
-}
-
 variable "instance_target_capacity_type" {
   description = "Default lifecycle used for runner instances, can be either `spot` or `on-demand`."
   type        = string
@@ -464,17 +452,6 @@ variable "instance_max_spot_price" {
   description = "Max price price for spot intances per hour. This variable will be passed to the create fleet as max spot price for the fleet."
   type        = string
   default     = null
-}
-
-variable "instance_type" {
-  description = "[DEPRECATED] See instance_types."
-  type        = string
-  default     = null
-
-  validation {
-    condition     = anytrue([var.instance_type == null])
-    error_message = "Deprecated, replaced by `instance_types`."
-  }
 }
 
 variable "instance_types" {
@@ -555,12 +532,6 @@ variable "log_level" {
     ])
     error_message = "`log_level` value not valid. Valid values are 'silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'."
   }
-}
-
-variable "runner_enable_workflow_job_labels_check" {
-  description = "If set to true all labels in the workflow job even are matched against the custom labels and GitHub labels (os, architecture and `self-hosted`). When the labels are not matching the event is dropped at the webhook."
-  type        = bool
-  default     = false
 }
 
 variable "runner_enable_workflow_job_labels_check_all" {
@@ -698,13 +669,13 @@ variable "disable_runner_autoupdate" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs16.x"
+  default     = "nodejs18.x"
 }
 
 variable "lambda_architecture" {
   description = "AWS Lambda architecture. Lambda functions using Graviton processors ('arm64') tend to have better price/performance than 'x86_64' functions. "
   type        = string
-  default     = "x86_64"
+  default     = "arm64"
   validation {
     condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
     error_message = "`lambda_architecture` value is not valid, valid values are: `arm64` and `x86_64`."
@@ -758,4 +729,15 @@ variable "enable_user_data_debug_logging_runner" {
   description = "Option to enable debug logging for user-data, this logs all secrets as well."
   type        = bool
   default     = false
+}
+
+variable "ssm_paths" {
+  description = "The root path used in SSM to store configuration and secreets."
+  type = object({
+    root       = optional(string, "github-action-runners")
+    app        = optional(string, "app")
+    runners    = optional(string, "runners")
+    use_prefix = optional(bool, true)
+  })
+  default = {}
 }

@@ -33,6 +33,7 @@ export interface RunnerInputParameters {
   environment: string;
   runnerType: 'Org' | 'Repo';
   runnerOwner: string;
+  ssmTokenPath: string;
   subnets: string[];
   launchTemplateName: string;
   ec2instanceCriteria: {
@@ -73,10 +74,7 @@ function constructFilters(filters?: ListRunnerFilters): Ec2Filter[][] {
     }
   }
 
-  // ***Deprecation Notice***
-  // Support for legacy `Application` tag keys
-  // will be removed in next major release.
-  for (const key of ['tag:ghr:Application', 'tag:Application']) {
+  for (const key of ['tag:ghr:Application']) {
     const filter = [...ec2FiltersBase];
     filter.push({ Name: key, Values: ['github-action-runner'] });
     ec2Filters.push(filter);
@@ -261,7 +259,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
   for (const instance of instances) {
     await ssm
       .putParameter({
-        Name: `${runnerParameters.environment}-${instance}`,
+        Name: `${runnerParameters.ssmTokenPath}/${instance}`,
         Value: runnerParameters.runnerServiceConfig.join(' '),
         Type: 'SecureString',
       })

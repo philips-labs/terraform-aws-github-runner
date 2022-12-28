@@ -7,9 +7,6 @@ resource "random_id" "random" {
   byte_length = 20
 }
 
-data "aws_caller_identity" "current" {}
-
-
 module "base" {
   source = "../base"
 
@@ -30,8 +27,8 @@ module "runners" {
   }
 
   github_app = {
-    key_base64     = var.github_app_key_base64
-    id             = var.github_app_id
+    key_base64     = var.github_app.key_base64
+    id             = var.github_app.id
     webhook_secret = random_id.random.hex
   }
 
@@ -61,8 +58,8 @@ module "runners" {
   # option 2: Build custom AMI see ../../images/ubuntu-focal
   #           disable lines above (option 1) and enable the ones below
   # ami_filter = { name = ["github-runner-ubuntu-focal-amd64-*"] }
+  # data "aws_caller_identity" "current" {}
   # ami_owners = [data.aws_caller_identity.current.account_id]
-
 
   block_device_mappings = [{
     # Set the block device name for Ubuntu root device
@@ -101,7 +98,7 @@ module "runners" {
   # Uncomment to enable ephemeral runners
   # delay_webhook_event      = 0
   # enable_ephemeral_runners = true
-  # enabled_userdata         = true
+  # enable_userdata         = true
 
   # Uncommet idle config to have idle runners from 9 to 5 in time zone Amsterdam
   # idle_config = [{

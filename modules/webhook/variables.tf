@@ -1,8 +1,3 @@
-variable "aws_region" {
-  description = "AWS region."
-  type        = string
-}
-
 variable "environment" {
   description = "A name that identifies the environment, used as prefix and for tagging."
   type        = string
@@ -20,22 +15,23 @@ variable "prefix" {
   default     = "github-actions"
 }
 
-variable "github_app_webhook_secret_arn" {
-  type = string
-}
-
 variable "tags" {
   description = "Map of tags that will be added to created resources. By default resources will be tagged with name and environment."
   type        = map(string)
   default     = {}
 }
 
-variable "sqs_build_queue" {
-  description = "SQS queue to publish accepted build events."
-  type = object({
-    id  = string
-    arn = string
-  })
+variable "runner_config" {
+  description = "SQS queue to publish accepted build events based on the runner type."
+  type = map(object({
+    arn  = string
+    id   = string
+    fifo = bool
+    matcherConfig = object({
+      labelMatchers = list(list(string))
+      exactMatch    = bool
+    })
+  }))
 }
 variable "sqs_workflow_job_queue" {
   description = "SQS queue to monitor github events."
@@ -83,16 +79,19 @@ variable "logging_kms_key_id" {
 
 variable "lambda_s3_bucket" {
   description = "S3 bucket from which to specify lambda functions. This is an alternative to providing local files directly."
+  type        = string
   default     = null
 }
 
 variable "webhook_lambda_s3_key" {
   description = "S3 key for webhook lambda function. Required if using S3 bucket to specify lambdas."
+  type        = string
   default     = null
 }
 
 variable "webhook_lambda_s3_object_version" {
   description = "S3 object version for webhook lambda function. Useful if S3 versioning is enabled on source bucket."
+  type        = string
   default     = null
 }
 
@@ -115,24 +114,6 @@ variable "kms_key_arn" {
   description = "Optional CMK Key ARN to be used for Parameter Store."
   type        = string
   default     = null
-}
-
-variable "runner_labels" {
-  description = "Extra (custom) labels for the runners (GitHub). Separate each label by a comma. Labels checks on the webhook can be enforced by setting `enable_workflow_job_labels_check`. GitHub read-only labels should not be provided."
-  type        = string
-  default     = ""
-}
-
-variable "enable_workflow_job_labels_check" {
-  description = "If set to true all labels in the workflow job even are matched against the custom labels and GitHub labels (os, architecture and `self-hosted`). When the labels are not matching the event is dropped at the webhook."
-  type        = bool
-  default     = false
-}
-
-variable "workflow_job_labels_check_all" {
-  description = "If set to true all labels in the workflow job must match the GitHub labels (os, architecture and `self-hosted`). When false if __any__ label matches it will trigger the webhook. `enable_workflow_job_labels_check` must be true for this to take effect."
-  type        = bool
-  default     = true
 }
 
 variable "log_type" {
@@ -167,30 +148,25 @@ variable "log_level" {
   }
 }
 
-variable "disable_check_wokflow_job_labels" {
-  description = "Disable the check of workflow labels."
-  type        = bool
-  default     = false
-}
-
-variable "sqs_build_queue_fifo" {
-  description = "Enable a FIFO queue to remain the order of events received by the webhook. Suggest to set to true for repo level runners."
-  type        = bool
-  default     = false
-}
-
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs16.x"
+  default     = "nodejs18.x"
 }
 
 variable "lambda_architecture" {
   description = "AWS Lambda architecture. Lambda functions using Graviton processors ('arm64') tend to have better price/performance than 'x86_64' functions. "
   type        = string
-  default     = "x86_64"
+  default     = "arm64"
   validation {
     condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
     error_message = "`lambda_architecture` value is not valid, valid values are: `arm64` and `x86_64`."
   }
+}
+
+variable "github_app_parameters" {
+  description = "Parameter Store for GitHub App Parameters."
+  type = object({
+    webhook_secret = map(string)
+  })
 }

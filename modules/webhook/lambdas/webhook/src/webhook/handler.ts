@@ -3,16 +3,15 @@ import { CheckRunEvent, WorkflowJobEvent } from '@octokit/webhooks-types';
 import { IncomingHttpHeaders } from 'http';
 
 import { Response } from '../lambda';
-import { sendActionRequest, sendWebhookEventToWorkflowJobQueue } from '../sqs';
+import { QueueConfig, sendActionRequest, sendWebhookEventToWorkflowJobQueue } from '../sqs';
 import { getParameterValue } from '../ssm';
 import { LogFields, logger as rootLogger } from './logger';
 
-const supportedEvents = ['check_run', 'workflow_job'];
+const supportedEvents = ['workflow_job'];
 const logger = rootLogger.getChildLogger();
 
 export async function handle(headers: IncomingHttpHeaders, body: string): Promise<Response> {
-  const { environment, repositoryWhiteList, enableWorkflowLabelCheck, workflowLabelCheckAll, runnerLabels } =
-    readEnvironmentVariables();
+  const { environment, repositoryWhiteList, queuesConfig } = readEnvironmentVariables();
 
   // ensure header keys lower case since github headers can contain capitals.
   for (const key in headers) {
@@ -22,7 +21,7 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   const githubEvent = headers['x-github-event'] as string;
 
   let response: Response = {
-    statusCode: await verifySignature(githubEvent, headers, body, environment),
+    statusCode: await verifySignature(githubEvent, headers, body),
   };
 
   if (response.statusCode != 200) {
@@ -52,7 +51,6 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   */
   LogFields.fields.completed_at = payload[githubEvent]?.completed_at;
   LogFields.fields.conclusion = payload[githubEvent]?.conclusion;
-
   if (isRepoNotAllowed(payload.repository.full_name, repositoryWhiteList)) {
     logger.error(`Received event from unauthorized repository ${payload.repository.full_name}`, LogFields.print());
     return {
@@ -61,24 +59,14 @@ export async function handle(headers: IncomingHttpHeaders, body: string): Promis
   }
 
   logger.info(`Processing Github event`, LogFields.print());
+  logger.debug(`Queue configuration: ${queuesConfig}`, LogFields.print());
 
-  if (githubEvent == 'workflow_job') {
-    const workflowEventPayload = payload as WorkflowJobEvent;
-    response = await handleWorkflowJob(
-      workflowEventPayload,
-      githubEvent,
-      enableWorkflowLabelCheck,
-      workflowLabelCheckAll,
-      runnerLabels,
-    );
-    await sendWorkflowJobEvents(githubEvent, workflowEventPayload);
-  } else if (githubEvent == 'check_run') {
-    response = await handleCheckRun(payload as CheckRunEvent, githubEvent);
-  }
-
+  const workflowJobEvent = payload as WorkflowJobEvent;
+  response = await handleWorkflowJob(workflowJobEvent, githubEvent, queuesConfig);
+  await sendWorkflowJobEvents(workflowJobEvent);
   return response;
 }
-async function sendWorkflowJobEvents(githubEvent: string, workflowEventPayload: WorkflowJobEvent) {
+async function sendWorkflowJobEvents(workflowEventPayload: WorkflowJobEvent) {
   await sendWebhookEventToWorkflowJobQueue({
     workflowJobEvent: workflowEventPayload,
   });
@@ -86,23 +74,14 @@ async function sendWorkflowJobEvents(githubEvent: string, workflowEventPayload: 
 
 function readEnvironmentVariables() {
   const environment = process.env.ENVIRONMENT;
-  const enableWorkflowLabelCheckEnv = process.env.ENABLE_WORKFLOW_JOB_LABELS_CHECK || 'false';
-  const enableWorkflowLabelCheck = JSON.parse(enableWorkflowLabelCheckEnv) as boolean;
-  const workflowLabelCheckAllEnv = process.env.WORKFLOW_JOB_LABELS_CHECK_ALL || 'false';
-  const workflowLabelCheckAll = JSON.parse(workflowLabelCheckAllEnv) as boolean;
   const repositoryWhiteListEnv = process.env.REPOSITORY_WHITE_LIST || '[]';
   const repositoryWhiteList = JSON.parse(repositoryWhiteListEnv) as Array<string>;
-  const runnerLabelsEnv = (process.env.RUNNER_LABELS || '[]').toLowerCase();
-  const runnerLabels = JSON.parse(runnerLabelsEnv) as Array<string>;
-  return { environment, repositoryWhiteList, enableWorkflowLabelCheck, workflowLabelCheckAll, runnerLabels };
+  const queuesConfigEnv = process.env.RUNNER_CONFIG || '[]';
+  const queuesConfig = JSON.parse(queuesConfigEnv) as Array<QueueConfig>;
+  return { environment, repositoryWhiteList, queuesConfig };
 }
 
-async function verifySignature(
-  githubEvent: string,
-  headers: IncomingHttpHeaders,
-  body: string,
-  environment: string,
-): Promise<number> {
+async function verifySignature(githubEvent: string, headers: IncomingHttpHeaders, body: string): Promise<number> {
   let signature;
   if ('x-hub-signature-256' in headers) {
     signature = headers['x-hub-signature-256'] as string;
@@ -117,7 +96,7 @@ async function verifySignature(
     return 500;
   }
 
-  const secret = await getParameterValue(environment, 'github_app_webhook_secret');
+  const secret = await getParameterValue(process.env.PARAMETER_GITHUB_APP_WEBHOOK_SECRET);
 
   const webhooks = new Webhooks({
     secret: secret,
@@ -132,11 +111,32 @@ async function verifySignature(
 async function handleWorkflowJob(
   body: WorkflowJobEvent,
   githubEvent: string,
-  enableWorkflowLabelCheck: boolean,
-  workflowLabelCheckAll: boolean,
-  runnerLabels: string[],
+  queuesConfig: Array<QueueConfig>,
 ): Promise<Response> {
-  if (enableWorkflowLabelCheck && !canRunJob(body, runnerLabels, workflowLabelCheckAll)) {
+  const installationId = getInstallationId(body);
+  if (body.action === 'queued') {
+    // sort the queuesConfig by order of matcher config exact match, with all true matches lined up ahead.
+    queuesConfig.sort((a, b) => {
+      return a.matcherConfig.exactMatch === b.matcherConfig.exactMatch ? 0 : a.matcherConfig.exactMatch ? -1 : 1;
+    });
+    for (const queue of queuesConfig) {
+      if (canRunJob(body.workflow_job.labels, queue.matcherConfig.labelMatchers, queue.matcherConfig.exactMatch)) {
+        await sendActionRequest({
+          id: body.workflow_job.id,
+          repositoryName: body.repository.name,
+          repositoryOwner: body.repository.owner.login,
+          eventType: githubEvent,
+          installationId: installationId,
+          queueId: queue.id,
+          queueFifo: queue.fifo,
+        });
+        logger.info(
+          `Successfully queued job for ${body.repository.full_name} to the queue ${queue.id}`,
+          LogFields.print(),
+        );
+        return { statusCode: 201 };
+      }
+    }
     logger.warn(
       `Received event contains runner labels '${body.workflow_job.labels}' that are not accepted.`,
       LogFields.print(),
@@ -146,33 +146,6 @@ async function handleWorkflowJob(
       body: `Received event contains runner labels '${body.workflow_job.labels}' that are not accepted.`,
     };
   }
-
-  const installationId = getInstallationId(body);
-  if (body.action === 'queued') {
-    await sendActionRequest({
-      id: body.workflow_job.id,
-      repositoryName: body.repository.name,
-      repositoryOwner: body.repository.owner.login,
-      eventType: githubEvent,
-      installationId: installationId,
-    });
-    logger.info(`Successfully queued job for ${body.repository.full_name}`, LogFields.print());
-  }
-  return { statusCode: 201 };
-}
-
-async function handleCheckRun(body: CheckRunEvent, githubEvent: string): Promise<Response> {
-  const installationId = getInstallationId(body);
-  if (body.action === 'created' && body.check_run.status === 'queued') {
-    await sendActionRequest({
-      id: body.check_run.id,
-      repositoryName: body.repository.name,
-      repositoryOwner: body.repository.owner.login,
-      eventType: githubEvent,
-      installationId: installationId,
-    });
-  }
-  logger.info(`Successfully queued job for ${body.repository.full_name}`, LogFields.print());
   return { statusCode: 201 };
 }
 
@@ -188,16 +161,22 @@ function isRepoNotAllowed(repoFullName: string, repositoryWhiteList: string[]): 
   return repositoryWhiteList.length > 0 && !repositoryWhiteList.includes(repoFullName);
 }
 
-function canRunJob(job: WorkflowJobEvent, runnerLabels: string[], workflowLabelCheckAll: boolean): boolean {
-  const workflowJobLabels = job.workflow_job.labels;
+function canRunJob(
+  workflowJobLabels: string[],
+  runnerLabelsMatchers: string[][],
+  workflowLabelCheckAll: boolean,
+): boolean {
+  runnerLabelsMatchers = runnerLabelsMatchers.map((runnerLabel) => {
+    return runnerLabel.map((label) => label.toLowerCase());
+  });
   const match = workflowLabelCheckAll
-    ? workflowJobLabels.every((l) => runnerLabels.includes(l.toLowerCase()))
-    : workflowJobLabels.some((l) => runnerLabels.includes(l.toLowerCase()));
+    ? workflowJobLabels.every((wl) => runnerLabelsMatchers.some((rl) => rl.includes(wl.toLowerCase())))
+    : workflowJobLabels.some((wl) => runnerLabelsMatchers.some((rl) => rl.includes(wl.toLowerCase())));
 
   logger.debug(
     `Received workflow job event with labels: '${JSON.stringify(workflowJobLabels)}'. The event does ${
       match ? '' : 'NOT '
-    }match the runner labels: '${Array.from(runnerLabels).join(',')}'`,
+    }match the runner labels: '${Array.from(runnerLabelsMatchers).join(',')}'`,
     LogFields.print(),
   );
   return match;

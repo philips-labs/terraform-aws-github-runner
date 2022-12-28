@@ -14,6 +14,7 @@ const LAUNCH_TEMPLATE = 'lt-1';
 const ORG_NAME = 'SomeAwesomeCoder';
 const REPO_NAME = `${ORG_NAME}/some-amazing-library`;
 const ENVIRONMENT = 'unit-test-environment';
+const SSM_TOKEN_PATH = '/github-action-runners/default/runners/tokens';
 
 const mockDescribeInstances = { promise: jest.fn() };
 mockEC2.describeInstances.mockImplementation(() => mockDescribeInstances);
@@ -34,23 +35,6 @@ const mockRunningInstances: AWS.EC2.DescribeInstancesResult = {
     },
   ],
 };
-const mockRunningInstancesLegacy: AWS.EC2.DescribeInstancesResult = {
-  Reservations: [
-    {
-      Instances: [
-        {
-          LaunchTime: new Date('2020-10-11T14:48:00.000+09:00'),
-          InstanceId: 'i-5678',
-          Tags: [
-            { Key: 'Owner', Value: REPO_NAME },
-            { Key: 'Type', Value: 'Repo' },
-            { Key: 'Application', Value: 'github-action-runner' },
-          ],
-        },
-      ],
-    },
-  ],
-};
 
 describe('list instances', () => {
   beforeEach(() => {
@@ -59,37 +43,25 @@ describe('list instances', () => {
   });
 
   it('returns a list of instances', async () => {
-    mockDescribeInstances.promise
-      .mockReturnValueOnce(mockRunningInstances)
-      .mockReturnValueOnce(mockRunningInstancesLegacy);
+    mockDescribeInstances.promise.mockReturnValue(mockRunningInstances);
     const resp = await listEC2Runners();
-    expect(resp.length).toBe(2);
+    expect(resp.length).toBe(1);
     expect(resp).toContainEqual({
       instanceId: 'i-1234',
       launchTime: new Date('2020-10-10T14:48:00.000+09:00'),
       type: 'Org',
       owner: 'CoderToCat',
     });
-    expect(resp).toContainEqual({
-      instanceId: 'i-5678',
-      launchTime: new Date('2020-10-11T14:48:00.000+09:00'),
-      type: 'Repo',
-      owner: REPO_NAME,
-    });
   });
 
   it('calls EC2 describe instances', async () => {
-    mockDescribeInstances.promise
-      .mockReturnValueOnce(mockRunningInstances)
-      .mockReturnValueOnce(mockRunningInstancesLegacy);
+    mockDescribeInstances.promise.mockReturnValueOnce(mockRunningInstances);
     await listEC2Runners();
     expect(mockEC2.describeInstances).toBeCalled();
   });
 
   it('filters instances on repo name', async () => {
-    mockDescribeInstances.promise
-      .mockReturnValueOnce(mockRunningInstances)
-      .mockReturnValueOnce(mockRunningInstancesLegacy);
+    mockDescribeInstances.promise.mockReturnValueOnce(mockRunningInstances);
     await listEC2Runners({ runnerType: 'Repo', runnerOwner: REPO_NAME, environment: undefined });
     expect(mockEC2.describeInstances).toBeCalledWith({
       Filters: [
@@ -99,20 +71,10 @@ describe('list instances', () => {
         { Name: 'tag:ghr:Application', Values: ['github-action-runner'] },
       ],
     });
-    expect(mockEC2.describeInstances).toBeCalledWith({
-      Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] },
-        { Name: 'tag:Type', Values: ['Repo'] },
-        { Name: 'tag:Owner', Values: [REPO_NAME] },
-        { Name: 'tag:Application', Values: ['github-action-runner'] },
-      ],
-    });
   });
 
   it('filters instances on org name', async () => {
-    mockDescribeInstances.promise
-      .mockReturnValueOnce(mockRunningInstances)
-      .mockReturnValueOnce(mockRunningInstancesLegacy);
+    mockDescribeInstances.promise.mockReturnValueOnce(mockRunningInstances);
     await listEC2Runners({ runnerType: 'Org', runnerOwner: ORG_NAME, environment: undefined });
     expect(mockEC2.describeInstances).toBeCalledWith({
       Filters: [
@@ -125,9 +87,7 @@ describe('list instances', () => {
   });
 
   it('filters instances on environment', async () => {
-    mockDescribeInstances.promise
-      .mockReturnValueOnce(mockRunningInstances)
-      .mockReturnValueOnce(mockRunningInstancesLegacy);
+    mockDescribeInstances.promise.mockReturnValueOnce(mockRunningInstances);
     await listEC2Runners({ environment: ENVIRONMENT });
     expect(mockEC2.describeInstances).toBeCalledWith({
       Filters: [
@@ -155,7 +115,7 @@ describe('list instances', () => {
         },
       ],
     };
-    mockDescribeInstances.promise.mockReturnValueOnce(noInstances).mockReturnValueOnce(noInstances);
+    mockDescribeInstances.promise.mockReturnValueOnce(noInstances);
     const resp = await listEC2Runners();
     expect(resp.length).toBe(0);
   });
@@ -174,7 +134,7 @@ describe('list instances', () => {
         },
       ],
     };
-    mockDescribeInstances.promise.mockReturnValueOnce(noInstances).mockReturnValue({});
+    mockDescribeInstances.promise.mockReturnValueOnce(noInstances);
     const resp = await listEC2Runners();
     expect(resp.length).toBe(1);
   });
@@ -251,7 +211,7 @@ describe('create runner', () => {
     expect(mockSSM.putParameter).toBeCalledTimes(2);
     for (const instance of instances[0].InstanceIds) {
       expect(mockSSM.putParameter).toBeCalledWith({
-        Name: `unit-test-environment-${instance}`,
+        Name: `${SSM_TOKEN_PATH}/${instance}`,
         Type: 'SecureString',
         Value: '--token foo --url http://github.com',
       });
@@ -282,7 +242,7 @@ describe('create runner', () => {
   it('creates ssm parameters for each created instance', async () => {
     await createRunner(createRunnerConfig(defaultRunnerConfig));
     expect(mockSSM.putParameter).toBeCalledWith({
-      Name: `${ENVIRONMENT}-i-1234`,
+      Name: `${SSM_TOKEN_PATH}/i-1234`,
       Value: '--token foo --url http://github.com',
       Type: 'SecureString',
     });
@@ -434,6 +394,7 @@ function createRunnerConfig(runnerConfig: RunnerConfig): RunnerInputParameters {
     environment: ENVIRONMENT,
     runnerType: runnerConfig.type,
     runnerOwner: REPO_NAME,
+    ssmTokenPath: SSM_TOKEN_PATH,
     launchTemplateName: LAUNCH_TEMPLATE,
     ec2instanceCriteria: {
       instanceTypes: ['m5.large', 'c5.large'],
