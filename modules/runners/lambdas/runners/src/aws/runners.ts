@@ -256,6 +256,10 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
 
   logger.info('Created instance(s): ', instances.join(','), LogFields.print());
 
+  const delay = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const ssmParameterStoreMaxThroughput = 40;
+  const isDelay = instances.length >= ssmParameterStoreMaxThroughput ? true : false;
+
   for (const instance of instances) {
     await ssm
       .putParameter({
@@ -264,5 +268,10 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
         Type: 'SecureString',
       })
       .promise();
+
+    if (isDelay) {
+      // Delay to prevent AWS ssm rate limits by being within the max throughput limit
+      await delay(25);
+    }
   }
 }
