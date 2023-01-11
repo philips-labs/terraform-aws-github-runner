@@ -42,20 +42,28 @@ const MINIMUM_TIME_RUNNING = 15;
 
 const ec2InstancesRegistered = [
   {
-    instanceId: 'i-1',
+    instanceId: 'i-1-idle',
     launchTime: new Date(),
     type: 'Org',
     owner: ORG,
   },
   {
-    instanceId: 'i-2',
+    instanceId: 'i-2-busy',
     launchTime: new Date(),
     type: 'Org',
     owner: ORG,
   },
   {
-    instanceId: 'i-3',
+    instanceId: 'i-3-offline',
     launchTime: new Date(),
+    type: 'Org',
+    owner: ORG,
+  },
+  {
+    instanceId: 'i-4-idle-older-than-minimum-time-running',
+    launchTime:  moment(new Date())
+    .subtract(MINIMUM_TIME_RUNNING + 3, 'minutes')
+    .toDate(),
     type: 'Org',
     owner: ORG,
   },
@@ -91,7 +99,7 @@ beforeEach(() => {
   mockOctokit.paginate.mockImplementation(() => [
     {
       id: 1,
-      name: 'i-1',
+      name: 'i-1-idle',
       os: 'linux',
       status: 'online',
       busy: false,
@@ -99,7 +107,7 @@ beforeEach(() => {
     },
     {
       id: 2,
-      name: 'i-2',
+      name: 'i-2-busy',
       os: 'linux',
       status: 'online',
       busy: true,
@@ -107,9 +115,17 @@ beforeEach(() => {
     },
     {
       id: 3,
-      name: 'i-3',
+      name: 'i-3-offline',
       os: 'linux',
       status: 'offline',
+      busy: false,
+      labels: [],
+    },
+    {
+      id: 3,
+      name: 'i-4-idle-older-than-minimum-time-running',
+      os: 'linux',
+      status: 'online',
       busy: false,
       labels: [],
     },
@@ -151,7 +167,7 @@ describe('Test simple pool.', () => {
       expect(createRunners).toHaveBeenCalledTimes(1);
       expect(createRunners).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ numberOfRunners: 2 }),
+        expect.objectContaining({ numberOfRunners: 1 }),
         expect.anything(),
       );
     });
@@ -182,11 +198,11 @@ describe('Test simple pool.', () => {
         },
       ]);
 
-      // 1 idle + 1 booting = 2, top up with 3 to match a pool of 5
+      // 2 idle + 1 booting = 3, top up with 2 to match a pool of 5
       await expect(await adjust({ poolSize: 5 })).resolves;
       expect(createRunners).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ numberOfRunners: 3 }),
+        expect.objectContaining({ numberOfRunners: 2 }),
         expect.anything(),
       );
     });
@@ -224,10 +240,10 @@ describe('Test simple pool.', () => {
 
     it('Top up if the pool size is set to 5', async () => {
       await expect(await adjust({ poolSize: 5 })).resolves;
-      // 1 idle, top up with 4 to match a pool of 5
+      // 2 idle, top up with 3 to match a pool of 5
       expect(createRunners).toHaveBeenCalledWith(
         expect.anything(),
-        expect.objectContaining({ numberOfRunners: 4 }),
+        expect.objectContaining({ numberOfRunners: 3 }),
         expect.anything(),
       );
     });
