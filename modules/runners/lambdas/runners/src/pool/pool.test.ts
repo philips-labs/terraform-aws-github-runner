@@ -61,9 +61,9 @@ const ec2InstancesRegistered = [
   },
   {
     instanceId: 'i-4-idle-older-than-minimum-time-running',
-    launchTime:  moment(new Date())
-    .subtract(MINIMUM_TIME_RUNNING + 3, 'minutes')
-    .toDate(),
+    launchTime: moment(new Date())
+      .subtract(MINIMUM_TIME_RUNNING + 3, 'minutes')
+      .toDate(),
     type: 'Org',
     owner: ORG,
   },
