@@ -149,6 +149,7 @@ describe('Test simple pool.', () => {
     it('Top up pool with pool size 2 registered.', async () => {
       await expect(await adjust({ poolSize: 3 })).resolves;
       expect(createRunners).toHaveBeenCalledTimes(1);
+      expect(createRunners).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({numberOfRunners: 2}), expect.anything());
     });
 
     it('Should not top up if pool size is reached.', async () => {
@@ -177,8 +178,9 @@ describe('Test simple pool.', () => {
         },
       ]);
 
+      // 1 idle + 1 booting = 2, top up with 3 to match a pool of 5
       await expect(await adjust({ poolSize: 5 })).resolves;
-      expect(createRunners).toHaveBeenCalledTimes(1);
+      expect(createRunners).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({numberOfRunners: 3}), expect.anything());
     });
 
     it('Should not top up if pool size is reached including a booting instance.', async () => {
@@ -213,8 +215,9 @@ describe('Test simple pool.', () => {
     });
 
     it('Top up if the pool size is set to 5', async () => {
-      await expect(await adjust({ poolSize: 3 })).resolves;
-      expect(createRunners).toHaveBeenCalledTimes(1);
+      await expect(await adjust({ poolSize: 5 })).resolves;
+      // 1 idle, top up with 4 to match a pool of 5
+      expect(createRunners).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({numberOfRunners: 4}), expect.anything());
     });
   });
 });
