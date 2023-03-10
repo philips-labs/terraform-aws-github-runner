@@ -122,24 +122,8 @@ resource "aws_iam_role_policy_attachment" "scale_up_vpc_execution_role" {
   policy_arn = "arn:${var.aws_partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-resource "aws_iam_role_policy" "ami_id_ssm_parameter_read" {
-  count  = var.ami_id_ssm_parameter_name != null ? 1 : 0
-  name   = "${var.prefix}-ami-id-ssm-parameter-read"
-  role   = aws_iam_role.scale_up.name
-  policy = <<-JSON
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-            "ssm:GetParameter"
-          ],
-          "Resource": [
-            "arn:${var.aws_partition}:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${trimprefix(var.ami_id_ssm_parameter_name, "/")}"
-          ]
-        }
-      ]
-    }
-  JSON
+resource "aws_iam_role_policy_attachment" "ami_id_ssm_parameter_read" {
+  count      = var.ami_id_ssm_parameter_name != null ? 1 : 0
+  role       = aws_iam_role.scale_up.name
+  policy_arn = aws_iam_policy.ami_id_ssm_parameter_read[0].arn
 }

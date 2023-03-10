@@ -37,6 +37,7 @@ resource "aws_lambda_function" "pool" {
       RUNNER_OWNER                         = var.config.runner.pool_owner
       SSM_TOKEN_PATH                       = var.config.ssm_token_path
       SUBNET_IDS                           = join(",", var.config.subnet_ids)
+      AMI_ID_SSM_PARAMETER_NAME            = var.config.ami_id_ssm_parameter_name
     }
   }
 
@@ -137,4 +138,10 @@ resource "aws_lambda_permission" "pool" {
   function_name = aws_lambda_function.pool.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.pool[count.index].arn
+}
+
+resource "aws_iam_role_policy_attachment" "ami_id_ssm_parameter_read" {
+  count      = var.config.ami_id_ssm_parameter_name != null ? 1 : 0
+  role       = aws_iam_role.pool.name
+  policy_arn = var.config.ami_id_ssm_parameter_read_policy_arn
 }

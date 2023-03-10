@@ -49,11 +49,13 @@ variable "config" {
       schedule_expression = string
       size                = number
     }))
-    role_permissions_boundary = string
-    kms_key_arn               = string
-    ami_kms_key_arn           = string
-    role_path                 = string
-    ssm_token_path            = string
+    role_permissions_boundary            = string
+    kms_key_arn                          = string
+    ami_kms_key_arn                      = string
+    role_path                            = string
+    ssm_token_path                       = string
+    ami_id_ssm_parameter_name            = string
+    ami_id_ssm_parameter_read_policy_arn = string
   })
 }
 
