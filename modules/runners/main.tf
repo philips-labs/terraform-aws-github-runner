@@ -121,6 +121,9 @@ resource "aws_launch_template" "runner" {
       {
         "Name" = format("%s", local.name_runner)
       },
+      {
+        "ghr:runner_name_prefix" = var.runner_name_prefix
+      },
       var.runner_ec2_tags
     )
   }
@@ -131,6 +134,9 @@ resource "aws_launch_template" "runner" {
       local.tags,
       {
         "Name" = format("%s", local.name_runner)
+      },
+      {
+        "ghr:runner_name_prefix" = var.runner_name_prefix
       },
       var.runner_ec2_tags
     )

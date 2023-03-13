@@ -214,6 +214,7 @@ export async function createRunner(runnerParameters: RunnerInputParameters): Pro
             ResourceType: 'instance',
             Tags: [
               { Key: 'ghr:Application', Value: 'github-action-runner' },
+              { Key: 'ghr:created_by', Value: numberOfRunners === 1 ? 'scale-up-lambda' : 'pool-lambda' },
               { Key: 'Type', Value: runnerParameters.runnerType },
               { Key: 'Owner', Value: runnerParameters.runnerOwner },
             ],
