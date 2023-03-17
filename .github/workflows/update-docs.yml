@@ -1,5 +1,5 @@
 name: Update docs
-on: # yamllint disable-line rule:truthy
+on:
   push:
     branches:
       - release-please--branches--main
