@@ -515,7 +515,7 @@ variable "runner_egress_rules" {
 }
 
 variable "log_type" {
-  description = "Logging format for lambda logging. Valid values are 'json', 'pretty', 'hidden'. "
+  description = "Logging format1 for lambda logging. Valid values are 'json', 'pretty', 'hidden'. "
   type        = string
   default     = null
   validation {
