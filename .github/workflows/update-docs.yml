@@ -5,14 +5,16 @@ on:
       - "*.tf"
       - "*.md"
       - ".github/workflows/update-docs.yml"
-permissions: read-all
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   docs:
     # update docs after merge back to develop
     name: Auto update terraform docs
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - if: github.event_name == 'push'
         name: Checkout branch
