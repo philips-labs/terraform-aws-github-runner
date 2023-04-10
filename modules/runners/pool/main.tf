@@ -50,6 +50,13 @@ resource "aws_lambda_function" "pool" {
       subnet_ids         = var.config.lambda.subnet_ids
     }
   }
+
+  dynamic "tracing_config" {
+    for_each = var.lambda_tracing_mode != null ? [true] : []
+    content {
+      mode = var.lambda_tracing_mode
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "pool" {
