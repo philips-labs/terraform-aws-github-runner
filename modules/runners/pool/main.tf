@@ -154,3 +154,27 @@ resource "aws_iam_role_policy_attachment" "ami_id_ssm_parameter_read" {
   role       = aws_iam_role.pool.name
   policy_arn = var.config.ami_id_ssm_parameter_read_policy_arn
 }
+
+# lambda xray policy
+data "aws_iam_policy_document" "lambda_xray" {
+  count = var.lambda_tracing_mode != null ? 1 : 0
+  statement {
+    actions = [
+      "xray:BatchGetTraces",
+      "xray:GetTraceSummaries",
+      "xray:PutTelemetryRecords",
+      "xray:PutTraceSegments"
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
+    ]
+    sid = "AllowXRay"
+  }
+}
+
+resource "aws_iam_role_policy" "pool_xray" {
+  count  = var.lambda_tracing_mode != null ? 1 : 0
+  policy = data.aws_iam_policy_document.lambda_xray[0].json
+  role   = aws_iam_role.pool.name
+}
