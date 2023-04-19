@@ -59,23 +59,42 @@ async function getRunners(ec2Filters: Ec2Filter[]): Promise<Runners.RunnerList[]
   const runners: Runners.RunnerList[] = [];
   let nextToken;
   let hasNext = true;
+
+  const tagFilters = ec2Filters.filter((e) => e.Name.startsWith('tag:'));
+  ec2Filters = ec2Filters.filter((e) => !e.Name.startsWith('tag:'));
+
+
   while (hasNext) {
     const instances: DescribeInstancesResult = await ec2.send(
       new DescribeInstancesCommand({ Filters: ec2Filters, NextToken: nextToken }),
     );
     hasNext = instances.NextToken ? true : false;
     nextToken = instances.NextToken;
-    runners.push(...getRunnerInfo(instances));
+    runners.push(...getRunnerInfo(instances, tagFilters));
   }
   return runners;
 }
 
-function getRunnerInfo(runningInstances: DescribeInstancesResult) {
+function getRunnerInfo(runningInstances: DescribeInstancesResult, tagFilters: Ec2Filter[]): Runners.RunnerList[] {
   const runners: Runners.RunnerList[] = [];
   if (runningInstances.Reservations) {
     for (const r of runningInstances.Reservations) {
       if (r.Instances) {
         for (const i of r.Instances) {
+          // Check if the instance has the required tags
+          if (tagFilters.length > 0) {
+            let hasTags = true;
+            for (const tagFilter of tagFilters) {
+              const tag = i.Tags?.find((e) => e.Key === tagFilter.Name.substring(4));
+              if (!tag || !tagFilter.Values.includes(tag.Value as string)) {
+                hasTags = false;
+                break;
+              }
+            }
+            if (!hasTags) {
+              continue;
+            }
+          }
           runners.push({
             instanceId: i.InstanceId as string,
             launchTime: i.LaunchTime,

@@ -81,10 +81,7 @@ describe('list instances', () => {
     await listEC2Runners({ runnerType: 'Repo', runnerOwner: REPO_NAME, environment: undefined });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
       Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] },
-        { Name: 'tag:Type', Values: ['Repo'] },
-        { Name: 'tag:Owner', Values: [REPO_NAME] },
-        { Name: 'tag:ghr:Application', Values: ['github-action-runner'] },
+        { Name: 'instance-state-name', Values: ['running', 'pending'] }
       ],
     });
   });
@@ -94,10 +91,7 @@ describe('list instances', () => {
     await listEC2Runners({ runnerType: 'Org', runnerOwner: ORG_NAME, environment: undefined });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
       Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] },
-        { Name: 'tag:Type', Values: ['Org'] },
-        { Name: 'tag:Owner', Values: [ORG_NAME] },
-        { Name: 'tag:ghr:Application', Values: ['github-action-runner'] },
+        { Name: 'instance-state-name', Values: ['running', 'pending'] }
       ],
     });
   });
@@ -107,9 +101,7 @@ describe('list instances', () => {
     await listEC2Runners({ environment: ENVIRONMENT });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
       Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] },
-        { Name: 'tag:ghr:environment', Values: [ENVIRONMENT] },
-        { Name: 'tag:ghr:Application', Values: ['github-action-runner'] },
+        { Name: 'instance-state-name', Values: ['running', 'pending'] }
       ],
     });
   });
@@ -123,6 +115,7 @@ describe('list instances', () => {
     expect(resp.length).toBe(0);
   });
 
+  // we filter always on ghr:Application tag
   it('Instances with no tags.', async () => {
     const noInstances: DescribeInstancesResult = {
       Reservations: [
@@ -139,7 +132,7 @@ describe('list instances', () => {
     };
     mockEC2Client.on(DescribeInstancesCommand).resolves(noInstances);
     const resp = await listEC2Runners();
-    expect(resp.length).toBe(1);
+    expect(resp.length).toBe(0);
   });
 });
 
