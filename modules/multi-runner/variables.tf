@@ -527,3 +527,9 @@ variable "ssm_paths" {
   })
   default = {}
 }
+
+variable "lambda_tracing_mode" {
+  description = "Enable X-Ray tracing for the lambda functions."
+  type        = string
+  default     = null
+}
