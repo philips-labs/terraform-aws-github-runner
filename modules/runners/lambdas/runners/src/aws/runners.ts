@@ -5,6 +5,7 @@ import {
   DescribeInstancesResult,
   EC2Client,
   FleetLaunchTemplateOverridesRequest,
+  Instance,
   TerminateInstancesCommand,
 } from '@aws-sdk/client-ec2';
 import { SSM } from '@aws-sdk/client-ssm';
@@ -74,26 +75,32 @@ async function getRunners(ec2Filters: Ec2Filter[]): Promise<Runners.RunnerList[]
   return runners;
 }
 
+function instanceWithTags(instance: Instance, tagFilters: Ec2Filter[]): boolean {
+  let hasTags = true;
+  if (tagFilters.length > 0) {
+    for (const tagFilter of tagFilters) {
+      const tag = instance.Tags?.find(
+        (e) => e.Key === tagFilter.Name.split('tag:')[1] && tagFilter.Values.includes(e.Value as string),
+      );
+      if (!tag) {
+        hasTags = false;
+        break;
+      }
+    }
+  }
+  return hasTags;
+}
+
 function getRunnerInfo(runningInstances: DescribeInstancesResult, tagFilters: Ec2Filter[]): Runners.RunnerList[] {
   const runners: Runners.RunnerList[] = [];
   if (runningInstances.Reservations) {
     for (const r of runningInstances.Reservations) {
       if (r.Instances) {
         for (const i of r.Instances) {
-          // Check if the instance has the required tags
-          if (tagFilters.length > 0) {
-            let hasTags = true;
-            for (const tagFilter of tagFilters) {
-              const tag = i.Tags?.find((e) => e.Key === tagFilter.Name.substring(4));
-              if (!tag || !tagFilter.Values.includes(tag.Value as string)) {
-                hasTags = false;
-                break;
-              }
-            }
-            if (!hasTags) {
-              continue;
-            }
+          if (!instanceWithTags(i, tagFilters)) {
+            break;
           }
+
           runners.push({
             instanceId: i.InstanceId as string,
             launchTime: i.LaunchTime,
