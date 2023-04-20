@@ -63,7 +63,6 @@ async function getRunners(ec2Filters: Ec2Filter[]): Promise<Runners.RunnerList[]
   const tagFilters = ec2Filters.filter((e) => e.Name.startsWith('tag:'));
   ec2Filters = ec2Filters.filter((e) => !e.Name.startsWith('tag:'));
 
-
   while (hasNext) {
     const instances: DescribeInstancesResult = await ec2.send(
       new DescribeInstancesCommand({ Filters: ec2Filters, NextToken: nextToken }),

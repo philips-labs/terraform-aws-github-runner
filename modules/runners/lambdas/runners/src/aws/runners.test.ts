@@ -80,9 +80,7 @@ describe('list instances', () => {
     mockEC2Client.on(DescribeInstancesCommand).resolves(mockRunningInstances);
     await listEC2Runners({ runnerType: 'Repo', runnerOwner: REPO_NAME, environment: undefined });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
-      Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] }
-      ],
+      Filters: [{ Name: 'instance-state-name', Values: ['running', 'pending'] }],
     });
   });
 
@@ -90,9 +88,7 @@ describe('list instances', () => {
     mockEC2Client.on(DescribeInstancesCommand).resolves(mockRunningInstances);
     await listEC2Runners({ runnerType: 'Org', runnerOwner: ORG_NAME, environment: undefined });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
-      Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] }
-      ],
+      Filters: [{ Name: 'instance-state-name', Values: ['running', 'pending'] }],
     });
   });
 
@@ -100,9 +96,7 @@ describe('list instances', () => {
     mockEC2Client.on(DescribeInstancesCommand).resolves(mockRunningInstances);
     await listEC2Runners({ environment: ENVIRONMENT });
     expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
-      Filters: [
-        { Name: 'instance-state-name', Values: ['running', 'pending'] }
-      ],
+      Filters: [{ Name: 'instance-state-name', Values: ['running', 'pending'] }],
     });
   });
 
