@@ -119,7 +119,7 @@ describe('list instances', () => {
     });
   });
 
-  it('filters  instances on environment', async () => {
+  it('filters instances tagged for other environments.', async () => {
     const mockInstances = createMockRunningInstance([{ Key: 'ghr:environment', Value: 'other-env' }]);
     mockEC2Client.on(DescribeInstancesCommand).resolves(mockInstances);
     const instances = await listEC2Runners({ environment: ENVIRONMENT });
@@ -127,6 +127,29 @@ describe('list instances', () => {
       Filters: [{ Name: 'instance-state-name', Values: ['running', 'pending'] }],
     });
     expect(instances.length).toBe(0);
+  });
+
+  it('no filter with only minimal tagged instances.', async () => {
+    const mockInstances = {
+      Reservations: [
+        {
+          Instances: [
+            {
+              LaunchTime: new Date('2020-10-10T14:48:00.000+09:00'),
+              InstanceId: 'i-1234',
+              Tags: [{ Key: 'ghr:Application', Value: 'github-action-runner' }],
+            },
+          ],
+        },
+      ],
+    };
+
+    mockEC2Client.on(DescribeInstancesCommand).resolves(mockInstances);
+    const instances = await listEC2Runners({});
+    expect(mockEC2Client).toHaveReceivedCommandWith(DescribeInstancesCommand, {
+      Filters: [{ Name: 'instance-state-name', Values: ['running', 'pending'] }],
+    });
+    expect(instances.length).toBe(1);
   });
 
   it('No instances, undefined reservations list.', async () => {
