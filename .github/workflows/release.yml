@@ -50,5 +50,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for f in $(find . -name '*.zip'); do
-            gh release upload ${{ needs.release.outputs.tag_name }} $f
+            gh release upload ${{ steps.release.outputs.tag_name }} $f
           done
