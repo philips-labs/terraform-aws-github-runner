@@ -10,19 +10,14 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    container: node:18
     permissions:
       contents: write
       actions: write
     steps:
-      - name: Extract lambda name
-        id: lambda
-        env:
-          LAMBDA: ${{ matrix.lambda }}
-        run: echo "name=${LAMBDA##*/}" >> $GITHUB_OUTPUT
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version: 16
       - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # ratchet:actions/checkout@v3
-      - name: Add zip
-        run: apt update && apt install zip
       - name: Build dist
         working-directory: lambdas
         run: yarn install && yarn run test && yarn dist
@@ -44,6 +39,8 @@ jobs:
           default-branch: ${{ steps.branch.outputs.name }}
           release-type: terraform-module
           token: ${{ steps.token.outputs.token }}
+          release-as: v3.2.0
+          last-release-sha: 54575fd161366e90cb86e681c5b992da6b0f6456
       - name: Upload Release Asset
         if: ${{ steps.release.outputs.releases_created }}
         env:
