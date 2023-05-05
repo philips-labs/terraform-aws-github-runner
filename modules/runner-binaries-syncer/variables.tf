@@ -49,10 +49,10 @@ variable "s3_logging_bucket_prefix" {
   type        = string
   default     = null
 
-  # Make sure the bucket name only contains legal characters
+  # Make sure the bucket prefix only contains legal characters
   validation {
-    error_message = "Only lowercase alphanumeric characters and hyphens allowed in the bucket name."
-    condition     = var.s3_logging_bucket_prefix == null || can(regex("^[a-z0-9-]*$", var.s3_logging_bucket_prefix))
+    error_message = "Only alphanumeric characters, hyphens followed by single slashes allowed in the bucket prefix."
+    condition     = var.s3_logging_bucket_prefix == null || can(regex("^(([a-zA-Z0-9-])+(\\/?))*$", var.s3_logging_bucket_prefix))
   }
 }
 
