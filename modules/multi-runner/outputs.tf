@@ -42,3 +42,10 @@ output "webhook" {
 output "ssm_parameters" {
   value = module.ssm.parameters
 }
+
+output "queues" {
+  description = "SQS queues."
+  value = {
+    webhook_workflow_job_queue = try(aws_sqs_queue.webhook_events_workflow_job_queue[*].arn, "")
+  }
+}
