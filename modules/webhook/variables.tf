@@ -190,4 +190,8 @@ variable "lambda_tracing_mode" {
   description = "Enable X-Ray tracing for the lambda functions."
   type        = string
   default     = null
+  validation {
+    condition     = var.lambda_tracing_mode == null || contains(["Active", "PassThrough"], var.lambda_tracing_mode)
+    error_message = "Valid values for lambda_tracing_mode are (null, \"Active\", \"PassThrough\")."
+  }
 }

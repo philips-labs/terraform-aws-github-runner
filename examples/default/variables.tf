@@ -9,5 +9,5 @@ variable "github_app" {
 
 variable "environment" {
   type    = string
-  default = null
+  default = "nav"
 }
