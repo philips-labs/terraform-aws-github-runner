@@ -191,7 +191,7 @@ variable "lambda_tracing_mode" {
   type        = string
   default     = null
   validation {
-    condition     = var.lambda_tracing_mode == null || contains(["Active", "PassThrough"], var.lambda_tracing_mode)
+    condition     = var.lambda_tracing_mode == null || contains(["Active", "PassThrough"], (var.lambda_tracing_mode == null ? "" : var.lambda_tracing_mode))
     error_message = "Valid values for lambda_tracing_mode are (null, \"Active\", \"PassThrough\")."
   }
 }
