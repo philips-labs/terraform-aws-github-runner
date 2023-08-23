@@ -50,6 +50,7 @@ interface CreateEC2RunnerConfig {
   ec2instanceCriteria: RunnerInputParameters['ec2instanceCriteria'];
   numberOfRunners?: number;
   amiIdSsmParameterName?: string;
+  logLevel?: string;
 }
 
 function generateRunnerServiceConfig(githubRunnerConfig: CreateGitHubRunnerConfig, token: string) {
