@@ -71,6 +71,7 @@ variable "multi_runner_config" {
       enable_jit_config                       = optional(bool, null)
       enable_runner_detailed_monitoring       = optional(bool, false)
       enable_cloudwatch_agent                 = optional(bool, true)
+      cloudwatch_config                       = optional(string, null)
       userdata_pre_install                    = optional(string, "")
       userdata_post_install                   = optional(string, "")
       runner_ec2_tags                         = optional(map(string), {})
