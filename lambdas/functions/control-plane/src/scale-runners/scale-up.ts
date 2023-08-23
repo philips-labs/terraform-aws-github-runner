@@ -206,6 +206,7 @@ export async function createRunners(
     runnerType: githubRunnerConfig.runnerType,
     runnerOwner: githubRunnerConfig.runnerOwner,
     ...ec2RunnerConfig,
+    logLevel: process.env.LOG_LEVEL || 'info',
   });
   if (instances.length !== 0) {
     await createStartRunnerConfig(githubRunnerConfig, instances, ghClient);
