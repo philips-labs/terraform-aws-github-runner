@@ -77,7 +77,6 @@ const EXPECTED_RUNNER_PARAMS: RunnerInputParameters = {
     instanceAllocationStrategy: 'lowest-price',
   },
   subnets: ['subnet-123'],
-  logLevel: 'info',
 };
 let expectedRunnerParams: RunnerInputParameters;
 

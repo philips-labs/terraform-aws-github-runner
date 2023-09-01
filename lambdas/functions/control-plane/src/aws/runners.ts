@@ -149,7 +149,6 @@ export async function createRunner(runnerParameters: Runners.RunnerInputParamete
     { Key: 'ghr:created_by', Value: numberOfRunners === 1 ? 'scale-up-lambda' : 'pool-lambda' },
     { Key: 'Type', Value: runnerParameters.runnerType },
     { Key: 'Owner', Value: runnerParameters.runnerOwner },
-    { Key: 'ghr:log_level', Value: runnerParameters.logLevel || 'info' },
   ];
 
   let fleet: CreateFleetResult;

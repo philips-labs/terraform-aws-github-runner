@@ -39,5 +39,4 @@ export interface RunnerInputParameters {
   };
   numberOfRunners?: number;
   amiIdSsmParameterName?: string;
-  logLevel?: string;
 }
