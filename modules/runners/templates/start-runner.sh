@@ -1,6 +1,22 @@
 # shellcheck shell=bash
 
 ## Retrieve instance metadata
+cleanup() {
+  if [ "$1" != "0" ]; then
+    echo "Error $1 occurred on $2"
+    # create a cloudwatch metric for error
+    aws cloudwatch put-metric-data --metric-name "RunnerInstanceUnhealthy" --namespace "Github Runners metrics" --value 1 --region "$region" --dimensions "InstanceId=$instance_id"
+    # stop the cloudwatch agent
+    systemctl stop amazon-cloudwatch-agent.service || true
+    # terminate the instance
+    if [[ $agent_mode != "persistent" ]]; then
+      echo "Terminating instance"
+      aws ec2 terminate-instances --instance-ids "$instance_id" --region "$region" || true
+    fi
+  fi
+}
+
+trap 'cleanup $? $LINENO' EXIT
 
 echo "Retrieving TOKEN from AWS API"
 token=$(curl -f -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 180" || true)
