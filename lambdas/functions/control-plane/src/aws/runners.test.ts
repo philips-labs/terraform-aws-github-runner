@@ -384,6 +384,7 @@ function expectedCreateFleetRequest(expectedValues: ExpectedFleetRequestValues):
     { Key: 'ghr:created_by', Value: expectedValues.totalTargetCapacity > 1 ? 'pool-lambda' : 'scale-up-lambda' },
     { Key: 'Type', Value: expectedValues.type },
     { Key: 'Owner', Value: REPO_NAME },
+    { Key: 'ghr:log_level', Value: 'info' },
   ];
   const request: CreateFleetCommandInput = {
     LaunchTemplateConfigs: [
