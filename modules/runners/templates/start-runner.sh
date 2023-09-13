@@ -1,18 +1,30 @@
 # shellcheck shell=bash
 
 ## Retrieve instance metadata
+
 cleanup() {
-  if [ "$1" != "0" ]; then
-    echo "Error $1 occurred on $2"
-    # create a cloudwatch metric for error
-    aws cloudwatch put-metric-data --metric-name "RunnerInstanceUnhealthy" --namespace "Github Runners metrics" --value 1 --region "$region" --dimensions "InstanceId=$instance_id"
+  local exit_code="$1"
+  local error_location="$2"
+
+  if [ "$exit_code" -ne 0 ]; then
+    echo "Error $exit_code occurred on $error_location"
+    # Create a CloudWatch metric for error
+    aws cloudwatch put-metric-data \
+      --metric-name "RunnerInstanceUnhealthy" \
+      --namespace "Github Runners metrics" \
+      --value 1 \
+      --region "$region" \
+      --dimensions "InstanceId=$instance_id"
   fi
-  if [[ $agent_mode != "persistent" ]]; then
-    # stop the cloudwatch agent
+
+  if [ "$agent_mode" = "ephemeral" ] || [ "$exit_code" -ne 0 ]; then
+    echo "Stopping CloudWatch service"
     systemctl stop amazon-cloudwatch-agent.service || true
-    # terminate the instance
     echo "Terminating instance"
-    aws ec2 terminate-instances --instance-ids "$instance_id" --region "$region" || true
+    aws ec2 terminate-instances \
+      --instance-ids "$instance_id" \
+      --region "$region" \
+      || true
   fi
 }
 
@@ -157,6 +169,11 @@ cat >/opt/start-runner-service.sh <<-EOF
   fi
 
   echo "Runner has finished"
+
+  echo "Stopping cloudwatch service"
+  systemctl stop amazon-cloudwatch-agent.service
+  echo "Terminating instance"
+  aws ec2 terminate-instances --instance-ids "$instance_id" --region "$region"
 EOF
   # Starting the runner via a own process to ensure this process terminates
   nohup bash /opt/start-runner-service.sh &
