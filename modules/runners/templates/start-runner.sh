@@ -155,11 +155,7 @@ if [[ "$enable_jit_config" == "false" || $agent_mode != "ephemeral" ]]; then
 fi
 
 if [[ $agent_mode = "ephemeral" ]]; then
-
-cat >/opt/start-runner-service.sh <<-EOF
-
   echo "Starting the runner in ephemeral mode"
-
   if [[ "$enable_jit_config" == "true" ]]; then
     echo "Starting with JIT config"
     sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./run.sh --jitconfig $${config}
@@ -167,17 +163,7 @@ cat >/opt/start-runner-service.sh <<-EOF
     echo "Starting without JIT config"
     sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./run.sh
   fi
-
   echo "Runner has finished"
-
-  echo "Stopping cloudwatch service"
-  systemctl stop amazon-cloudwatch-agent.service
-  echo "Terminating instance"
-  aws ec2 terminate-instances --instance-ids "$instance_id" --region "$region"
-EOF
-  # Starting the runner via a own process to ensure this process terminates
-  nohup bash /opt/start-runner-service.sh &
-
 else
   echo "Installing the runner as a service"
   ./svc.sh install "$run_as"
