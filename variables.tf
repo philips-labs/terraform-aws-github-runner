@@ -573,7 +573,7 @@ variable "runner_metadata_options" {
   default = {
     instance_metadata_tags      = "enabled"
     http_endpoint               = "enabled"
-    http_tokens                 = "optional"
+    http_tokens                 = "required"
     http_put_response_hop_limit = 1
   }
 }
