@@ -585,11 +585,16 @@ variable "runner_name_prefix" {
   }
 }
 
-variable "lambda_tracing_mode" {
-  description = "Enable X-Ray tracing for the lambda functions."
-  type        = string
-  default     = null
+variable "tracing_config" {
+  description = "Configuration for lambda tracing."
+  type = object({
+    mode                  = optional(string, null)
+    capture_http_requests = optional(bool, false)
+    capture_error         = optional(bool, false)
+  })
+  default = {}
 }
+
 
 variable "credit_specification" {
   description = "The credit option for CPU usage of a T instance. Can be unset, \"standard\" or \"unlimited\"."
