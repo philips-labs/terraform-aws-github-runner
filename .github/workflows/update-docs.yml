@@ -5,8 +5,6 @@ on:
       - "**/*.tf"
       - "**/*.md"
       - ".github/workflows/update-docs.yml"
-    branches-ignore:
-      - main
 
 permissions:
   contents: write
@@ -39,6 +37,7 @@ jobs:
 
       - name: Generate TF docs
         uses: terraform-docs/gh-actions@f6d59f89a280fa0a3febf55ef68f146784b20ba0 # ratchet:terraform-docs/gh-actions@v1.0.0
+        if: github.ref != 'refs/heads/main'
         with:
           find-dir: .
           git-commit-message: "docs: auto update terraform docs"
