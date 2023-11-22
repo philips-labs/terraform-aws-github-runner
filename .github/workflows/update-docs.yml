@@ -33,5 +33,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update Terraform docs"
           title: "docs: Update Terraform docs"
-          branch: ${{ github.event.pull_request.base.ref }}-update-docs
+          branch: update-docs
+          branch-suffix: random
           base: ${{ github.event.pull_request.base.ref }}
+          delete-branch: true
