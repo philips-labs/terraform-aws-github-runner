@@ -30,7 +30,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.repository_owner == 'philips-labs'
         uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # ratchet:peter-evans/create-pull-request@v5.0.2
         with:
-          token: ${{ steps.token.outputs.token || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update Terraform docs"
           title: "docs: Update Terraform docs"
           branch: ${{ github.event.pull_request.base.ref }}-update-docs
