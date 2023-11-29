@@ -1,0 +1,32 @@
+{
+	"name": "GitHub Runners AWS",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {}
+  },
+
+  "containerEnv": {
+    "WORKSPACE": "${containerWorkspaceFolder}" // e.g. /workspaces/my-project
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
+        "firsttris.vscode-jest-runner",
+        "hashicorp.hcl",
+        "hashicorp.terraform",
+        "hashicorp.terraform",
+        "orta.vscode-jest",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
+  "postCreateCommand": {
+    "bash_command": "bash ${containerWorkspaceFolder}/.devcontainer/postCreateScript.sh",
+    "welcome": "sudo cp -v .devcontainer/welcome.txt /usr/local/etc/vscode-dev-containers/first-run-notice.txt || true && sudo cp -v .devcontainer/welcome.txt /workspaces/.codespaces/shared/first-run-notice.txt || true"
+  }
+}
