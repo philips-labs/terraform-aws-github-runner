@@ -70,6 +70,7 @@ const EXPECTED_RUNNER_PARAMS: RunnerInputParameters = {
   environment: 'unit-test-environment',
   runnerType: 'Org',
   runnerOwner: TEST_DATA.repositoryOwner,
+  numberOfRunners: 1,
   launchTemplateName: 'lt-1',
   ec2instanceCriteria: {
     instanceTypes: ['m5.large'],
@@ -77,13 +78,12 @@ const EXPECTED_RUNNER_PARAMS: RunnerInputParameters = {
     instanceAllocationStrategy: 'lowest-price',
   },
   subnets: ['subnet-123'],
+  tracingEnabled: false,
+  onDemandFailoverOnError: [],
 };
 let expectedRunnerParams: RunnerInputParameters;
 
-beforeEach(() => {
-  nock.disableNetConnect();
-  jest.resetModules();
-  jest.clearAllMocks();
+function setDefaults() {
   process.env = { ...cleanEnv };
   process.env.GITHUB_APP_KEY_BASE64 = 'TEST_CERTIFICATE_DATA';
   process.env.GITHUB_APP_ID = '1337';
@@ -95,6 +95,14 @@ beforeEach(() => {
   process.env.SUBNET_IDS = 'subnet-123';
   process.env.INSTANCE_TYPES = 'm5.large';
   process.env.INSTANCE_TARGET_CAPACITY_TYPE = 'spot';
+  process.env.ENABLE_ON_DEMAND_FAILOVER = undefined;
+}
+
+beforeEach(() => {
+  nock.disableNetConnect();
+  jest.resetModules();
+  jest.clearAllMocks();
+  setDefaults();
 
   mockOctokit.actions.getJobForWorkflowRun.mockImplementation(() => ({
     data: {
@@ -650,6 +658,16 @@ describe('scaleUp with public GH', () => {
       process.env.RUNNER_LABELS = 'label1,label2';
       await scaleUpModule.scaleUp('aws:sqs', TEST_DATA);
       expect(createRunner).toBeCalledWith(expectedRunnerParams);
+    });
+
+    it('creates a runner with correct config and labels and on demand failover enabled.', async () => {
+      process.env.RUNNER_LABELS = 'label1,label2';
+      process.env.ENABLE_ON_DEMAND_FAILOVER_FOR_ERRORS = JSON.stringify(['InsufficientInstanceCapacity']);
+      await scaleUpModule.scaleUp('aws:sqs', TEST_DATA);
+      expect(createRunner).toBeCalledWith({
+        ...expectedRunnerParams,
+        onDemandFailoverOnError: ['InsufficientInstanceCapacity'],
+      });
     });
 
     it('creates a runner and ensure the group argument is ignored', async () => {
