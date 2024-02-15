@@ -71,6 +71,16 @@ resource "aws_sqs_queue_policy" "build_queue_dlq_policy" {
   policy    = data.aws_iam_policy_document.deny_unsecure_transport.json
 }
 
+resource "aws_sqs_queue_redrive_allow_policy" "terraform_queue_redrive_allow_policy" {
+  for_each  = aws_sqs_queue.queued_builds_dlq
+  queue_url = each.value.id
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue",
+    sourceQueueArns   = [aws_sqs_queue.queued_builds[each.key].arn]
+  })
+}
+
 resource "aws_sqs_queue" "webhook_events_workflow_job_queue" {
   count                       = var.enable_workflow_job_events_queue ? 1 : 0
   name                        = "${var.prefix}-webhook_events_workflow_job_queue"
