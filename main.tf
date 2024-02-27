@@ -155,6 +155,7 @@ module "webhook" {
   lambda_runtime                                = var.lambda_runtime
   lambda_architecture                           = var.lambda_architecture
   lambda_zip                                    = var.webhook_lambda_zip
+  lambda_memory_size                            = var.webhook_lambda_memory_size
   lambda_timeout                                = var.webhook_lambda_timeout
   tracing_config                                = var.tracing_config
   logging_retention_in_days                     = var.logging_retention_in_days
@@ -237,6 +238,8 @@ module "runners" {
   lambda_runtime                   = var.lambda_runtime
   lambda_architecture              = var.lambda_architecture
   lambda_zip                       = var.runners_lambda_zip
+  lambda_scale_up_memory_size      = var.runners_scale_up_Lambda_memory_size
+  lambda_scale_down_memory_size    = var.runners_scale_down_lambda_memory_size
   lambda_timeout_scale_up          = var.runners_scale_up_lambda_timeout
   lambda_timeout_scale_down        = var.runners_scale_down_lambda_timeout
   lambda_subnet_ids                = var.lambda_subnet_ids
@@ -278,6 +281,7 @@ module "runners" {
   log_level = var.log_level
 
   pool_config                                = var.pool_config
+  pool_lambda_memory_size                    = var.pool_lambda_memory_size
   pool_lambda_timeout                        = var.pool_lambda_timeout
   pool_runner_owner                          = var.pool_runner_owner
   pool_lambda_reserved_concurrent_executions = var.pool_lambda_reserved_concurrent_executions
@@ -306,6 +310,7 @@ module "runner_binaries" {
   lambda_runtime                  = var.lambda_runtime
   lambda_architecture             = var.lambda_architecture
   lambda_zip                      = var.runner_binaries_syncer_lambda_zip
+  lambda_memory_size              = var.runner_binaries_syncer_lambda_memory_size
   lambda_timeout                  = var.runner_binaries_syncer_lambda_timeout
   tracing_config                  = var.tracing_config
   logging_retention_in_days       = var.logging_retention_in_days
