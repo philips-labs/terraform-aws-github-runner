@@ -100,7 +100,7 @@ variable "runners_lambda_zip" {
   default     = null
 }
 
-variable "runners_scale_up_Lambda_memory_size" {
+variable "runners_scale_up_lambda_memory_size" {
   description = "Memory size limit in MB for scale-up lambda."
   type        = number
   default     = 512
@@ -694,7 +694,7 @@ variable "disable_runner_autoupdate" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs18.x"
+  default     = "nodejs20.x"
 }
 
 variable "lambda_architecture" {
