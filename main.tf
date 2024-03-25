@@ -8,7 +8,8 @@ locals {
     key_base64 = module.ssm.parameters.github_app_key_base64
   }
 
-  runner_labels = sort(distinct(concat(["self-hosted", var.runner_os, var.runner_architecture], var.runner_extra_labels)))
+  default_runner_labels = distinct(concat(["self-hosted", var.runner_os, var.runner_architecture]))
+  runner_labels         = var.runner_enable_default_labels ? concat(local.default_runner_labels, var.runner_extra_labels) : var.runner_extra_labels
 
   ssm_root_path = var.ssm_paths.use_prefix ? "/${var.ssm_paths.root}/${var.prefix}" : "/${var.ssm_paths.root}"
 }
