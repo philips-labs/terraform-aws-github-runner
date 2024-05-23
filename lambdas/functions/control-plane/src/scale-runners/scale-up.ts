@@ -277,14 +277,18 @@ export async function scaleUp(eventSource: string, payload: ActionRequestMessage
   const ghAuth = await createGithubInstallationAuth(installationId, ghesApiUrl);
   const githubInstallationClient = await createOctoClient(ghAuth.token, ghesApiUrl);
   if (!enableJobQueuedCheck || (await isJobQueued(githubInstallationClient, payload))) {
-    const currentRunners = await listEC2Runners({
-      environment,
-      runnerType,
-      runnerOwner,
-    });
-    logger.info(`Current runners: ${currentRunners.length} of ${maximumRunners}`);
+    let scaleUp = true;
+    if (maximumRunners !== -1) {
+      const currentRunners = await listEC2Runners({
+        environment,
+        runnerType,
+        runnerOwner,
+      });
+      logger.info(`Current runners: ${currentRunners.length} of ${maximumRunners}`);
+      scaleUp = currentRunners.length < maximumRunners;
+    }
 
-    if (currentRunners.length < maximumRunners) {
+    if (scaleUp) {
       logger.info(`Attempting to launch a new runner`);
 
       await createRunners(
@@ -358,7 +362,9 @@ async function createRegistrationTokenConfig(
   });
 
   for (const instance of instances) {
-    await putParameter(`${githubRunnerConfig.ssmTokenPath}/${instance}`, runnerServiceConfig.join(' '), true);
+    await putParameter(`${githubRunnerConfig.ssmTokenPath}/${instance}`, runnerServiceConfig.join(' '), true, {
+      tags: [{ Key: 'InstanceId', Value: instance }],
+    });
     if (isDelay) {
       // Delay to prevent AWS ssm rate limits by being within the max throughput limit
       await delay(25);
@@ -401,7 +407,9 @@ async function createJitConfig(githubRunnerConfig: CreateGitHubRunnerConfig, ins
     logger.debug('Runner JIT config for ephemeral runner generated.', {
       instance: instance,
     });
-    await putParameter(`${githubRunnerConfig.ssmTokenPath}/${instance}`, runnerConfig.data.encoded_jit_config, true);
+    await putParameter(`${githubRunnerConfig.ssmTokenPath}/${instance}`, runnerConfig.data.encoded_jit_config, true, {
+      tags: [{ Key: 'InstanceId', Value: instance }],
+    });
     if (isDelay) {
       // Delay to prevent AWS ssm rate limits by being within the max throughput limit
       await delay(25);

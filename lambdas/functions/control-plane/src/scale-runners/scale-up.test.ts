@@ -241,6 +241,14 @@ describe('scaleUp with GHES', () => {
       expect(mockOctokit.actions.createRegistrationTokenForRepo).not.toBeCalled();
     });
 
+    it('does create a runner if maximum is set to -1', async () => {
+      process.env.RUNNERS_MAXIMUM_COUNT = '-1';
+      process.env.ENABLE_EPHEMERAL_RUNNERS = 'false';
+      await scaleUpModule.scaleUp('aws:sqs', TEST_DATA);
+      expect(listEC2Runners).not.toHaveBeenCalled();
+      expect(createRunner).toHaveBeenCalled();
+    });
+
     it('creates a token when maximum runners has not been reached', async () => {
       process.env.ENABLE_EPHEMERAL_RUNNERS = 'false';
       await scaleUpModule.scaleUp('aws:sqs', TEST_DATA);
@@ -330,6 +338,12 @@ describe('scaleUp with GHES', () => {
         Name: '/github-action-runners/default/runners/config/i-12345',
         Value: 'TEST_JIT_CONFIG_ORG',
         Type: 'SecureString',
+        Tags: [
+          {
+            Key: 'InstanceId',
+            Value: 'i-12345',
+          },
+        ],
       });
     });
 
@@ -345,6 +359,12 @@ describe('scaleUp with GHES', () => {
           '--url https://github.enterprise.something/Codertocat --token 1234abcd ' +
           '--labels label1,label2 --runnergroup Default',
         Type: 'SecureString',
+        Tags: [
+          {
+            Key: 'InstanceId',
+            Value: 'i-12345',
+          },
+        ],
       });
     });
     it.each(RUNNER_TYPES)(
@@ -700,6 +720,12 @@ describe('scaleUp with public GH', () => {
         Name: '/github-action-runners/default/runners/config/i-12345',
         Value: 'TEST_JIT_CONFIG_REPO',
         Type: 'SecureString',
+        Tags: [
+          {
+            Key: 'InstanceId',
+            Value: 'i-12345',
+          },
+        ],
       });
     });
 
@@ -716,6 +742,12 @@ describe('scaleUp with public GH', () => {
         Name: '/github-action-runners/default/runners/config/i-12345',
         Value: '--url https://github.com/Codertocat/hello-world --token 1234abcd --ephemeral',
         Type: 'SecureString',
+        Tags: [
+          {
+            Key: 'InstanceId',
+            Value: 'i-12345',
+          },
+        ],
       });
     });
 
@@ -733,6 +765,12 @@ describe('scaleUp with public GH', () => {
         Name: '/github-action-runners/default/runners/config/i-12345',
         Value: '--url https://github.com/Codertocat/hello-world --token 1234abcd --labels jit',
         Type: 'SecureString',
+        Tags: [
+          {
+            Key: 'InstanceId',
+            Value: 'i-12345',
+          },
+        ],
       });
     });
 
