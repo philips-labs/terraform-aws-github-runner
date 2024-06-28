@@ -98,6 +98,24 @@ data "aws_iam_policy_document" "action_dist_bucket_policy" {
     }
   }
 
+  statement {
+    sid       = "DenyOutdatedTLS"
+    effect    = "Deny"
+    actions   = ["s3:*"]
+    resources = [aws_s3_bucket.action_dist.arn, "${aws_s3_bucket.action_dist.arn}/*"]
+
+    principals {
+      identifiers = ["*"]
+      type        = "*"
+    }
+
+    condition {
+      test     = "NumericLessThan"
+      values   = ["1.2"]
+      variable = "s3:TlsVersion"
+    }
+  }
+
   dynamic "statement" {
     for_each = try(var.server_side_encryption_configuration.rule.apply_server_side_encryption_by_default, null) != null ? [true] : []
 
