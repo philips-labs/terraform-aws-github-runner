@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v5.12.0...v5.12.1) (2024-07-02)
+
+
+### Bug Fixes
+
+* improve logging when there is an error retrieving ssm parameters ([#3962](https://github.com/philips-labs/terraform-aws-github-runner/issues/3962)) ([1498c8c](https://github.com/philips-labs/terraform-aws-github-runner/commit/1498c8c2bdc4e1df8fd3671f2cc2c59d86c3eb92))
+
 ## [5.12.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v5.11.0...v5.12.0) (2024-06-28)
 
 
