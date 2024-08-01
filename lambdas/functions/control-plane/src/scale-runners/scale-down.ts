@@ -3,7 +3,7 @@ import { createChildLogger } from '@terraform-aws-github-runner/aws-powertools-u
 import moment from 'moment';
 
 import { createGithubAppAuth, createGithubInstallationAuth, createOctoClient } from '../gh-auth/gh-auth';
-import { bootTimeExceeded, listEC2Runners, terminateRunner } from './../aws/runners';
+import { bootTimeExceeded, listEC2Runners, tag, terminateRunner } from './../aws/runners';
 import { RunnerInfo, RunnerList } from './../aws/runners.d';
 import { GhRunners, githubCache } from './cache';
 import { ScalingDownConfig, getEvictionStrategy, getIdleRunnerCount } from './scale-down-config';
@@ -130,7 +130,7 @@ async function removeRunner(ec2runner: RunnerInfo, ghRunnerIds: number[]): Promi
 
       if (statuses.every((status) => status == 204)) {
         await terminateRunner(ec2runner.instanceId);
-        logger.info(`AWS runner instance '${ec2runner.instanceId}' is terminated and GitHub runner is de-registered.`);
+        logger.debug(`AWS runner instance '${ec2runner.instanceId}' is terminated and GitHub runner is de-registered.`);
       } else {
         logger.error(`Failed to de-register GitHub runner: ${statuses}`);
       }
@@ -175,30 +175,43 @@ async function evaluateAndRemoveRunners(
             idleCounter--;
             logger.info(`Runner '${ec2Runner.instanceId}' will be kept idle.`);
           } else {
-            logger.info(`Will try to terminate runners that are not busy`);
+            logger.info(`Terminating all non busy runners.`);
             await removeRunner(
               ec2Runner,
               ghRunnersFiltered.map((runner: { id: number }) => runner.id),
             );
           }
         }
+      } else if (bootTimeExceeded(ec2Runner)) {
+        await markOrphan(ec2Runner.instanceId);
       } else {
-        if (bootTimeExceeded(ec2Runner)) {
-          logger.info(`Runner '${ec2Runner.instanceId}' is orphaned and will be removed.`);
-          terminateOrphan(ec2Runner.instanceId);
-        } else {
-          logger.debug(`Runner ${ec2Runner.instanceId} has not yet booted.`);
-        }
+        logger.debug(`Runner ${ec2Runner.instanceId} has not yet booted.`);
       }
     }
   }
 }
 
-async function terminateOrphan(instanceId: string): Promise<void> {
+async function markOrphan(instanceId: string): Promise<void> {
   try {
-    await terminateRunner(instanceId);
+    await tag(instanceId, [{ Key: 'ghr:orphan', Value: 'true' }]);
+    logger.info(`Runner '${instanceId}' marked as orphan.`);
   } catch (e) {
-    logger.debug(`Orphan runner '${instanceId}' cannot be removed.`);
+    logger.error(`Failed to mark runner '${instanceId}' as orphan.`, { error: e });
+  }
+}
+
+async function terminateOrphan(environment: string): Promise<void> {
+  try {
+    const orphanRunners = await listEC2Runners({ environment, orphan: true });
+
+    for (const runner of orphanRunners) {
+      logger.info(`Terminating orphan runner '${runner.instanceId}'`);
+      await terminateRunner(runner.instanceId).catch((e) => {
+        logger.error(`Failed to terminate orphan runner '${runner.instanceId}'`, { error: e });
+      });
+    }
+  } catch (e) {
+    logger.warn(`Failure during orphan runner termination.`, { error: e });
   }
 }
 
@@ -221,14 +234,18 @@ async function listRunners(environment: string) {
 }
 
 function filterRunners(ec2runners: RunnerList[]): RunnerInfo[] {
-  return ec2runners.filter((ec2Runner) => ec2Runner.type) as RunnerInfo[];
+  return ec2runners.filter((ec2Runner) => ec2Runner.type && !ec2Runner.orphan) as RunnerInfo[];
 }
 
 export async function scaleDown(): Promise<void> {
   githubCache.reset();
-  const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG) as [ScalingDownConfig];
   const environment = process.env.ENVIRONMENT;
+  const scaleDownConfigs = JSON.parse(process.env.SCALE_DOWN_CONFIG) as [ScalingDownConfig];
 
+  // first runners marked to be orphan.
+  await terminateOrphan(environment);
+
+  // next scale down idle runners with respect to config and mark potential orphans
   const ec2Runners = await listRunners(environment);
   const activeEc2RunnersCount = ec2Runners.length;
   logger.info(`Found: '${activeEc2RunnersCount}' active GitHub EC2 runner instances before clean-up.`);
