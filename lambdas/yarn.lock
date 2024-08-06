@@ -3346,9 +3346,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/auth-app@npm:6.0.3":
-  version: 6.0.3
-  resolution: "@octokit/auth-app@npm:6.0.3"
+"@octokit/auth-app@npm:6.1.0":
+  version: 6.1.0
+  resolution: "@octokit/auth-app@npm:6.1.0"
   dependencies:
     "@octokit/auth-oauth-app": "npm:^7.0.0"
     "@octokit/auth-oauth-user": "npm:^4.0.0"
@@ -3359,7 +3359,7 @@ __metadata:
     lru-cache: "npm:^10.0.0"
     universal-github-app-jwt: "npm:^1.1.2"
     universal-user-agent: "npm:^6.0.0"
-  checksum: 10c0/fba541abcc35e05cd0adf49b4c0174a2bc8e5b44d702259e074640332578ce7fb03392523e64f64abafc266adbf6dda0a537ce0fa0bd265275793e81d7949244
+  checksum: 10c0/14630f9b57a14695f4aedea61278e11c07213ab1fe32959099bcefcbfae2a29be8b771f6a86f08e1bfabc093003564328b4b941bf764ce603e21366665007cdd
   languageName: node
   linkType: hard
 
@@ -4692,7 +4692,7 @@ __metadata:
     "@aws-sdk/client-ec2": "npm:^3.621.0"
     "@aws-sdk/types": "npm:^3.609.0"
     "@middy/core": "npm:^4.7.0"
-    "@octokit/auth-app": "npm:6.0.3"
+    "@octokit/auth-app": "npm:6.1.0"
     "@octokit/core": "npm:5.2.0"
     "@octokit/plugin-throttling": "npm:8.2.0"
     "@octokit/rest": "npm:20.0.2"
