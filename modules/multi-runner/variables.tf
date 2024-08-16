@@ -111,8 +111,15 @@ variable "multi_runner_config" {
         schedule_expression_timezone = optional(string)
         size                         = number
       })), [])
+      job_retry = optional(object({
+        enable             = optional(bool, false)
+        delay_in_seconds   = optional(number, 300)
+        delay_backoff      = optional(number, 2)
+        lambda_memory_size = optional(number, 256)
+        lambda_timeout     = optional(number, 30)
+        max_attempts       = optional(number, 1)
+      }), {})
     })
-
     matcherConfig = object({
       labelMatchers = list(list(string))
       exactMatch    = optional(bool, false)
@@ -178,6 +185,7 @@ variable "multi_runner_config" {
         idle_config: "List of time period that can be defined as cron expression to keep a minimum amount of runners active instead of scaling down to 0. By defining this list you can ensure that in time periods that match the cron expression within 5 seconds a runner is kept idle."
         runner_log_files: "(optional) Replaces the module default cloudwatch log config. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html for details."
         block_device_mappings: "The EC2 instance block device configuration. Takes the following keys: `device_name`, `delete_on_termination`, `volume_type`, `volume_size`, `encrypted`, `iops`, `throughput`, `kms_key_id`, `snapshot_id`."
+        job_retry: "Experimental! Can be removed / changed without trigger a major release. Configure job retries. The configuration enables job retries (for ephemeral runners). After creating the insances a message will be published to a job retry queue. The job retry check lambda is checking after a delay if the job is queued. If not the message will be published again on the scale-up (build queue). Using this feature can impact the reate limit of the GitHub app."
         pool_config: "The configuration for updating the pool. The `pool_size` to adjust to by the events triggered by the `schedule_expression`. For example you can configure a cron expression for week days to adjust the pool to 10 and another expression for the weekend to adjust the pool to 1. Use `schedule_expression_timezone` to override the schedule time zone (defaults to UTC)."
       }
       matcherConfig: {
@@ -660,4 +668,10 @@ variable "matcher_config_parameter_store_tier" {
     condition     = contains(["Standard", "Advanced"], var.matcher_config_parameter_store_tier)
     error_message = "`matcher_config_parameter_store_tier` value is not valid, valid values are: `Standard`, and `Advanced`."
   }
+}
+
+variable "enable_metrics_control_plane" {
+  description = "(Experimental) Enable or disable the metrics for the module. Feature can change or renamed without a major release."
+  type        = bool
+  default     = false
 }

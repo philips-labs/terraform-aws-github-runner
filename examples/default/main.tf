@@ -42,7 +42,10 @@ module "runners" {
   #   iops                  = null
   # }]
 
-  # Grab zip files via lambda_download
+  # When not explicitly set lambda zip files are grapped from the module requiring lambda build.
+  # Alternatively you can set the path to the lambda zip files here.
+  #
+  # For example grab zip files via lambda_download
   # webhook_lambda_zip                = "../lambdas-download/webhook.zip"
   # runner_binaries_syncer_lambda_zip = "../lambdas-download/runner-binaries-syncer.zip"
   # runners_lambda_zip                = "../lambdas-download/runners.zip"
@@ -95,7 +98,7 @@ module "runners" {
   runner_name_prefix = "${local.environment}_"
 
   # Enable debug logging for the lambda functions
-  # log_level = "debug"
+  log_level = "info"
 
   enable_ami_housekeeper = true
   ami_housekeeper_cleanup_config = {
@@ -116,6 +119,18 @@ module "runners" {
     }
   }
 
+  # enable job_retry feature. Be careful with this feature, it can lead to API rate limits.
+  # job_retry = {
+  #   enable           = true
+  #   max_attempts     = 1
+  #   delay_in_seconds = 180
+  # }
+
+  # enable metric creation by the control plane (experimental)
+  # enable_metrics_control_plane = true
+
+  # enable CMK instead of aws managed key for encryptions
+  # kms_key_arn = aws_kms_key.github.arn
 }
 
 module "webhook_github_app" {
@@ -129,3 +144,13 @@ module "webhook_github_app" {
   }
   webhook_endpoint = module.runners.webhook.endpoint
 }
+
+# enable CMK instead of aws managed key for encryptions
+# resource "aws_kms_key" "github" {
+#   is_enabled = true
+# }
+
+# resource "aws_kms_alias" "github" {
+#   name          = "alias/github/action-runners"
+#   target_key_id = aws_kms_key.github.key_id
+# }
