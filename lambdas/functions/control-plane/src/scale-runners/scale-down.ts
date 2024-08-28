@@ -2,11 +2,12 @@ import { Octokit } from '@octokit/rest';
 import { createChildLogger } from '@terraform-aws-github-runner/aws-powertools-util';
 import moment from 'moment';
 
-import { createGithubAppAuth, createGithubInstallationAuth, createOctokitClient } from '../gh-auth/gh-auth';
+import { createGithubAppAuth, createGithubInstallationAuth, createOctokitClient } from '../github/auth';
 import { bootTimeExceeded, listEC2Runners, tag, terminateRunner } from './../aws/runners';
 import { RunnerInfo, RunnerList } from './../aws/runners.d';
 import { GhRunners, githubCache } from './cache';
 import { ScalingDownConfig, getEvictionStrategy, getIdleRunnerCount } from './scale-down-config';
+import { metricGitHubAppRateLimit } from '../github/rate-limit';
 
 const logger = createChildLogger('scale-down');
 
@@ -62,6 +63,8 @@ async function getGitHubRunnerBusyState(client: Octokit, ec2runner: RunnerInfo, 
         });
 
   logger.info(`Runner '${ec2runner.instanceId}' - GitHub Runner ID '${runnerId}' - Busy: ${state.data.busy}`);
+
+  metricGitHubAppRateLimit(state.headers);
 
   return state.data.busy;
 }

@@ -3,11 +3,12 @@ import { addPersistentContextToChildLogger, createChildLogger } from '@terraform
 import { getParameter, putParameter } from '@terraform-aws-github-runner/aws-ssm-util';
 import yn from 'yn';
 
-import { createGithubAppAuth, createGithubInstallationAuth, createOctokitClient } from '../gh-auth/gh-auth';
+import { createGithubAppAuth, createGithubInstallationAuth, createOctokitClient } from '../github/auth';
 import { createRunner, listEC2Runners } from './../aws/runners';
 import { RunnerInputParameters } from './../aws/runners.d';
 import ScaleError from './ScaleError';
 import { publishRetryMessage } from './job-retry';
+import { metricGitHubAppRateLimit } from '../github/rate-limit';
 
 const logger = createChildLogger('scale-up');
 
@@ -94,6 +95,9 @@ async function getGithubRunnerRegistrationToken(githubRunnerConfig: CreateGitHub
           owner: githubRunnerConfig.runnerOwner.split('/')[0],
           repo: githubRunnerConfig.runnerOwner.split('/')[1],
         });
+
+  const appId = parseInt(await getParameter(process.env.PARAMETER_GITHUB_APP_ID_NAME));
+  logger.info('App id from SSM', { appId: appId });
   return registrationToken.data.token;
 }
 
@@ -142,6 +146,7 @@ export async function isJobQueued(githubInstallationClient: Octokit, payload: Ac
       owner: payload.repositoryOwner,
       repo: payload.repositoryName,
     });
+    metricGitHubAppRateLimit(jobForWorkflowRun.headers);
     isQueued = jobForWorkflowRun.data.status === 'queued';
   } else {
     throw Error(`Event ${payload.eventType} is not supported`);
@@ -169,7 +174,7 @@ async function getRunnerGroupId(githubRunnerConfig: CreateGitHubRunnerConfig, gh
     }
     if (runnerGroup === undefined) {
       // get runner group id from GitHub
-      runnerGroupId = await GetRunnerGroupByName(ghClient, githubRunnerConfig);
+      runnerGroupId = await getRunnerGroupByName(ghClient, githubRunnerConfig);
       // store runner group id in SSM
       try {
         await putParameter(
@@ -188,7 +193,7 @@ async function getRunnerGroupId(githubRunnerConfig: CreateGitHubRunnerConfig, gh
   return runnerGroupId;
 }
 
-async function GetRunnerGroupByName(ghClient: Octokit, githubRunnerConfig: CreateGitHubRunnerConfig): Promise<number> {
+async function getRunnerGroupByName(ghClient: Octokit, githubRunnerConfig: CreateGitHubRunnerConfig): Promise<number> {
   const runnerGroups: RunnerGroup[] = await ghClient.paginate(`GET /orgs/{org}/actions/runner-groups`, {
     org: githubRunnerConfig.runnerOwner,
     per_page: 100,
@@ -431,6 +436,8 @@ async function createJitConfig(githubRunnerConfig: CreateGitHubRunnerConfig, ins
             runner_group_id: ephemeralRunnerConfig.runnerGroupId,
             labels: ephemeralRunnerConfig.runnerLabels,
           });
+
+    metricGitHubAppRateLimit(runnerConfig.headers);
 
     // store jit config in ssm parameter store
     logger.debug('Runner JIT config for ephemeral runner generated.', {

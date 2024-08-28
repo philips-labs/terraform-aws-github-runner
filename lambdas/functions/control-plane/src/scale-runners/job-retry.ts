@@ -5,7 +5,7 @@ import {
 } from '@terraform-aws-github-runner/aws-powertools-util';
 import { publishMessage } from '../aws/sqs';
 import { ActionRequestMessage, ActionRequestMessageRetry, getGitHubEnterpriseApiUrl, isJobQueued } from './scale-up';
-import { getOctokit } from '../gh-auth/gh-octokit';
+import { getOctokit } from '../github/octokit';
 import { MetricUnit } from '@aws-lambda-powertools/metrics';
 import yn from 'yn';
 
@@ -46,7 +46,7 @@ export async function checkAndRetryJob(payload: ActionRequestMessageRetry): Prom
   const runnerOwner = enableOrgLevel ? payload.repositoryOwner : `${payload.repositoryOwner}/${payload.repositoryName}`;
   const runnerNamePrefix = process.env.RUNNER_NAME_PREFIX ?? '';
   const jobQueueUrl = process.env.JOB_QUEUE_SCALE_UP_URL ?? '';
-  const enableMetrics = yn(process.env.ENABLE_METRICS, { default: false });
+  const enableMetrics = yn(process.env.ENABLE_METRIC_JOB_RETRY, { default: false });
   const environment = process.env.ENVIRONMENT;
 
   addPersistentContextToChildLogger({

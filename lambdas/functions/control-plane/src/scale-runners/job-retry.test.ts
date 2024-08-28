@@ -1,7 +1,7 @@
 import { publishMessage } from '../aws/sqs';
 import { publishRetryMessage, checkAndRetryJob } from './job-retry';
 import { ActionRequestMessage, ActionRequestMessageRetry } from './scale-up';
-import { getOctokit } from '../gh-auth/gh-octokit';
+import { getOctokit } from '../github/octokit';
 import { Octokit } from '@octokit/rest';
 import { mocked } from 'jest-mock';
 import { createSingleMetric } from '@terraform-aws-github-runner/aws-powertools-util';
@@ -34,7 +34,7 @@ const mockOctokit = {
 jest.mock('@octokit/rest', () => ({
   Octokit: jest.fn().mockImplementation(() => mockOctokit),
 }));
-jest.mock('../gh-auth/gh-octokit');
+jest.mock('../github/octokit');
 
 const mockCreateOctokitClient = mocked(getOctokit, { shallow: false });
 mockCreateOctokitClient.mockResolvedValue(new (Octokit as jest.MockedClass<typeof Octokit>)());
@@ -179,7 +179,7 @@ describe(`Test job retry check`, () => {
     process.env.ENABLE_ORGANIZATION_RUNNERS = 'true';
     process.env.ENVIRONMENT = 'test';
     process.env.RUNNER_NAME_PREFIX = 'test';
-    process.env.ENABLE_METRICS = 'true';
+    process.env.ENABLE_METRIC_JOB_RETRY = 'true';
     process.env.JOB_QUEUE_SCALE_UP_URL =
       'https://sqs.eu-west-1.amazonaws.com/123456789/webhook_events_workflow_job_queue';
 
