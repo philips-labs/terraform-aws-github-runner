@@ -220,10 +220,12 @@ echo "Starting the runner as user $run_as"
 if [[ "$enable_jit_config" == "false" || $agent_mode != "ephemeral" ]]; then
   echo "Configure GH Runner as user $run_as"
   if [[ "$default_labels" == "true" ]]; then
-      sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./config.sh --unattended --name "$runner_name_prefix$instance_id" --work "_work" $${config}
+      extra_flags="--no-default-labels"
   else
-      sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./config.sh --unattended --no-default-labels --name "$runner_name_prefix$instance_id" --work "_work" $${config}
+      extra_flags=""
   fi
+  sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./config.sh ${extra_flags} --unattended --name "$runner_name_prefix$instance_id" --work "_work" $${config}
+
 fi
 
 create_xray_success_segment "$SEGMENT"
