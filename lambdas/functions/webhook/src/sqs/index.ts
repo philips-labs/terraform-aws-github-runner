@@ -12,7 +12,6 @@ export interface ActionRequestMessage {
   repositoryOwner: string;
   installationId: number;
   queueId: string;
-  queueFifo: boolean;
   repoOwnerType: string;
 }
 
@@ -27,7 +26,6 @@ export interface RunnerMatcherConfig {
   matcherConfig: MatcherConfig;
   id: string;
   arn: string;
-  fifo: boolean;
 }
 
 export interface GithubWorkflowEvent {
@@ -43,9 +41,6 @@ export const sendActionRequest = async (message: ActionRequestMessage): Promise<
   };
 
   logger.debug(`sending message to SQS: ${JSON.stringify(sqsMessage)}`);
-  if (message.queueFifo) {
-    sqsMessage.MessageGroupId = String(message.id);
-  }
 
   await sqs.sendMessage(sqsMessage);
 };

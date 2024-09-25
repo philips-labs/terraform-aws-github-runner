@@ -125,7 +125,6 @@ variable "multi_runner_config" {
       exactMatch    = optional(bool, false)
       priority      = optional(number, 999)
     })
-    fifo = optional(bool, false)
     redrive_build_queue = optional(object({
       enabled         = bool
       maxReceiveCount = number

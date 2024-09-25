@@ -449,7 +449,6 @@ describe('handler', () => {
         eventType: 'workflow_job',
         installationId: 0,
         queueId: 'ubuntu-queue-id',
-        queueFifo: false,
         repoOwnerType: 'Organization',
       });
     });
@@ -492,7 +491,6 @@ describe('handler', () => {
         eventType: 'workflow_job',
         installationId: 0,
         queueId: 'ubuntu-queue-id',
-        queueFifo: false,
         repoOwnerType: 'Organization',
       });
     });
@@ -532,7 +530,6 @@ describe('handler', () => {
       eventType: 'workflow_job',
       installationId: 0,
       queueId: 'ubuntu-queue-id',
-      queueFifo: false,
       repoOwnerType: 'Organization',
     });
   });

@@ -1,6 +1,6 @@
 import { SendMessageCommandInput } from '@aws-sdk/client-sqs';
 
-import { ActionRequestMessage, GithubWorkflowEvent, sendActionRequest, sendWebhookEventToWorkflowJobQueue } from '.';
+import { GithubWorkflowEvent, sendActionRequest, sendWebhookEventToWorkflowJobQueue } from '.';
 import workflowjob_event from '../../test/resources/github_workflowjob_event.json';
 import { Config } from '../ConfigResolver';
 import { getParameter } from '@aws-github-runner/aws-ssm-util';
@@ -27,7 +27,6 @@ describe('Test sending message to SQS.', () => {
     repositoryName: 'test',
     repositoryOwner: 'owner',
     queueId: queueUrl,
-    queueFifo: false,
     repoOwnerType: 'Organization',
   };
 
@@ -35,39 +34,17 @@ describe('Test sending message to SQS.', () => {
     jest.clearAllMocks();
   });
 
-  it('no fifo queue', async () => {
+  it('should queue a message', async () => {
     // Arrange
-    const no_fifo_message: ActionRequestMessage = {
-      ...message,
-      queueFifo: false,
-    };
     const sqsMessage: SendMessageCommandInput = {
       QueueUrl: queueUrl,
-      MessageBody: JSON.stringify(no_fifo_message),
+      MessageBody: JSON.stringify(message),
     };
     // Act
-    const result = await sendActionRequest(no_fifo_message);
+    const result = await sendActionRequest(message);
 
     // Assert
     expect(mockSQS.sendMessage).toBeCalledWith(sqsMessage);
-    expect(result).resolves;
-  });
-
-  it('use a fifo queue', async () => {
-    // Arrange
-    const fifo_message: ActionRequestMessage = {
-      ...message,
-      queueFifo: true,
-    };
-    const sqsMessage: SendMessageCommandInput = {
-      QueueUrl: queueUrl,
-      MessageBody: JSON.stringify(fifo_message),
-    };
-    // Act
-    const result = await sendActionRequest(fifo_message);
-
-    // Assert
-    expect(mockSQS.sendMessage).toBeCalledWith({ ...sqsMessage, MessageGroupId: String(message.id) });
     expect(result).resolves;
   });
 });
