@@ -58,8 +58,8 @@ variable "runner_boot_time_in_minutes" {
   default     = 5
 }
 
-variable "runner_enable_default_labels" {
-  description = "Enable default labels for the runners (os, architecture and `self-hosted`). If disabled, the runner will only have the extra labels provided in `runner_extra_labels`. In order set runner_enable_default_labels = false, enable_jit_config and enable_ephemeral_runners must be set to true; otherwise the value of this variable will be considered as true"
+variable "runner_disable_default_labels" {
+  description = "Disable default labels for the runners (os, architecture and `self-hosted`). If enabled, the runner will only have the extra labels provided in `runner_extra_labels`."
   type        = bool
   default     = true
 }

@@ -12,10 +12,10 @@ resource "aws_ssm_parameter" "runner_agent_mode" {
   tags  = local.tags
 }
 
-resource "aws_ssm_parameter" "default_labels" {
-  name  = "${var.ssm_paths.root}/${var.ssm_paths.config}/default_labels"
+resource "aws_ssm_parameter" "disable_default_labels" {
+  name  = "${var.ssm_paths.root}/${var.ssm_paths.config}/disable_default_labels"
   type  = "String"
-  value = var.runner_enable_default_labels
+  value = var.runner_disable_default_labels
   tags  = local.tags
 }
 

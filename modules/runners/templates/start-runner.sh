@@ -141,8 +141,8 @@ echo "Retrieved /$ssm_config_path/enable_cloudwatch parameter - ($enable_cloudwa
 agent_mode=$(echo "$parameters" | jq --arg ssm_config_path "$ssm_config_path" -r '.[] | select(.Name == "'$ssm_config_path'/agent_mode") | .Value')
 echo "Retrieved /$ssm_config_path/agent_mode parameter - ($agent_mode)"
 
-default_labels=$(echo "$parameters" | jq --arg ssm_config_path "$ssm_config_path" -r '.[] | select(.Name == "'$ssm_config_path'/default_labels") | .Value')
-echo "Retrieved /$ssm_config_path/default_labels parameter - ($default_labels)"
+disable_default_labels=$(echo "$parameters" | jq --arg ssm_config_path "$ssm_config_path" -r '.[] | select(.Name == "'$ssm_config_path'/disable_default_labels") | .Value')
+echo "Retrieved /$ssm_config_path/disable_default_labels parameter - ($disable_default_labels)"
 
 enable_jit_config=$(echo "$parameters" | jq --arg ssm_config_path "$ssm_config_path" -r '.[] | select(.Name == "'$ssm_config_path'/enable_jit_config") | .Value')
 echo "Retrieved /$ssm_config_path/enable_jit_config parameter - ($enable_jit_config)"
@@ -219,13 +219,12 @@ echo "Starting the runner as user $run_as"
 # configure the runner if the runner is non ephemeral or jit config is disabled
 if [[ "$enable_jit_config" == "false" || $agent_mode != "ephemeral" ]]; then
   echo "Configure GH Runner as user $run_as"
-  if [[ "$default_labels" == "true" ]]; then
+  if [[ "$disable_default_labels" == "true" ]]; then
       extra_flags="--no-default-labels"
   else
       extra_flags=""
   fi
-  sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./config.sh ${extra_flags} --unattended --name "$runner_name_prefix$instance_id" --work "_work" $${config}
-
+  sudo --preserve-env=RUNNER_ALLOW_RUNASROOT -u "$run_as" -- ./config.sh $${extra_flags} --unattended --name "$runner_name_prefix$instance_id" --work "_work" $${config}
 fi
 
 create_xray_success_segment "$SEGMENT"
