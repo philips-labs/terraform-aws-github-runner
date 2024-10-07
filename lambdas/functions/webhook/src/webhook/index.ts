@@ -1,13 +1,12 @@
 import { Webhooks } from '@octokit/webhooks';
-import { CheckRunEvent, WorkflowJobEvent } from '@octokit/webhooks-types';
+import { WorkflowJobEvent } from '@octokit/webhooks-types';
 import { createChildLogger } from '@aws-github-runner/aws-powertools-util';
 import { IncomingHttpHeaders } from 'http';
 
 import { Response } from '../lambda';
-import { RunnerMatcherConfig, sendActionRequest, sendWebhookEventToWorkflowJobQueue } from '../sqs';
-import ValidationError from '../ValidatonError';
+import ValidationError from '../ValidationError';
 import { Config } from '../ConfigResolver';
-
+import { dispatch } from '../runners/dispatch';
 const supportedEvents = ['workflow_job'];
 const logger = createChildLogger('handler');
 
@@ -15,82 +14,16 @@ export async function handle(headers: IncomingHttpHeaders, body: string, config:
   init(headers);
 
   await verifySignature(headers, body);
+
+  const checkBodySizeResult = checkBodySize(body, headers);
+
   const { event, eventType } = readEvent(headers, body);
-  logger.info(`Processing Github event ${event.action} for ${event.repository.full_name}`);
-
-  validateRepoInAllowList(event, config);
-
-  const response = await handleWorkflowJob(event, eventType, Config.matcherConfig!);
-  await sendWebhookEventToWorkflowJobQueue({ workflowJobEvent: event }, config);
-  return response;
-}
-
-function validateRepoInAllowList(event: WorkflowJobEvent, config: Config) {
-  if (config.repositoryAllowList.length > 0 && !config.repositoryAllowList.includes(event.repository.full_name)) {
-    logger.info(`Received event from unauthorized repository ${event.repository.full_name}`);
-    throw new ValidationError(403, `Received event from unauthorized repository ${event.repository.full_name}`);
+  logger.info(`Github event ${event.action} accepted for ${event.repository.full_name}`);
+  if (checkBodySizeResult.sizeExceeded) {
+    // We only warn for large event, when moving the event bridge we can only can accept events up to 256KB
+    logger.warn('Body size exceeded 256KB', { size: checkBodySizeResult.message.size });
   }
-}
-
-async function handleWorkflowJob(
-  body: WorkflowJobEvent,
-  githubEvent: string,
-  matcherConfig: Array<RunnerMatcherConfig>,
-): Promise<Response> {
-  const installationId = getInstallationId(body);
-  if (body.action === 'queued') {
-    // sort the queuesConfig by order of matcher config exact match, with all true matches lined up ahead.
-    matcherConfig.sort((a, b) => {
-      return a.matcherConfig.exactMatch === b.matcherConfig.exactMatch ? 0 : a.matcherConfig.exactMatch ? -1 : 1;
-    });
-    for (const queue of matcherConfig) {
-      if (canRunJob(body.workflow_job.labels, queue.matcherConfig.labelMatchers, queue.matcherConfig.exactMatch)) {
-        await sendActionRequest({
-          id: body.workflow_job.id,
-          repositoryName: body.repository.name,
-          repositoryOwner: body.repository.owner.login,
-          eventType: githubEvent,
-          installationId: installationId,
-          queueId: queue.id,
-          queueFifo: queue.fifo,
-          repoOwnerType: body.repository.owner.type,
-        });
-        logger.info(`Successfully queued job for ${body.repository.full_name} to the queue ${queue.id}`);
-        return { statusCode: 201 };
-      }
-    }
-    logger.warn(`Received event contains runner labels '${body.workflow_job.labels}' that are not accepted.`);
-    return {
-      statusCode: 202,
-      body: `Received event contains runner labels '${body.workflow_job.labels}' that are not accepted.`,
-    };
-  }
-  return { statusCode: 201 };
-}
-
-function getInstallationId(body: WorkflowJobEvent | CheckRunEvent) {
-  return body.installation?.id ?? 0;
-}
-
-export function canRunJob(
-  workflowJobLabels: string[],
-  runnerLabelsMatchers: string[][],
-  workflowLabelCheckAll: boolean,
-): boolean {
-  runnerLabelsMatchers = runnerLabelsMatchers.map((runnerLabel) => {
-    return runnerLabel.map((label) => label.toLowerCase());
-  });
-  const matchLabels = workflowLabelCheckAll
-    ? runnerLabelsMatchers.some((rl) => workflowJobLabels.every((wl) => rl.includes(wl.toLowerCase())))
-    : runnerLabelsMatchers.some((rl) => workflowJobLabels.some((wl) => rl.includes(wl.toLowerCase())));
-  const match = workflowJobLabels.length === 0 ? !matchLabels : matchLabels;
-
-  logger.debug(
-    `Received workflow job event with labels: '${JSON.stringify(workflowJobLabels)}'. The event does ${
-      match ? '' : 'NOT '
-    }match the runner labels: '${Array.from(runnerLabelsMatchers).join(',')}'`,
-  );
-  return match;
+  return await dispatch(event, eventType, config);
 }
 
 async function verifySignature(headers: IncomingHttpHeaders, body: string): Promise<number> {
@@ -134,7 +67,7 @@ function readEvent(headers: IncomingHttpHeaders, body: string): { event: Workflo
   }
 
   const event = JSON.parse(body) as WorkflowJobEvent;
-  logger.addPersistentLogAttributes({
+  logger.appendPersistentKeys({
     github: {
       repository: event.repository.full_name,
       action: event.action,
@@ -148,4 +81,24 @@ function readEvent(headers: IncomingHttpHeaders, body: string): { event: Workflo
   });
 
   return { event, eventType };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function checkBodySize(body: string, headers: IncomingHttpHeaders): { sizeExceeded: boolean; message: any } {
+  // GitHub does not specify if the content length is always present, fallback to the body size calculation.
+  const contentLength = Number(headers['content-length']) || Buffer.byteLength(body, 'utf8');
+  const bodySizeInKiloBytes = contentLength / 1024;
+
+  return bodySizeInKiloBytes > 256
+    ? {
+        sizeExceeded: true,
+        message: {
+          error: 'Body size exceeded 256KB',
+          size: bodySizeInKiloBytes,
+        },
+      }
+    : {
+        sizeExceeded: false,
+        message: undefined,
+      };
 }
