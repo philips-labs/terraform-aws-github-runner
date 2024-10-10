@@ -1,8 +1,8 @@
 import { EC2Client, Instance } from '@aws-sdk/client-ec2';
 import { mockClient } from 'aws-sdk-client-mock';
 import 'aws-sdk-client-mock-jest';
-import { handle } from './termination-warning';
-import { SpotInterruptionWarning, SpotTerminationDetail } from './types';
+import { handle } from './termination';
+import { BidEvictedDetail, BidEvictedEvent } from './types';
 import { metricEvent } from './metric-event';
 import { mocked } from 'jest-mock';
 import { getInstances } from './ec2';
@@ -19,29 +19,50 @@ jest.mock('./ec2', () => ({
 mockClient(EC2Client);
 
 const config = {
-  createSpotWarningMetric: true,
-  createSpotTerminationMetric: false,
+  createSpotWarningMetric: false,
+  createSpotTerminationMetric: true,
   tagFilters: { 'ghr:environment': 'test' },
   prefix: 'runners',
 };
 
-const event: SpotInterruptionWarning<SpotTerminationDetail> = {
+const event: BidEvictedEvent<BidEvictedDetail> = {
   version: '0',
-  id: '1',
-  'detail-type': 'EC2 Spot Instance Interruption Warning',
+  id: '186d7999-3121-e749-23f3-c7caec1084e1',
+  'detail-type': 'AWS Service Event via CloudTrail',
   source: 'aws.ec2',
   account: '123456789012',
-  time: '2015-11-11T21:29:54Z',
-  region: 'us-east-1',
-  resources: ['arn:aws:ec2:us-east-1b:instance/i-abcd1111'],
+  time: '2024-10-09T11:48:46Z',
+  region: 'eu-west-1',
+  resources: [],
   detail: {
-    'instance-id': 'i-abcd1111',
-    'instance-action': 'terminate',
+    eventVersion: '1.10',
+    userIdentity: {
+      accountId: '123456789012',
+      invokedBy: 'sec2.amazonaws.com',
+    },
+    eventTime: '2024-10-09T11:48:46Z',
+    eventSource: 'ec2.amazonaws.com',
+    eventName: 'BidEvictedEvent',
+    awsRegion: 'eu-west-1',
+    sourceIPAddress: 'ec2.amazonaws.com',
+    userAgent: 'ec2.amazonaws.com',
+    requestParameters: null,
+    responseElements: null,
+    requestID: 'ebf032e3-5009-3484-aae8-b4946ab2e2eb',
+    eventID: '3a15843b-96c2-41b1-aac1-7d62dc754547',
+    readOnly: false,
+    eventType: 'AwsServiceEvent',
+    managementEvent: true,
+    recipientAccountId: '123456789012',
+    serviceEventDetails: {
+      instanceIdSet: ['i-12345678901234567'],
+    },
+    eventCategory: 'Management',
   },
 };
 
 const instance: Instance = {
-  InstanceId: event.detail['instance-id'],
+  InstanceId: event.detail.serviceEventDetails.instanceIdSet[0],
   InstanceType: 't2.micro',
   Tags: [
     { Key: 'Name', Value: 'test-instance' },
@@ -62,13 +83,13 @@ describe('handle termination warning', () => {
     await handle(event, config);
 
     expect(metricEvent).toHaveBeenCalled();
-    expect(metricEvent).toHaveBeenCalledWith(instance, event, 'SpotInterruptionWarning', expect.anything());
+    expect(metricEvent).toHaveBeenCalledWith(instance, event, 'SpotTermination', expect.anything());
   });
 
   it('should log details and not create a metric', async () => {
     mocked(getInstances).mockResolvedValue([instance]);
 
-    await handle(event, { ...config, createSpotWarningMetric: false });
+    await handle(event, { ...config, createSpotTerminationMetric: false });
     expect(metricEvent).toHaveBeenCalledWith(instance, event, undefined, expect.anything());
   });
 
@@ -76,8 +97,8 @@ describe('handle termination warning', () => {
     mocked(getInstances).mockResolvedValue([instance]);
 
     await handle(event, {
-      createSpotWarningMetric: true,
-      createSpotTerminationMetric: false,
+      createSpotWarningMetric: false,
+      createSpotTerminationMetric: true,
       tagFilters: { 'ghr:environment': '_NO_MATCH_' },
       prefix: 'runners',
     });
