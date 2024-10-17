@@ -77,6 +77,12 @@ module "runners" {
     id             = var.github_app.id
     webhook_secret = random_id.random.hex
   }
+
+  # Deploy webhook in EventBridge mode
+  webhook_mode = "eventbridge"
+  # adjust the allow events to only allow specific events, like workflow_job
+  # eventbridge_allowed_events = ['workflow_job']
+
   # enable this section for tracing
   # tracing_config = {
   #   mode                  = "Active"
