@@ -210,3 +210,19 @@ variable "matcher_config_parameter_store_tier" {
     error_message = "`matcher_config_parameter_store_tier` value is not valid, valid values are: `Standard`, and `Advanced`."
   }
 }
+
+variable "mode" {
+  description = "The webhook and dispatching to runner queues supports two modes. Direct messages, are delivered directly to the runner queues. EventBridge messages are delivered to an EventBridge bus and then dispatched to the runner queues. Valid values are `direct` and `eventbridge`."
+  type        = string
+
+  validation {
+    condition     = contains(["direct", "eventbridge"], var.mode)
+    error_message = "`mode` value is not valid, valid values are: `direct`, and `eventbridge`."
+  }
+}
+
+variable "eventbridge_allowed_events" {
+  description = "List of events that are allowed (accepted) to be sent to the eventbridge by the webhook."
+  type        = list(string)
+  default     = []
+}

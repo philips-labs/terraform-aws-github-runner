@@ -123,6 +123,10 @@ module "ssm" {
 
 module "webhook" {
   source = "./modules/webhook"
+
+  mode                       = var.webhook_mode
+  eventbridge_allowed_events = var.eventbridge_allowed_events
+
   ssm_paths = {
     root    = local.ssm_root_path
     webhook = var.ssm_paths.webhook
