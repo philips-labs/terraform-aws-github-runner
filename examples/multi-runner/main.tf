@@ -103,11 +103,6 @@ module "runners" {
   # Enable debug logging for the lambda functions
   # log_level = "debug"
 
-  # Enable spot termination watcher
-  # spot_instance_termination_watcher = {
-  #   enable = true
-  # }
-
   # Enable to track the spot instance termination warning
   # instance_termination_watcher = {
   #   enable         = true
