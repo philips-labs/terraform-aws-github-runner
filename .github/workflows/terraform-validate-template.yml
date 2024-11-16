@@ -1,0 +1,62 @@
+name: "Validate Terraform module"
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        description: "Terraform version"
+        required: true
+        type: string
+      module:
+        description: "Module to validate"
+        required: true
+        type: string
+      runs-on:
+        description: "Runs on"
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+      continue-on-error:
+        description: "Continue on error"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  verify:
+    name: Verify ${{ inputs.module }}
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    continue-on-error: ${{ inputs.continue-on-error }}
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.module }}
+    steps:
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          #terraform_wrapper: false
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: "Generate dummy lambda zip files"
+        run: |
+          source ${GITHUB_WORKSPACE}/.utils/terraform.sh
+          generateDummyLambdaZip
+      - name: Initialize Terraform
+        run: terraform init -get -backend=false -input=false
+      - name: Check Terraform formatting
+        run: terraform fmt -check=true -write=false
+      - name: Validate Terraform
+        run: terraform validate
+      - uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        name: Cache TFLint plugin dir
+        with:
+          path: ~/.tflint.d/plugins
+          key: tflint-${{ hashFiles('.tflint.hcl') }}
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run TFLint
+        run: |
+          tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
+          tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars
