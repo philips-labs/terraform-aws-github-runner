@@ -71,7 +71,9 @@ jobs:
       #     tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
       - name: tflint
         uses: reviewdog/action-tflint@v1.22.0
+        env:
+          TFLINT_CONFIG: ${GITHUB_WORKSPACE}/.tflint.hcl
         with:
           tflint_init: true
           github_token: ${{ secrets.github_token }}
-          tflint_config: ${GITHUB_WORKSPACE}/.tflint.hcl
+          tflint_config: ${{ github.workspace }}/.tflint.hcl
