@@ -33,7 +33,7 @@ jobs:
       tf_modules: ${{ steps.find.outputs.modules }}
       tf_examples: ${{ steps.find.outputs.examples }}
 
-  verify_all:
+  verify:
     uses: ./.github/workflows/terraform-validate-template.yml
     name: Verify module for Terraform ${{ matrix.terraform }}
     needs: dirs

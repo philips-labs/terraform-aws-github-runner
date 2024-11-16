@@ -49,7 +49,11 @@ jobs:
       - name: Initialize Terraform
         run: terraform init -get -backend=false -input=false
       - name: Check Terraform formatting
-        run: terraform fmt -check=true -write=false
+        run: terraform fmt -recursive -check=true -write=false
+      - name: Reviewdog suggester (Terraform fmt)
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: "terraform fmt -recursive"
       - name: Validate Terraform
         run: terraform validate
       - uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
@@ -57,11 +61,17 @@ jobs:
         with:
           path: ~/.tflint.d/plugins
           key: tflint-${{ hashFiles('.tflint.hcl') }}
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
+      # - name: Setup TFLint
+      #   uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Run TFLint
+      #   run: |
+      #     tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
+      #     tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
+      - name: tflint
+        uses: reviewdog/action-tflint@v1.22.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run TFLint
-        run: |
-          tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
-          tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
+          tflint_init: true
+          github_token: ${{ secrets.github_token }}
+          tflint_config: ${GITHUB_WORKSPACE}/.tflint.hcl
