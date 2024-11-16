@@ -61,15 +61,18 @@ jobs:
         with:
           path: ~/.tflint.d/plugins
           key: tflint-${{ hashFiles('.tflint.hcl') }}
-      # - name: Setup TFLint
-      #   uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Run TFLint
-      #   run: |
-      #     tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
-      #     tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
+      - name: Setup TFLint
+        if: github.event_name != 'pull_request'
+        uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run TFLint
+        if: github.event_name != 'pull_request'
+        run: |
+          tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
+          tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
       - name: tflint
+        if: github.event_name != 'pull_request'
         uses: reviewdog/action-tflint@v1.22.0
         env:
           TFLINT_CONFIG: ${GITHUB_WORKSPACE}/.tflint.hcl
