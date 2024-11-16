@@ -39,9 +39,10 @@ jobs:
     needs: dirs
     with:
       terraform_version: ${{ matrix.terraform }}
-      module: ${{ matrix.module }}
+      module: ${{ matrix.modules }}
+      tflint-options: ${{ matrix.modules == '.' && '' || '--recursive' }}
     strategy:
       fail-fast: false
       matrix:
-        module: ${{ fromJson(needs.dirs.outputs.tf_modules) }}
+        modules: [ ".", "modules", "examples"]
         terraform: ["1.5", "latest"]

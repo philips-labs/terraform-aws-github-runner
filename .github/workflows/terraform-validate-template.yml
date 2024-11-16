@@ -20,6 +20,11 @@ on:
         required: false
         type: boolean
         default: false
+      tflint-options:
+        description: "TFLint options"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   verify:
@@ -59,4 +64,4 @@ jobs:
       - name: Run TFLint
         run: |
           tflint --init -c ${GITHUB_WORKSPACE}/.tflint.hcl
-          tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars
+          tflint -c ${GITHUB_WORKSPACE}/.tflint.hcl --var-file ${GITHUB_WORKSPACE}/.github/lint/tflint.tfvars  ${{ inputs.tflint-options }}
