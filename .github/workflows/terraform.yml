@@ -43,5 +43,5 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        terraform: ["1.5", "latest"]
         module: ${{ fromJson(needs.dirs.outputs.tf_modules) }}
+        terraform: ["1.5", "latest"]
