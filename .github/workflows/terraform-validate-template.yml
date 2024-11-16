@@ -39,21 +39,21 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          terraform_wrapper: false
+          # terraform_wrapper: false
       - name: "Checkout"
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: "Generate dummy lambda zip files"
         run: |
           source ${GITHUB_WORKSPACE}/.utils/terraform.sh
           generateDummyLambdaZip
-      - name: Initialize Terraform
-        run: terraform init -get -backend=false -input=false
       - name: Check Terraform formatting
         run: terraform fmt -recursive -check=true -write=false
       - name: Reviewdog suggester (Terraform fmt)
         uses: reviewdog/action-suggester@v1
         with:
           tool_name: "terraform fmt -recursive"
+      - name: Initialize Terraform
+        run: terraform init -get -backend=false -input=false
       - name: Validate Terraform
         run: terraform validate
       - uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
