@@ -35,7 +35,7 @@ jobs:
 
   verify_all:
     uses: ./.github/workflows/terraform-validate-template.yml
-    name: Verify module ${{ matrix.module }}
+    name: Verify module for Terraform ${{ matrix.terraform }}
     needs: dirs
     with:
       terraform_version: ${{ matrix.terraform }}
