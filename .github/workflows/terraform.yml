@@ -5,8 +5,7 @@ on:
       - main
       - npalm/*
   pull_request:
-    paths: ["**/*.tf", "**/*.hcl", ".github/workflows/terraform.yml", ".utils/**"]
-    paths-ignore: ["lambdas/**"]
+    paths: ["**/*.tf", "**/*.hcl", "modules/**/*", ".github/workflows/terraform.yml", ".utils/**"]
 
 permissions:
   contents: read
