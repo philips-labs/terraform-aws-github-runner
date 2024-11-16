@@ -19,7 +19,7 @@ on:
         description: "Continue on error"
         required: false
         type: boolean
-        default: false
+        default: true
       tflint-options:
         description: "TFLint options"
         required: false
@@ -39,7 +39,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          #terraform_wrapper: false
+          terraform_wrapper: false
       - name: "Checkout"
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: "Generate dummy lambda zip files"
