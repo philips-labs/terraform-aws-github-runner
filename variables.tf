@@ -58,10 +58,21 @@ variable "runner_boot_time_in_minutes" {
   default     = 5
 }
 
+variable "runner_disable_default_labels" {
+  description = "Disable default labels for the runners (os, architecture and `self-hosted`). If enabled, the runner will only have the extra labels provided in `runner_extra_labels`. In case you on own start script is used, this configuration parameter needs to be parsed via SSM. For Windows no support yet."
+  type        = bool
+  default     = false
+}
+
 variable "runner_extra_labels" {
-  description = "Extra (custom) labels for the runners (GitHub). Labels checks on the webhook can be enforced by setting `enable_runner_workflow_job_labels_check_all`. GitHub read-only labels should not be provided."
+  description = "Extra (custom) labels for the runners (GitHub). Separate each label by a comma. Labels checks on the webhook can be enforced by setting `enable_workflow_job_labels_check`. GitHub read-only labels should not be provided."
   type        = list(string)
   default     = []
+
+  validation {
+    condition     = var.runner_extra_labels != null
+    error_message = "Extra labels should not be null."
+  }
 }
 
 variable "runner_group_name" {
