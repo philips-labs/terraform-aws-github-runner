@@ -59,7 +59,7 @@ variable "runner_boot_time_in_minutes" {
 }
 
 variable "runner_disable_default_labels" {
-  description = "Disable default labels for the runners (os, architecture and `self-hosted`). If enabled, the runner will only have the extra labels provided in `runner_extra_labels`. In case you on own start script is used, this configuration parameter needs to be parsed via SSM. For Windows no support yet."
+  description = "Disable default labels for the runners (os, architecture and `self-hosted`). If enabled, the runner will only have the extra labels provided in `runner_extra_labels`. In case you on own start script is used, this configuration parameter needs to be parsed via SSM."
   type        = bool
   default     = false
 }
