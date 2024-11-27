@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.20.1](https://github.com/philips-labs/terraform-aws-github-runner/compare/v5.20.0...v5.20.1) (2024-11-27)
+
+
+### Bug Fixes
+
+* **lambda:** bump the aws group across 1 directory with 7 updates ([#4288](https://github.com/philips-labs/terraform-aws-github-runner/issues/4288)) ([039f5db](https://github.com/philips-labs/terraform-aws-github-runner/commit/039f5dbeb8af6a02a4686572d8e3377e5048fb3b))
+* **lambda:** bump the aws-powertools group in /lambdas with 4 updates ([#4281](https://github.com/philips-labs/terraform-aws-github-runner/issues/4281)) ([e1f330b](https://github.com/philips-labs/terraform-aws-github-runner/commit/e1f330bb3c8321af875232e23ff1f4d053c684f5))
+
 ## [5.20.0](https://github.com/philips-labs/terraform-aws-github-runner/compare/v5.19.0...v5.20.0) (2024-11-19)
 
 
