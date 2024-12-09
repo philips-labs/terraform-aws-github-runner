@@ -249,6 +249,8 @@ module "runners" {
   userdata_content               = var.userdata_content
   userdata_pre_install           = var.userdata_pre_install
   userdata_post_install          = var.userdata_post_install
+  runner_hook_job_started        = var.runner_hook_job_started
+  runner_hook_job_completed      = var.runner_hook_job_completed
   key_name                       = var.key_name
   runner_ec2_tags                = var.runner_ec2_tags
 
