@@ -235,8 +235,8 @@ __metadata:
   resolution: "@aws-github-runner/gh-agent-syncer@workspace:functions/gh-agent-syncer"
   dependencies:
     "@aws-github-runner/aws-powertools-util": "npm:*"
-    "@aws-sdk/client-s3": "npm:^3.703.0"
-    "@aws-sdk/lib-storage": "npm:^3.703.0"
+    "@aws-sdk/client-s3": "npm:^3.705.0"
+    "@aws-sdk/lib-storage": "npm:^3.705.0"
     "@aws-sdk/types": "npm:^3.696.0"
     "@middy/core": "npm:^4.7.0"
     "@octokit/rest": "npm:20.1.1"
@@ -511,9 +511,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:^3.703.0":
-  version: 3.703.0
-  resolution: "@aws-sdk/client-s3@npm:3.703.0"
+"@aws-sdk/client-s3@npm:^3.705.0":
+  version: 3.705.0
+  resolution: "@aws-sdk/client-s3@npm:3.705.0"
   dependencies:
     "@aws-crypto/sha1-browser": "npm:5.2.0"
     "@aws-crypto/sha256-browser": "npm:5.2.0"
@@ -573,7 +573,7 @@ __metadata:
     "@smithy/util-utf8": "npm:^3.0.0"
     "@smithy/util-waiter": "npm:^3.1.9"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/eba492878a32cad0709383af4d56b9df95e8de02d99963cb9e3bdb60ade49c8617c857340bd0348711f2212b9ca6d9f7dc00ea80c001ac31afcdeee6824b702d
+  checksum: 10c0/4bbd342f2943d36d488632a0ee898f48b60615eb57f5bb7584b43751242ea62bb199f34e0155006c02e128ac7e3a6f1e9790bb1bf50e0592b9409ad5f6a8282b
   languageName: node
   linkType: hard
 
@@ -960,9 +960,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/lib-storage@npm:^3.703.0":
-  version: 3.703.0
-  resolution: "@aws-sdk/lib-storage@npm:3.703.0"
+"@aws-sdk/lib-storage@npm:^3.705.0":
+  version: 3.705.0
+  resolution: "@aws-sdk/lib-storage@npm:3.705.0"
   dependencies:
     "@smithy/abort-controller": "npm:^3.1.7"
     "@smithy/middleware-endpoint": "npm:^3.2.3"
@@ -972,8 +972,8 @@ __metadata:
     stream-browserify: "npm:3.0.0"
     tslib: "npm:^2.6.2"
   peerDependencies:
-    "@aws-sdk/client-s3": ^3.703.0
-  checksum: 10c0/18972ae77f17ba19120fff3c6f2e448ab3dfaa2b741532fb99b3d9afc247dd698196c757dd3d76e7628fef284c0152fedfec43cbd8608e9354ea179039faae3b
+    "@aws-sdk/client-s3": ^3.705.0
+  checksum: 10c0/5df76c2bad3ca5742f32f8a61682a613493f39255686679be0f22b98db6d53ba79aa9a338ca738156d040e39cb000f6dc100bdddf941ffaf9d37aa1bd6cf4f83
   languageName: node
   linkType: hard
 
