@@ -42,7 +42,7 @@
     "@aws-sdk/types": "^3.696.0",
     "@middy/core": "^4.7.0",
     "@octokit/rest": "20.1.1",
-    "axios": "^1.7.7"
+    "axios": "^1.7.9"
   },
   "nx": {
     "includedScripts": [
