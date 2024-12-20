@@ -1,17 +1,19 @@
 name: Build lambdas
+
 on:
   pull_request:
     branches:
       - main
     paths:
       - 'lambdas/**'
+      - '.github/workflows/lambda.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20]
+        node: [22]
     container:
       image: node:${{ matrix.node }}
     defaults:
