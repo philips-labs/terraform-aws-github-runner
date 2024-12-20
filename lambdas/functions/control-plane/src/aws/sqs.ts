@@ -19,7 +19,6 @@ export async function publishMessage(message: string, queueUrl: string, delayInS
     QueueUrl: queueUrl,
     MessageBody: message,
     DelaySeconds: delayInSeconds,
-    MessageGroupId: queueUrl.endsWith('.fifo') ? '1' : undefined,
   });
 
   try {
