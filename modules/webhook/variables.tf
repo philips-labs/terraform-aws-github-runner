@@ -25,9 +25,8 @@ variable "tags" {
 variable "runner_matcher_config" {
   description = "SQS queue to publish accepted build events based on the runner type. When exact match is disabled the webhook accepts the event if one of the workflow job labels is part of the matcher. The priority defines the order the matchers are applied."
   type = map(object({
-    arn  = string
-    id   = string
-    fifo = bool
+    arn = string
+    id  = string
     matcherConfig = object({
       labelMatchers = list(list(string))
       exactMatch    = bool
@@ -143,7 +142,7 @@ variable "log_level" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs20.x"
+  default     = "nodejs22.x"
 }
 
 variable "aws_partition" {

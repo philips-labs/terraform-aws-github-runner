@@ -652,12 +652,6 @@ variable "lambda_principals" {
   default = []
 }
 
-variable "enable_fifo_build_queue" {
-  description = "Enable a FIFO queue to keep the order of events received by the webhook. Recommended for repo level runners."
-  type        = bool
-  default     = false
-}
-
 variable "redrive_build_queue" {
   description = "Set options to attach (optional) a dead letter queue to the build queue, the queue between the webhook and the scale up lambda. You have the following options. 1. Disable by setting `enabled` to false. 2. Enable by setting `enabled` to `true`, `maxReceiveCount` to a number of max retries."
   type = object({
@@ -733,7 +727,7 @@ variable "disable_runner_autoupdate" {
 variable "lambda_runtime" {
   description = "AWS Lambda runtime."
   type        = string
-  default     = "nodejs20.x"
+  default     = "nodejs22.x"
 }
 
 variable "lambda_architecture" {
