@@ -1,10 +1,10 @@
 # Terraform module Self-Hosted Scalable GitHub Actions runners on AWS.
 
-[![docs](https://img.shields.io/badge/docs-runners-blue.svg)](https://philips-labs.github.io/terraform-aws-github-runner) [![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners) [![Terraform registry](https://img.shields.io/github/v/release/philips-labs/terraform-aws-github-runner?label=Terraform%20Registry)](https://registry.terraform.io/modules/philips-labs/github-runner/aws/) [![Terraform checks](https://github.com/philips-labs/terraform-aws-github-runner/actions/workflows/terraform.yml/badge.svg)](https://github.com/philips-labs/terraform-aws-github-runner/actions/workflows/terraform.yml) [![Lambdas](https://github.com/philips-labs/terraform-aws-github-runner/actions/workflows/lambda.yml/badge.svg)](https://github.com/philips-labs/terraform-aws-github-runner/actions/workflows/lambda.yml)
+[![docs](https://img.shields.io/badge/docs-runners-blue.svg)](https://github-aws-runners.github.io/terraform-aws-github-runner) [![awesome-runners](https://img.shields.io/badge/listed%20on-awesome--runners-blue.svg)](https://github.com/jonico/awesome-runners) [![Terraform registry](https://img.shields.io/github/v/release/github-aws-runners/terraform-aws-github-runner?label=Terraform%20Registry)](https://registry.terraform.io/modules/github-aws-runners/github-runner/aws/) [![Terraform checks](https://github.com/github-aws-runners/terraform-aws-github-runner/actions/workflows/terraform.yml/badge.svg)](https://github.com/github-aws-runners/terraform-aws-github-runner/actions/workflows/terraform.yml) [![Lambdas](https://github.com/github-aws-runners/terraform-aws-github-runner/actions/workflows/lambda.yml/badge.svg)](https://github.com/github-aws-runners/terraform-aws-github-runner/actions/workflows/lambda.yml)
 
 > 📢 We're moving `terraform-aws-github-runner` to a new organization https://github.com/github-aws-runners in January to foster growth and community ownership! 🎉 Join us on our new [Discord server](https://discord.gg/EwUScJy8) for discussions and updates. Please see #4298 for more details.
 
-> 📄 Extensive documentation is available via our [GitHub Pages Docs site](https://philips-labs.github.io/terraform-aws-github-runner/).
+> 📄 Extensive documentation is available via our [GitHub Pages Docs site](https://github-aws-runners.github.io/terraform-aws-github-runner/).
 
 > 📢 We maintain the project as a truly open-source project. We maintain the project on a best effort basis. We welcome contributions from the community. Feel free to help us answering issues, reviewing PRs, or maintaining and improving the project.
 
@@ -31,7 +31,7 @@ This [Terraform](https://www.terraform.io/) module creates the required infrastr
 
 ## Getting started
 
-Check out the detailed instructions in the [Getting Started](https://philips-labs.github.io/terraform-aws-github-runner/getting-started/) section of the docs. On a high level, the following steps are required to get started:
+Check out the detailed instructions in the [Getting Started](https://github-aws-runners.github.io/terraform-aws-github-runner/getting-started/) section of the docs. On a high level, the following steps are required to get started:
 - Setup your AWS account
 - Create and configure a GitHub App
 - Download or build the required lambdas
@@ -42,7 +42,7 @@ Check out the provided Terraform examples in the [examples](./examples) director
 
 ## Configuration
 
-Please check the [configuration](https://philips-labs.github.io/terraform-aws-github-runner/configuration/) section of the docs for major configuration options. See the Terraform module documentation for all available options.
+Please check the [configuration](https://github-aws-runners.github.io/terraform-aws-github-runner/configuration/) section of the docs for major configuration options. See the Terraform module documentation for all available options.
 
 ## License
 
@@ -52,24 +52,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) f
 
 We welcome contributions, please check out the [contribution guide](CONTRIBUTING.md). Be aware we use [pre commit hooks](https://pre-commit.com/) to update the docs.
 
-## Philips Forest
+## Join the community
 
-This module is part of the Philips Forest.
-
-```plain
-                                                     ___                   _
-                                                    / __\__  _ __ ___  ___| |_
-                                                   / _\/ _ \| '__/ _ \/ __| __|
-                                                  / / | (_) | | |  __/\__ \ |_
-                                                  \/   \___/|_|  \___||___/\__|
-
-                                                                 Infrastructure
-```
-
-Talk to the forestkeepers in the `runners-channel` on Slack.
-
-[![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/philips-software/shared_invite/zt-xecw65v5-i1531hGP~mdVwgxLFx7ckg)
-
+Join our discord community via [this invite link](https://discord.gg/bxgXW8jJGh))
 
 <details>
 <summary>Terraform root module documention</summary>
@@ -227,7 +212,7 @@ Talk to the forestkeepers in the `runners-channel` on Slack.
 | <a name="input_scale_up_reserved_concurrent_executions"></a> [scale\_up\_reserved\_concurrent\_executions](#input\_scale\_up\_reserved\_concurrent\_executions) | Amount of reserved concurrent executions for the scale-up lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations. | `number` | `1` | no |
 | <a name="input_ssm_paths"></a> [ssm\_paths](#input\_ssm\_paths) | The root path used in SSM to store configuration and secrets. | <pre>object({<br/>    root       = optional(string, "github-action-runners")<br/>    app        = optional(string, "app")<br/>    runners    = optional(string, "runners")<br/>    webhook    = optional(string, "webhook")<br/>    use_prefix = optional(bool, true)<br/>  })</pre> | `{}` | no |
 | <a name="input_state_event_rule_binaries_syncer"></a> [state\_event\_rule\_binaries\_syncer](#input\_state\_event\_rule\_binaries\_syncer) | Option to disable EventBridge Lambda trigger for the binary syncer, useful to stop automatic updates of binary distribution | `string` | `"ENABLED"` | no |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnets in which the action runner instances will be launched. The subnets need to exist in the configured VPC (`vpc_id`), and must reside in different availability zones (see https://github.com/philips-labs/terraform-aws-github-runner/issues/2904) | `list(string)` | n/a | yes |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnets in which the action runner instances will be launched. The subnets need to exist in the configured VPC (`vpc_id`), and must reside in different availability zones (see https://github.com/github-aws-runners/terraform-aws-github-runner/issues/2904) | `list(string)` | n/a | yes |
 | <a name="input_syncer_lambda_s3_key"></a> [syncer\_lambda\_s3\_key](#input\_syncer\_lambda\_s3\_key) | S3 key for syncer lambda function. Required if using an S3 bucket to specify lambdas. | `string` | `null` | no |
 | <a name="input_syncer_lambda_s3_object_version"></a> [syncer\_lambda\_s3\_object\_version](#input\_syncer\_lambda\_s3\_object\_version) | S3 object version for syncer lambda function. Useful if S3 versioning is enabled on source bucket. | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of tags that will be added to created resources. By default resources will be tagged with name and environment. | `map(string)` | `{}` | no |

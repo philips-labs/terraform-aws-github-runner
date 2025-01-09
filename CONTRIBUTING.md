@@ -10,9 +10,7 @@ We'd love for you to contribute to our source code and to make the Forest even b
 
 ## <a name="question"></a> Got a Question or Problem?
 
-If you have questions about how to use the Forest, please direct these to the [Slack group / philips-software][slack].
-
-[![Slack](https://philips-software-slackin.now.sh/badge.svg)](https://philips-software-slackin.now.sh)
+If you have questions about how to use the Forest, please direct these to [Discord](https://discord.gg/bxgXW8jJGh)
 
 ## <a name="issue"></a> Found an Issue?
 
@@ -148,12 +146,5 @@ from the main (upstream) repository:
 
 ## <a name="info"></a> Info
 
-For more info, please reach out to the team on [Slack group / philips-software][slack] in the #forest channel.
-
-Use the badge to sign-up.
-
-[![Slack](https://philips-software-slackin.now.sh/badge.svg)](https://philips-software-slackin.now.sh)
-
 [contribute]: CONTRIBUTING.md
-[github]: https://github.com/philips-labs/terraform-aws-github-runner/issues
-[slack]: https://join.slack.com/t/philips-software/shared_invite/zt-xecw65v5-i1531hGP~mdVwgxLFx7ckg
+[github]: https://github.com/github-aws-runners/terraform-aws-github-runner/issues
