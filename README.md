@@ -44,6 +44,10 @@ Check out the provided Terraform examples in the [examples](./examples) director
 
 Please check the [configuration](https://github-aws-runners.github.io/terraform-aws-github-runner/configuration/) section of the docs for major configuration options. See the Terraform module documentation for all available options.
 
+## Acknowledgements
+
+This repository was originally founded and maintained by Philips Labs. We gratefully acknowledge their initial contributions and stewardship of this project. You can find the original repository here: [https://github.com/philips-labs/terraform-aws-github-runner](https://github.com/philips-labs/terraform-aws-github-runner)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
